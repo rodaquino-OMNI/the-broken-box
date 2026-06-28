@@ -58,6 +58,8 @@ local serviceModules = {
 	{ name = "HitboxService",    module = nil },
 	{ name = "HunterService",    module = nil },
 	{ name = "SurvivorService",  module = nil },
+	{ name = "MapService",       module = nil },
+	{ name = "LobbyService",     module = nil },
 	{ name = "HunterEvents",     module = nil, isEvent = true },
 	{ name = "SurvivorEvents",   module = nil, isEvent = true },
 }
@@ -264,6 +266,72 @@ local function wireServiceSignals()
 				HunterService.onHunterDied()
 			end
 		end)
+	end
+
+	-- ============================================================
+	-- Wiring do LobbyService (E4)
+	-- ============================================================
+	local LobbyService = services.LobbyService
+	local MapService = services.MapService
+
+	-- LobbyService: quando um personagem e selecionado -> atribuir no MatchService
+	if LobbyService and LobbyService.characterSelected then
+		LobbyService.characterSelected:Connect(function(player: Player, characterClass: string, role: string?)
+			if role == "Hunter" and MatchService then
+				MatchService.assignHunter(player)
+			elseif role == "Survivor" and MatchService then
+				MatchService.assignSurvivor(player, characterClass)
+			end
+		end)
+		print("[TheBrokenBox] GameManager: LobbyService.characterSelected -> MatchService conectado.")
+	end
+
+	-- LobbyService: quando o lobby fica pronto -> transicao para Selecting
+	if LobbyService and LobbyService.lobbyReady then
+		LobbyService.lobbyReady:Connect(function()
+			if MatchService then
+				MatchService.setMatchState("Selecting")
+			end
+		end)
+		print("[TheBrokenBox] GameManager: LobbyService.lobbyReady -> MatchService.setMatchState conectado.")
+	end
+
+	-- MatchService: quando estado muda -> notificar LobbyService
+	if MatchService and MatchService.matchStateChanged then
+		MatchService.matchStateChanged:Connect(function(newState: string)
+			if newState == "Ended" and LobbyService then
+				LobbyService.resetToGathering()
+			end
+		end)
+		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> LobbyService conectado.")
+	end
+
+	-- MapService: gerar missoes quando a partida iniciar (Playing)
+	if MatchService and MatchService.matchStateChanged and MapService then
+		MatchService.matchStateChanged:Connect(function(newState: string)
+			if newState == "Playing" then
+				MapService.generateMissions()
+				MapService.resetSpawnIndex()
+			end
+		end)
+		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> MapService (missoes) conectado.")
+	end
+
+	-- MapService: fornecer spawn points quando papeis sao atribuidos
+	if MatchService and MatchService.roleAssigned and MapService then
+		MatchService.roleAssigned:Connect(function(player: Player, role: string)
+			if role == "Hunter" then
+				-- Spawn do Cacador (posicao fixa)
+				local spawnPos = MapService.getHunterSpawn()
+				-- O spawn real e feito pelo MatchService/HunterService
+				print("[TheBrokenBox] GameManager: Spawn do Hunter em " .. tostring(spawnPos))
+			elseif role == "Survivor" then
+				-- Spawn do Sobrevivente (aleatorio)
+				local spawnPos = MapService.getRandomSurvivorSpawn()
+				print("[TheBrokenBox] GameManager: Spawn do Survivor " .. player.Name .. " em " .. tostring(spawnPos))
+			end
+		end)
+		print("[TheBrokenBox] GameManager: MatchService.roleAssigned -> MapService (spawns) conectado.")
 	end
 
 	print("[TheBrokenBox] GameManager: wireServiceSignals() — concluido.")
