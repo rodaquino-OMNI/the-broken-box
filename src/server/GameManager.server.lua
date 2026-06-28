@@ -59,6 +59,7 @@ local serviceModules = {
 	{ name = "HitboxService",    module = nil },
 	{ name = "HunterService",    module = nil },
 	{ name = "SurvivorService",  module = nil },
+	{ name = "SpawnService",     module = nil },
 	{ name = "MapService",       module = nil },
 	{ name = "MissionService",   module = nil },
 	{ name = "CycleService",     module = nil },
@@ -188,6 +189,7 @@ local function wireServiceSignals()
 	local SurvivorService = services.SurvivorService
 	local HunterService = services.HunterService
 	local HunterEvents = services.HunterEvents
+	local MapService = services.MapService
 
 	-- Injecao de dependencias do HunterService
 	if HunterService and HunterService.injectDependencies then
@@ -197,6 +199,16 @@ local function wireServiceSignals()
 			StaminaService
 		)
 		print("[TheBrokenBox] GameManager: HunterService dependencias injetadas.")
+	end
+
+	-- Injecao de dependencias do SpawnService
+	local SpawnService = services.SpawnService
+	if SpawnService and SpawnService.injectDependencies then
+		SpawnService.injectDependencies(
+			MatchService,
+			MapService
+		)
+		print("[TheBrokenBox] GameManager: SpawnService dependencias injetadas.")
 	end
 
 	-- Injecao de dependencias do HunterEvents
@@ -315,7 +327,6 @@ local function wireServiceSignals()
 	-- Wiring do LobbyService (E4)
 	-- ============================================================
 	local LobbyService = services.LobbyService
-	local MapService = services.MapService
 
 	-- LobbyService: quando um personagem e selecionado -> atribuir no MatchService
 	if LobbyService and LobbyService.characterSelected then
@@ -616,7 +627,7 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: HunterService.rageDeactivated -> CycleService (resume) conectado.")
 	end
 
-	-- MatchService: estado Playing -> MissionService.initializeMissions() + CycleService.startCycle()
+	-- MatchService: estado Playing -> MissionService.initializeMissions() + CycleService.startCycle() + SpawnService.teleportAllPlayers()
 	if MatchService and MatchService.matchStateChanged then
 		MatchService.matchStateChanged:Connect(function(newState: string)
 			if newState == "Playing" then
@@ -628,9 +639,13 @@ local function wireServiceSignals()
 					CycleService.startCycle()
 					print("[TheBrokenBox] GameManager: Playing -> CycleService.startCycle()")
 				end
+				if SpawnService and SpawnService.teleportAllPlayers then
+					SpawnService.teleportAllPlayers()
+					print("[TheBrokenBox] GameManager: Playing -> SpawnService.teleportAllPlayers()")
+				end
 			end
 		end)
-		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> MissionService+CycleService (Playing) conectado.")
+		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> MissionService+CycleService+SpawnService (Playing) conectado.")
 	end
 
 	-- CycleService.cycleTick -> UISyncEvent (cycleTime para HUDs)

@@ -68,6 +68,233 @@ local _cooldowns: { [string]: number } = {
 local _heartbeatConnection: RBXScriptConnection? = nil
 
 -- ============================================================
+-- Estado interno: Aparencia do Rage
+-- ============================================================
+-- Salva a aparencia original do personagem para restaurar ao sair do Rage.
+-- Estrutura: { bodyColors = {...}, accessories = {...}, scale = number }
+local _originalAppearance: { any }? = nil
+
+-- ============================================================
+-- Funcoes auxiliares: Transformacao visual do Rage
+-- ============================================================
+
+--[[
+  Salva a aparencia original do personagem do Cacador.
+  Guarda: BodyColors, Accessories (nomes/ids) e escala atual.
+]]
+local function _saveOriginalAppearance(character: Model): ()
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+	-- Salvar BodyColors
+	local bodyColors = {}
+	local bodyColorParts = {
+		"Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg",
+	}
+	for _, partName in ipairs(bodyColorParts) do
+		local part = character:FindFirstChild(partName)
+		if part and part:IsA("BasePart") then
+			bodyColors[partName] = part.Color
+		end
+	end
+
+	-- Salvar Accessories (guardar referencia por nome)
+	local accessories = {}
+	for _, child in ipairs(character:GetChildren()) do
+		if child:IsA("Accessory") then
+			table.insert(accessories, child)
+		end
+	end
+
+	-- Salvar escala
+	local scale = 1.0
+	if humanoid then
+		scale = humanoid.HipHeight / 2 -- Escala aproximada
+	end
+
+	_originalAppearance = {
+		bodyColors = bodyColors,
+		accessories = accessories,
+		scale = scale,
+	}
+
+	print("[TheBrokenBox] HunterService: Aparencia original salva (" .. #accessories .. " acessorios).")
+end
+
+--[[
+  Aplica a aparencia de Rage ao personagem do Cacador.
+  Tenta carregar o modelo "DistorcidoRage" de ServerStorage.Assets.
+  Se nao existir, aplica fallback escuro:
+    - Escala 1.15x
+    - Todas as partes do corpo -> Color3.new(0.05, 0.05, 0.05) (quase preto)
+    - ParticleEmitter escuro no HumanoidRootPart
+]]
+local function _applyRageAppearance(character: Model): ()
+	if not character then return end
+
+	local ServerStorage = game:GetService("ServerStorage")
+
+	-- Tentar carregar modelo customizado
+	local assetsFolder = ServerStorage:FindFirstChild("Assets")
+	local rageModel: Model? = nil
+
+	if assetsFolder then
+		rageModel = assetsFolder:FindFirstChild("DistorcidoRage")
+	end
+
+	if rageModel and rageModel:IsA("Model") then
+		-- Aplicar aparencia do modelo customizado
+		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage encontrado — aplicando aparencia customizada...")
+
+		-- Copiar cores do corpo do modelo para o personagem
+		local bodyPartNames = {
+			"Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg",
+		}
+		for _, partName in ipairs(bodyPartNames) do
+			local targetPart = character:FindFirstChild(partName)
+			local sourcePart = rageModel:FindFirstChild(partName)
+
+			if targetPart and targetPart:IsA("BasePart") and sourcePart and sourcePart:IsA("BasePart") then
+				targetPart.Color = sourcePart.Color
+				targetPart.Material = sourcePart.Material
+				-- Copiar transparencia se houver
+				if sourcePart.Transparency > 0 then
+					targetPart.Transparency = sourcePart.Transparency
+				end
+			end
+		end
+
+		-- Copiar acessorios do modelo rage
+		for _, child in ipairs(rageModel:GetChildren()) do
+			if child:IsA("Accessory") then
+				local clonedAccessory = child:Clone()
+				clonedAccessory.Parent = character
+			end
+		end
+
+		-- Aplicar escala se o modelo tiver Humanoid
+		local rageHumanoid = rageModel:FindFirstChildOfClass("Humanoid")
+		if rageHumanoid then
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			if humanoid then
+				local targetScale = rageHumanoid.HipHeight / 2
+				humanoid.HipHeight = rageHumanoid.HipHeight
+				-- Ajustar escala das partes
+				for _, child in ipairs(character:GetChildren()) do
+					if child:IsA("BasePart") then
+						-- Manter proporcao — o HipHeight ja ajusta a escala geral
+					end
+				end
+				print("[TheBrokenBox] HunterService: Escala ajustada para " .. tostring(targetScale))
+			end
+		end
+	else
+		-- Fallback: aparencia escura
+		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage NAO encontrado — aplicando fallback escuro...")
+
+		local rageColor = Color3.new(0.05, 0.05, 0.05)
+
+		-- Aplicar cor escura em todas as partes do corpo
+		local bodyPartNames = {
+			"Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg",
+		}
+		for _, partName in ipairs(bodyPartNames) do
+			local part = character:FindFirstChild(partName)
+			if part and part:IsA("BasePart") then
+				part.Color = rageColor
+			end
+		end
+
+		-- Aumentar escala em 1.15x
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid.HipHeight = humanoid.HipHeight * 1.15
+			print("[TheBrokenBox] HunterService: Escala aumentada para 1.15x")
+		end
+
+		-- Adicionar ParticleEmitter escuro no HumanoidRootPart
+		local rootPart = character:FindFirstChild("HumanoidRootPart")
+		if rootPart and rootPart:IsA("BasePart") then
+			local particleEmitter = Instance.new("ParticleEmitter")
+			particleEmitter.Name = "RageParticles"
+			particleEmitter.Color = ColorSequence.new(rageColor)
+			particleEmitter.LightEmission = 0
+			particleEmitter.Rate = 20
+			particleEmitter.Lifetime = NumberRange.new(0.5, 1.5)
+			particleEmitter.Speed = NumberRange.new(1, 3)
+			particleEmitter.SpreadAngle = Vector2.new(180, 180)
+			particleEmitter.Transparency = NumberSequence.new(0.5)
+			particleEmitter.Size = NumberSequence.new(0.5)
+			particleEmitter.Texture = "rbxassetid://13200797030" -- Textura de fumaca padrao
+			particleEmitter.Parent = rootPart
+
+			print("[TheBrokenBox] HunterService: ParticleEmitter escuro adicionado ao HumanoidRootPart.")
+		end
+	end
+
+	print("[TheBrokenBox] HunterService: Aparencia de Rage aplicada!")
+end
+
+--[[
+  Reverte a aparencia do personagem do Cacador para o estado original.
+  Remove particle emitter de Rage, restaura cores, acessorios e escala.
+]]
+local function _revertRageAppearance(character: Model): ()
+	if not character then return end
+	if not _originalAppearance then
+		warn("[TheBrokenBox] HunterService: Aparencia original nao salva — nada para reverter.")
+		return
+	end
+
+	local original = _originalAppearance
+
+	-- Restaurar cores do corpo
+	if original.bodyColors then
+		for partName, color in pairs(original.bodyColors) do
+			local part = character:FindFirstChild(partName)
+			if part and part:IsA("BasePart") then
+				part.Color = color
+			end
+		end
+	end
+
+	-- Restaurar escala
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and original.scale then
+		humanoid.HipHeight = original.scale * 2
+	end
+
+	-- Remover ParticleEmitter de Rage
+	local rootPart = character:FindFirstChild("HumanoidRootPart")
+	if rootPart then
+		local rageParticles = rootPart:FindFirstChild("RageParticles")
+		if rageParticles then
+			rageParticles:Destroy()
+			print("[TheBrokenBox] HunterService: ParticleEmitter de Rage removido.")
+		end
+	end
+
+	-- Remover acessorios adicionados pelo Rage (manter os originais)
+	local originalAccessoryNames = {}
+	if original.accessories then
+		for _, acc in ipairs(original.accessories) do
+			if acc and acc.Name then
+				originalAccessoryNames[acc.Name] = true
+			end
+		end
+	end
+
+	-- Remover acessorios que NAO estavam no original
+	for _, child in ipairs(character:GetChildren()) do
+		if child:IsA("Accessory") and not originalAccessoryNames[child.Name] then
+			child:Destroy()
+		end
+	end
+
+	_originalAppearance = nil
+	print("[TheBrokenBox] HunterService: Aparencia original restaurada.")
+end
+
+-- ============================================================
 -- API: Atribuicao do Cacador
 -- ============================================================
 
@@ -252,8 +479,16 @@ function HunterService.activateRage(): ()
 
 	print("[TheBrokenBox] HunterService: RAGE ATIVADO! " .. _hunter.Name)
 
-	-- Pulso de dano em area ao ativar
+	-- Obter personagem para transformacao visual e pulso de dano
 	local character = _hunter.Character
+
+	-- Salvar aparencia original e aplicar transformacao visual do Rage
+	if character then
+		_saveOriginalAppearance(character)
+		_applyRageAppearance(character)
+	end
+
+	-- Pulso de dano em area ao ativar
 	if character and HitboxService then
 		local rootPart = character:FindFirstChild("HumanoidRootPart")
 		if rootPart then
@@ -304,6 +539,12 @@ function HunterService.deactivateRage(): ()
 	local wasInRage = _isInRage
 	_isInRage = false
 	_rageWindupActive = false
+
+	-- Reverter aparencia visual do Rage
+	local character = _hunter.Character
+	if character and wasInRage then
+		_revertRageAppearance(character)
+	end
 
 	-- Restaurar velocidade base
 	HunterService.applySpeed(_hunter, GameConstants.Hunter.BASE_SPEED)
