@@ -280,6 +280,27 @@ function LobbyService.resetToGathering(): ()
 	print("[TheBrokenBox] LobbyService: Retornando ao estado Gathering.")
 end
 
+--[[
+  Callback chamado quando um personagem e desbloqueado via ShopService.
+  Atualiza a lista de personagens disponiveis no lobby.
+]]
+function LobbyService.onCharacterUnlocked(player: Player, characterClass: string): ()
+	print("[TheBrokenBox] LobbyService: Personagem desbloqueado — " .. characterClass .. " (" .. player.Name .. ")")
+	-- A lista de getAvailableCharacters ja inclui pagos;
+	-- o LobbyService agora pode delegar verificacao de unlock ao DataStoreManager
+	-- via ShopService se disponivel.
+end
+
+--[[
+  Retorna a lista de personagens disponiveis considerando unlocks.
+  Se ShopService estiver disponivel, filtra personagens pagos nao desbloqueados.
+]]
+function LobbyService.getAvailableCharactersForPlayer(player: Player): { any }
+	-- Versao futura: filtrar personagens pagos baseado em unlocks
+	-- Por enquanto, retorna a lista completa
+	return LobbyService.getAvailableCharacters()
+end
+
 -- ============================================================
 -- Metodos internos
 -- ============================================================

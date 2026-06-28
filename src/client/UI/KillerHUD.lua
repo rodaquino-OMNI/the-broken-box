@@ -37,6 +37,7 @@ local _furyFill: Frame? = nil
 local _furyLabel: TextLabel? = nil
 local _cooldownLabels: { [string]: TextLabel } = {}
 local _aliveCountLabel: TextLabel? = nil
+local _cycleLabel: TextLabel? = nil
 local _proximityIndicator: Frame? = nil -- Distorcao de borda
 
 -- Cache de estado recebido do servidor
@@ -44,6 +45,7 @@ local _cachedFury: number = 0
 local _cachedAliveCount: number = 4
 local _cachedCooldowns: { [string]: number } = {}
 local _cachedProximityLevel: number = 0 -- 0=Calma, 1=Alerta, 2=Perseguicao
+local _cachedCycleTime: number = 240
 
 -- Conexao do UISyncEvent
 local _uiSyncEvent: RemoteEvent? = nil
@@ -105,6 +107,22 @@ local function createUI()
 	_furyLabel.TextSize = 14
 	_furyLabel.TextStrokeTransparency = 0.5
 	_furyLabel.Parent = _furyBar
+
+	-- ============================================================
+	-- Timer do Ciclo (abaixo da barra de furia)
+	-- ============================================================
+	_cycleLabel = Instance.new("TextLabel")
+	_cycleLabel.Name = "CycleLabel"
+	_cycleLabel.Size = UDim2.new(0, 300, 0, 22)
+	_cycleLabel.Position = UDim2.new(0.5, -150, 0, 38)
+	_cycleLabel.BackgroundTransparency = 0.7
+	_cycleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+	_cycleLabel.Text = "Ciclo: 4:00"
+	_cycleLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
+	_cycleLabel.Font = Enum.Font.SourceSansBold
+	_cycleLabel.TextSize = 14
+	_cycleLabel.TextStrokeTransparency = 0.5
+	_cycleLabel.Parent = _screenGui
 
 	-- ============================================================
 	-- Cooldowns (canto inferior direito)
@@ -229,6 +247,23 @@ local function updateAliveCount()
 end
 
 --[[
+  Atualiza o timer do Ciclo.
+]]
+local function updateCycle()
+	if not _cycleLabel then return end
+
+	local seconds = _cachedCycleTime
+	local mins = math.floor(seconds / 60)
+	local secs = math.floor(seconds % 60)
+	_cycleLabel.Text = string.format("Ciclo: %d:%02d", mins, secs)
+
+	-- Pisca vermelho quando < 30s
+	if seconds < 30 then
+		_cycleLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+	end
+end
+
+--[[
   Atualiza o indicador de proximidade (distorcao de borda).
   proximityLevel: 0=Calma, 1=Alerta, 2=Perseguicao
 ]]
@@ -274,12 +309,14 @@ local function onUISync(_player: Player, message: {any})
 	_cachedAliveCount = data.aliveCount or 0
 	_cachedCooldowns = data.cooldowns or {}
 	_cachedProximityLevel = data.proximityLevel or 0
+	_cachedCycleTime = data.cycleTime or _cachedCycleTime
 
 	-- Atualizar UI
 	updateFuryBar()
 	updateCooldowns()
 	updateAliveCount()
 	updateProximityIndicator()
+	updateCycle()
 end
 
 -- ============================================================

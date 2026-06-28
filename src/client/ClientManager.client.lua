@@ -26,14 +26,20 @@ local InputManager = require(script.Parent.Input.InputManager)
 local CameraManager = require(script.Parent.Camera.CameraManager)
 local SurvivorHUD = require(script.Parent.UI.SurvivorHUD)
 local KillerHUD = require(script.Parent.UI.KillerHUD)
+local MissionUI = require(script.Parent.UI.MissionUI)
 local CharacterSelectUI = require(script.Parent.UI.CharacterSelectUI)
+local GameOverUI = require(script.Parent.UI.GameOverUI)
+local ShopUI = require(script.Parent.UI.ShopUI)
 
 local clientModules = {
 	{ name = "InputManager",      module = InputManager },
 	{ name = "CameraManager",     module = CameraManager },
 	{ name = "SurvivorHUD",       module = SurvivorHUD },
 	{ name = "KillerHUD",         module = KillerHUD },
+	{ name = "MissionUI",         module = MissionUI },
 	{ name = "CharacterSelectUI", module = CharacterSelectUI },
+	{ name = "GameOverUI",        module = GameOverUI },
+	{ name = "ShopUI",            module = ShopUI },
 }
 
 -- ============================================================
