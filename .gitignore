@@ -1,0 +1,21 @@
+# Roblox
+*.rbxlx
+*.rbxl
+*.rbxmx
+
+# Rojo
+.rbxlx.lock
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Hermes
+.hermes/
+
+# Dependencies
+node_modules/
