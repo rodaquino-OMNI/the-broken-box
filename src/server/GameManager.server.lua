@@ -17,6 +17,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
+local GameConstants = require(ReplicatedStorage.GameConstants)
 
 -- Cache de servicos
 local services = {}
@@ -65,6 +66,7 @@ local serviceModules = {
 	{ name = "DataStoreManager", module = nil },
 	{ name = "ShopService",      module = nil },
 	{ name = "EscapeService",    module = nil },
+	{ name = "AudioService",     module = nil },
 	{ name = "HunterEvents",     module = nil, isEvent = true },
 	{ name = "SurvivorEvents",   module = nil, isEvent = true },
 	{ name = "MissionEvents",    module = nil, isEvent = true },
@@ -148,6 +150,13 @@ for _, entry in ipairs(serviceModules) do
 					mod.Init(
 						services.MissionService,
 						playerActionEvent :: RemoteEvent
+					)
+				end)
+			elseif entry.name == "AudioService" then
+				initOk, initErr = pcall(function()
+					mod.Init(
+						gameStateEvent :: RemoteEvent,
+						services.MatchService
 					)
 				end)
 			else
@@ -529,20 +538,35 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: ShopService.coinsUpdated -> UISyncEvent conectado.")
 	end
 
-	-- Handler: BUY_UNLOCK via PlayerActionEvent -> ShopService.buyCharacter
-	if playerActionEvent and ShopService then
-		playerActionEvent.OnServerEvent:Connect(function(player: Player, message: { type: string, data: {any} })
-			if message and message.type == "BUY_UNLOCK" then
-				local data = message.data or {}
-				local characterClass = data.characterClass
-				if characterClass then
-					print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " — " .. characterClass)
-					ShopService.buyCharacter(player, characterClass)
+		-- Handler: BUY_UNLOCK via PlayerActionEvent -> ShopService.buyCharacter
+		if playerActionEvent and ShopService then
+			playerActionEvent.OnServerEvent:Connect(function(player: Player, message: { type: string, data: {any} })
+				if message and message.type == "BUY_UNLOCK" then
+					local data = message.data or {}
+					local characterClass = data.characterClass
+					if characterClass then
+						print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " — " .. characterClass)
+						ShopService.buyCharacter(player, characterClass)
+					end
 				end
-			end
-		end)
-		print("[TheBrokenBox] GameManager: BUY_UNLOCK handler conectado (PlayerActionEvent -> ShopService).")
-	end
+			end)
+			print("[TheBrokenBox] GameManager: BUY_UNLOCK handler conectado (PlayerActionEvent -> ShopService).")
+		end
+
+		-- Handler: RETURN_TO_LOBBY + SPECTATE_NEXT via PlayerActionEvent
+		if playerActionEvent and LobbyService then
+			playerActionEvent.OnServerEvent:Connect(function(player: Player, message: { type: string, data: {any} })
+				if message and message.type == "RETURN_TO_LOBBY" then
+					print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY recebido de " .. player.Name)
+					if LobbyService.returnPlayerToLobby then
+						LobbyService.returnPlayerToLobby(player)
+					end
+				elseif message and message.type == "SPECTATE_NEXT" then
+					print("[TheBrokenBox] GameManager: SPECTATE_NEXT recebido de " .. player.Name .. " (handler pendente)")
+				end
+			end)
+			print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY + SPECTATE_NEXT handlers conectados (PlayerActionEvent).")
+		end
 
 	-- ============================================================
 	-- Wiring do MissionService + CycleService (E5)
@@ -620,6 +644,69 @@ local function wireServiceSignals()
 			)
 		end)
 		print("[TheBrokenBox] GameManager: CycleService.cycleTick -> UISyncEvent (cycleTime) conectado.")
+	end
+
+	-- ============================================================
+	-- Wiring do AudioService (E8)
+	-- ============================================================
+	local AudioService = services.AudioService
+
+	-- SurvivorService.survivorDamaged -> AudioService (heartbeat SFX)
+	if SurvivorService and SurvivorService.survivorDamaged and AudioService then
+		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player?)
+			AudioService.onSurvivorDamaged(player, damage, source)
+		end)
+		print("[TheBrokenBox] GameManager: SurvivorService.survivorDamaged -> AudioService (heartbeat) conectado.")
+	end
+
+	-- HunterService.rageActivated -> AudioService (Perseguição)
+	if HunterService and HunterService.rageActivated and AudioService then
+		HunterService.rageActivated:Connect(function(hunter: Player)
+			AudioService.onRageActivated(hunter)
+		end)
+		print("[TheBrokenBox] GameManager: HunterService.rageActivated -> AudioService conectado.")
+	end
+
+	-- HunterService.rageDeactivated -> AudioService (retorna camada)
+	if HunterService and HunterService.rageDeactivated and AudioService then
+		HunterService.rageDeactivated:Connect(function(hunter: Player, remainingFury: number)
+			AudioService.onRageDeactivated(hunter, remainingFury)
+		end)
+		print("[TheBrokenBox] GameManager: HunterService.rageDeactivated -> AudioService conectado.")
+	end
+
+	-- EscapeService.escapeStarted -> AudioService (climax)
+	if EscapeService and EscapeService.escapeStarted and AudioService then
+		EscapeService.escapeStarted:Connect(function()
+			AudioService.onEscapeStarted()
+		end)
+		print("[TheBrokenBox] GameManager: EscapeService.escapeStarted -> AudioService conectado.")
+	end
+
+	-- MissionService.missionCompleted -> AudioService (SFX)
+	if MissionService and MissionService.missionCompleted and AudioService then
+		MissionService.missionCompleted:Connect(function(player: Player, missionId: string, missionType: string)
+			if AudioService.onMissionCompleted then
+				AudioService.onMissionCompleted(player, missionId, missionType)
+			end
+		end)
+		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> AudioService (SFX) conectado.")
+	end
+
+	-- MatchService.playerDied -> AudioService (SFX)
+	if MatchService and MatchService.playerDied and AudioService then
+		MatchService.playerDied:Connect(function(player: Player)
+			AudioService.onPlayerDied(player)
+		end)
+		print("[TheBrokenBox] GameManager: MatchService.playerDied -> AudioService (SFX) conectado.")
+	end
+
+	-- CycleService.cycleTick -> AudioService (ajustar camada por proximidade)
+	if CycleService and CycleService.cycleTick and AudioService then
+		CycleService.cycleTick:Connect(function(remainingTime: number)
+			AudioService.onCycleTick(remainingTime)
+		end)
+		print("[TheBrokenBox] GameManager: CycleService.cycleTick -> AudioService conectado.")
 	end
 
 	print("[TheBrokenBox] GameManager: wireServiceSignals() — concluido.")

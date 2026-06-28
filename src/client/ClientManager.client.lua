@@ -30,6 +30,7 @@ local MissionUI = require(script.Parent.UI.MissionUI)
 local CharacterSelectUI = require(script.Parent.UI.CharacterSelectUI)
 local GameOverUI = require(script.Parent.UI.GameOverUI)
 local ShopUI = require(script.Parent.UI.ShopUI)
+local AudioManager = require(script.Parent.Audio.AudioManager)
 
 local clientModules = {
 	{ name = "InputManager",      module = InputManager },
@@ -40,6 +41,7 @@ local clientModules = {
 	{ name = "CharacterSelectUI", module = CharacterSelectUI },
 	{ name = "GameOverUI",        module = GameOverUI },
 	{ name = "ShopUI",            module = ShopUI },
+	{ name = "AudioManager",      module = AudioManager },
 }
 
 -- ============================================================

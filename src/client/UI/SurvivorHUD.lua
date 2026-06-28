@@ -34,6 +34,7 @@ local staminaLabel: TextLabel? = nil
 local cycleLabel: TextLabel? = nil
 local allyHPFrame: Frame? = nil
 local cooldownFrame: Frame? = nil
+local heartbeatIndicator: Frame? = nil  -- Indicador visual de batimento (E8)
 
 -- Estado local
 local _currentHP = 100
@@ -179,12 +180,47 @@ local function createHUD(): ()
 		LayoutOrder = 3,
 	})
 
+	-- === Indicador de Batimento Cardiaco (E8) ===
+	-- Pulso visual que aparece quando o Cacador esta perto (< 40 studs)
+	heartbeatIndicator = createElement("Frame", mainFrame, {
+		Name = "HeartbeatIndicator",
+		Size = UDim2.new(1, 0, 0, 24),
+		BackgroundTransparency = 1,
+		LayoutOrder = 4,
+	})
+
+	local heartIcon = createElement("TextLabel", heartbeatIndicator, {
+		Name = "HeartIcon",
+		Size = UDim2.new(0, 80, 1, 0),
+		Text = "♥",
+		TextColor3 = Color3.fromRGB(255, 60, 60),
+		TextSize = 18,
+		Font = Enum.Font.SourceSansBold,
+		BackgroundTransparency = 1,
+		TextXAlignment = Enum.TextXAlignment.Left,
+	})
+
+	local heartLabel = createElement("TextLabel", heartbeatIndicator, {
+		Name = "HeartLabel",
+		Size = UDim2.new(1, -84, 1, 0),
+		Position = UDim2.new(0, 84, 0, 0),
+		Text = "",
+		TextColor3 = Color3.fromRGB(255, 100, 100),
+		TextSize = 12,
+		Font = Enum.Font.SourceSans,
+		BackgroundTransparency = 1,
+		TextXAlignment = Enum.TextXAlignment.Left,
+	})
+
+	-- Inicia invisivel
+	heartbeatIndicator.Visible = false
+
 	-- === Cooldowns ===
 	cooldownFrame = createElement("Frame", mainFrame, {
 		Name = "Cooldowns",
 		Size = UDim2.new(1, 0, 0, 60),
 		BackgroundTransparency = 1,
-		LayoutOrder = 4,
+		LayoutOrder = 5,
 	})
 
 	local cdLayout = createElement("UIListLayout", cooldownFrame, {
@@ -385,6 +421,64 @@ end
 -- ============================================================
 
 --[[
+  Atualiza o indicador visual de batimento cardiaco.
+  Mostra um ♥ pulsante quando o Cacador esta a < 40 studs.
+  Intensidade (tamanho e cor) aumenta com a proximidade.
+]]
+local function updateHeartbeatPulse(proximity: number): ()
+	if not heartbeatIndicator then
+		return
+	end
+
+	local heartbeatRadius = GameConstants.Audio.HEARTBEAT_RADIUS  -- 40 studs
+
+	if proximity >= heartbeatRadius or proximity <= 0 then
+		heartbeatIndicator.Visible = false
+		return
+	end
+
+	heartbeatIndicator.Visible = true
+
+	-- Encontrar o icone de coracao e o label
+	local heartIcon: TextLabel? = nil
+	local heartLabel: TextLabel? = nil
+	for _, child in ipairs(heartbeatIndicator:GetChildren()) do
+		if child:IsA("TextLabel") then
+			if child.Name == "HeartIcon" then
+				heartIcon = child :: TextLabel
+			elseif child.Name == "HeartLabel" then
+				heartLabel = child :: TextLabel
+			end
+		end
+	end
+
+	-- Calcular intensidade baseada na proximidade
+	local factor = 1 - math.clamp(proximity / heartbeatRadius, 0, 1)
+
+	-- Ajustar tamanho do icone (pulso)
+	if heartIcon then
+		local baseSize = 18
+		local pulseSize = baseSize + (baseSize * factor * 0.8)  -- 18 a 32.4
+		heartIcon.TextSize = math.floor(pulseSize)
+
+		-- Cor: vermelho fraco -> vermelho intenso
+		local red = 100 + (155 * factor)  -- 100 a 255
+		heartIcon.TextColor3 = Color3.fromRGB(math.floor(red), 40, 40)
+	end
+
+	-- Texto de distancia
+	if heartLabel then
+		local distText = string.format("%.0f studs", proximity)
+		if proximity < 10 then
+			distText = "MUITO PERTO!"
+		elseif proximity < 20 then
+			distText = "PERTO: " .. distText
+		end
+		heartLabel.Text = distText
+	end
+end
+
+--[[
   Processa mensagens do UISyncEvent.
 ]]
 local function onUISyncMessage(message: {any}): ()
@@ -428,6 +522,11 @@ local function onUISyncMessage(message: {any}): ()
 	elseif msgType == "LMS_ACTIVATED" then
 		-- Exibir indicacao de LMS
 		print("[TheBrokenBox] SurvivorHUD: LMS ativado! " .. tostring(data.class) .. " — " .. tostring(data.bonus))
+
+	elseif msgType == "AUDIO_HEARTBEAT" then
+		-- Atualizar indicador visual de batimento cardiaco (E8)
+		local proximity = data and data.proximity or math.huge
+		updateHeartbeatPulse(proximity)
 	end
 end
 
@@ -473,6 +572,19 @@ function SurvivorHUD.Start(): ()
 
 	-- Escutar mensagens do servidor
 	uiSyncEvent.OnClientEvent:Connect(onUISyncMessage)
+
+	-- Tambem escutar GameStateEvent para batimentos cardiacos (E8)
+	local gameStateEvent: RemoteEvent? = nil
+	for _, child in ipairs(eventsFolder:GetChildren()) do
+		if child:IsA("RemoteEvent") and child.Name == "GameStateEvent" then
+			gameStateEvent = child :: RemoteEvent
+			break
+		end
+	end
+	if gameStateEvent then
+		gameStateEvent.OnClientEvent:Connect(onUISyncMessage)
+		print("[TheBrokenBox] SurvivorHUD: Listener do GameStateEvent (heartbeat) conectado.")
+	end
 
 	-- Loop de atualizacao dos cooldowns (1x/s)
 	task.spawn(function()

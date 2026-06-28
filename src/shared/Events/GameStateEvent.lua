@@ -42,6 +42,15 @@ GameStateEvent.MESSAGES = {
 	MATCH_ENDED = "MATCH_ENDED",
 		-- data: { winner = "Survivors" | "Hunter", result = "FugaTotal" | "FugaParcial" | "Contencao", rewards = {...} }
 
+	-- Audio (Servidor -> Cliente)
+	AUDIO_MUSIC_LAYER = "AUDIO_MUSIC_LAYER",
+		-- data: { layer = "Calma" | "Alerta" | "Perseguicao" | "Climax", crossfade = number }
+	AUDIO_SFX = "AUDIO_SFX",
+		-- data: { sfx = string, data = {...} }
+		-- sfx: "mission_complete" | "player_died" | "player_damaged" | "rage_activate" | "gate_open" | "fire" | "escape_start"
+	AUDIO_HEARTBEAT = "AUDIO_HEARTBEAT",
+		-- data: { proximity = number, intensity = string? }
+
 	-- Sistema
 	DATASTORE_LOADED = "DATASTORE_LOADED",
 		-- data: { coins = number, unlocked = {...} }
