@@ -24,10 +24,14 @@ local LocalPlayer = Players.LocalPlayer
 -- ============================================================
 local InputManager = require(script.Parent.Input.InputManager)
 local CameraManager = require(script.Parent.Camera.CameraManager)
+local SurvivorHUD = require(script.Parent.UI.SurvivorHUD)
+local KillerHUD = require(script.Parent.UI.KillerHUD)
 
 local clientModules = {
 	{ name = "InputManager",  module = InputManager },
 	{ name = "CameraManager", module = CameraManager },
+	{ name = "SurvivorHUD",   module = SurvivorHUD },
+	{ name = "KillerHUD",     module = KillerHUD },
 }
 
 -- ============================================================

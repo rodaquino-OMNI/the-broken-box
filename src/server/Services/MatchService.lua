@@ -329,6 +329,20 @@ function MatchService.getAliveSurvivorCount(): number
 	return _state.aliveSurvivors
 end
 
+--[[
+  Retorna uma lista de Players com o papel especificado.
+  Ex.: getPlayersByRole("Survivor") -> { Player, Player, ... }
+]]
+function MatchService.getPlayersByRole(role: string): {Player}
+	local result = {}
+	for player, data in pairs(_state.players) do
+		if data.role == role then
+			table.insert(result, player)
+		end
+	end
+	return result
+end
+
 -- ============================================================
 -- Init/Start pattern
 -- ============================================================

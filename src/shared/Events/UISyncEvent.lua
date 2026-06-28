@@ -28,7 +28,22 @@ UISyncEvent.MESSAGES = {
 		--   aliveCount = number,
 		--   cooldowns = { [abilityName] = number },
 		--   proximityLevel = number, -- 0=Calma, 1=Alerta, 2=Perseguicao
+		--   allyHP = { [userId] = { name, hp, maxHp, class } },
 		-- }
+
+	-- Sobreviventes: cooldowns e estado
+	COOLDOWN_START = "COOLDOWN_START",
+		-- data: { ability = string, duration = number }
+	COOLDOWN_END = "COOLDOWN_END",
+		-- data: { ability = string }
+
+	-- LMS (Last Man Standing)
+	LMS_ACTIVATED = "LMS_ACTIVATED",
+		-- data: { className = string, bonus = string }
+
+	-- Habilidades: SFX / efeitos visuais (futuro)
+	SURVIVOR_ABILITY_VFX = "SURVIVOR_ABILITY_VFX",
+		-- data: { className = string, abilityName = string, position = Vector3 }
 }
 
 return UISyncEvent
