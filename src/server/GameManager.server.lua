@@ -675,7 +675,7 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: SurvivorService.survivorDamaged -> AudioService (heartbeat) conectado.")
 	end
 
-	-- HunterService.rageActivated -> AudioService (Perseguição)
+	-- HunterService.rageActivated -> AudioService (Perseguicao)
 	if HunterService and HunterService.rageActivated and AudioService then
 		HunterService.rageActivated:Connect(function(hunter: Player)
 			AudioService.onRageActivated(hunter)

@@ -15,7 +15,7 @@
   Todas as coordenadas sao lidas do MapData (shared).
   Todas as Parts sao Anchored = true.
 
-  Init/Start pattern - compatível com GameManager.
+  Init/Start pattern - compativel com GameManager.
   Referencias: GDD Design do Mapa, MapData.lua, architecture.md
 ]]
 
@@ -181,8 +181,8 @@ local function criarColuna(
 	lado: number,
 	cor: Color3?,
 	material: Enum.Material?
-): { Part }
-	local parts: { Part } = {}
+)
+	local parts = {}
 	local segmentos = math.ceil(altura / 10)
 	local alturaSegmento = altura / segmentos
 	for i = 1, segmentos do
@@ -243,7 +243,7 @@ end
 -- Construcao: Castelo
 -- ============================================================
 
-local function construirCastelo(parent: Instance): { Part }
+local function construirCastelo(parent: Instance)
 	print("[TheBrokenBox] MapBuilder: Construindo Castelo...")
 
 	local s = MapData.STRUCTURES.CASTLE
@@ -252,7 +252,7 @@ local function construirCastelo(parent: Instance): { Part }
 	local baseY = s.min.y                 -- 0
 	local altura = s.max.y - s.min.y      -- 40
 
-	local parts: { Part } = {}
+	local parts = {}
 
 	-- === Piso do Castelo ===
 	table.insert(parts, criarPiso(
@@ -417,13 +417,13 @@ end
 -- Construcao: Caverna
 -- ============================================================
 
-local function construirCaverna(parent: Instance): { Part }
+local function construirCaverna(parent: Instance)
 	print("[TheBrokenBox] MapBuilder: Construindo Caverna...")
 
 	local s = MapData.STRUCTURES.CAVERN
 	local cx = (s.min.x + s.max.x) / 2
 	local cz = (s.min.z + s.max.z) / 2
-	local parts: { Part } = {}
+	local parts = {}
 
 	-- === Piso rebaixado ===
 	-- O piso fica em y negativo (area rebaixada)
@@ -549,13 +549,13 @@ end
 -- Construcao: Estoque (labirinto de prateleiras)
 -- ============================================================
 
-local function construirEstoque(parent: Instance): { Part }
+local function construirEstoque(parent: Instance)
 	print("[TheBrokenBox] MapBuilder: Construindo Estoque...")
 
 	local s = MapData.STRUCTURES.WAREHOUSE
 	local baseY = s.min.y  -- 0
 	local altura = s.max.y - s.min.y  -- 15
-	local parts: { Part } = {}
+	local parts = {}
 
 	-- === Piso ===
 	table.insert(parts, criarPiso(

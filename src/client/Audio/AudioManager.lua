@@ -35,10 +35,10 @@ local ID = {
 	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
 }
 
-local lby: Sound?, amb: Sound?, ch: { Sound } = {}, fug: Sound?, hb: Sound?
+local lby: Sound?, amb: Sound?, ch = {}, fug: Sound?, hb: Sound?
 local curSt = ""; local curSeg = 0; local fugOn = false
-local tws: { Tween } = {}
-local sfx: { [string]: Sound } = {}
+local tws = {}
+local sfx = {}
 local fld: Folder?
 local eGui: ScreenGui?, vig: Frame?, eFr = {}
 local gse: RemoteEvent?, gsc: RBXScriptConnection?

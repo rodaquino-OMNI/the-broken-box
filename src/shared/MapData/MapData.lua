@@ -239,7 +239,7 @@ end
 --[[
   Retorna todos os candidatos de um tipo especifico.
 ]]
-function MapData.getCandidatesByType(missionType: string): { any }
+function MapData.getCandidatesByType(missionType: string)
 	local result = {}
 	for _, candidate in ipairs(MapData.MISSION_CANDIDATES) do
 		if candidate.type == missionType then

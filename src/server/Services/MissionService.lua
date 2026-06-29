@@ -86,7 +86,7 @@ local MIN_COMPLETION_TIMES = {
   Obtem a configuracao de uma missao a partir do MapService.
   Procura nas missoes ativas pelo ID.
 ]]
-local function getMissionCandidate(missionId: string): {any}?
+local function getMissionCandidate(missionId: string)?
 	if not MapService then
 		return nil
 	end
@@ -441,7 +441,7 @@ end
 
   Retorna: { { id, type, position }, ... }
 ]]
-function MissionService.getPendingMissions(): { any }
+function MissionService.getPendingMissions()
 	local pendingList = {}
 	for _, mission in pairs(_missions) do
 		if mission.state ~= "COMPLETED" then

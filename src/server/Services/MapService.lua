@@ -41,7 +41,7 @@ local _nextSurvivorSpawnIndex: number = 1
 --[[
   Retorna os 3 portoes de fuga com posicoes.
 ]]
-function MapService.getGates(): { any }
+function MapService.getGates()
 	return MapData.GATES
 end
 
@@ -112,7 +112,7 @@ end
   Garante >=1 de cada tipo (V1, V2, V3).
   Chamado no inicio de cada partida.
 ]]
-function MapService.generateMissions(): { any }
+function MapService.generateMissions()
 	local candidates = MapData.MISSION_CANDIDATES
 	local totalNeeded = GameConstants.Missions.TOTAL_PER_MATCH  -- 10
 	local minEachVariant = GameConstants.Missions.MIN_EACH_VARIANT  -- 1
@@ -132,7 +132,7 @@ function MapService.generateMissions(): { any }
 	end
 
 	-- Resultado: missoes selecionadas
-	local selected: { any } = {}
+	local selected = {}
 
 	-- Funcao auxiliar: remover um candidato especifico da pool
 	local function removeCandidate(pool: { any }, candidate: any): ()
@@ -160,7 +160,7 @@ function MapService.generateMissions(): { any }
 
 	-- Fase 2: Preencher o resto (ate totalNeeded) de qualquer tipo
 	-- Juntar todos os candidatos restantes em uma unica pool
-	local remainingPool: { any } = {}
+	local remainingPool = {}
 	for _, pool in pairs(byType) do
 		for _, candidate in ipairs(pool) do
 			table.insert(remainingPool, candidate)
@@ -189,7 +189,7 @@ end
 --[[
   Retorna as missoes ativas da partida atual.
 ]]
-function MapService.getActiveMissions(): { any }
+function MapService.getActiveMissions()
 	return _activeMissions
 end
 
@@ -300,7 +300,7 @@ end
 --[[
   Retorna os dados completos dos obstaculos (posicao + tamanho).
 ]]
-function MapService.getObstacles(): { any }
+function MapService.getObstacles()
 	return MapData.OBSTACLES
 end
 

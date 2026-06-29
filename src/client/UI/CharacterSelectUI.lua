@@ -78,7 +78,7 @@ type CharacterInfo = {
 	description: string,
 }
 
-local function getAvailableCharacters(): { CharacterInfo }
+local function getAvailableCharacters()
 	local chars = {}
 
 	-- Cacador (gratis)

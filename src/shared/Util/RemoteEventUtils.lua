@@ -50,7 +50,7 @@ end
   Filtra os filhos de um parent que sejam do tipo className.
   Ex.: filterByIsA(replicatedStorage.Events, "RemoteEvent")
 ]]
-function RemoteEventUtils.filterByIsA(parent: Instance, className: string): {RemoteEvent}
+function RemoteEventUtils.filterByIsA(parent: Instance, className: string)
 	local result = {}
 	for _, child in ipairs(parent:GetChildren()) do
 		if child:IsA(className) then

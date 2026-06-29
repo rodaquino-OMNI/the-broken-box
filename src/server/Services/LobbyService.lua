@@ -100,7 +100,7 @@ end
   Retorna a lista de personagens disponiveis para selecao.
   Formato: { { class = "Medico", name = "Medico", free = true, role = "Survivor" }, ... }
 ]]
-function LobbyService.getAvailableCharacters(): { any }
+function LobbyService.getAvailableCharacters()
 	local characters = {}
 
 	-- Cacador (gratis, unico)
@@ -295,7 +295,7 @@ end
   Retorna a lista de personagens disponiveis considerando unlocks.
   Se ShopService estiver disponivel, filtra personagens pagos nao desbloqueados.
 ]]
-function LobbyService.getAvailableCharactersForPlayer(player: Player): { any }
+function LobbyService.getAvailableCharactersForPlayer(player: Player)
 	-- Versao futura: filtrar personagens pagos baseado em unlocks
 	-- Por enquanto, retorna a lista completa
 	return LobbyService.getAvailableCharacters()

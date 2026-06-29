@@ -80,7 +80,7 @@ type CharacterInfo = {
   Retorna a lista de personagens disponiveis na loja.
   Personagens gratuitos sempre aparecem como unlocked.
 ]]
-local function getShopCharacters(): { CharacterInfo }
+local function getShopCharacters()
 	local chars = {}
 
 	-- Cacador (sempre gratuito)

@@ -333,7 +333,7 @@ end
   Retorna uma lista de Players com o papel especificado.
   Ex.: getPlayersByRole("Survivor") -> { Player, Player, ... }
 ]]
-function MatchService.getPlayersByRole(role: string): {Player}
+function MatchService.getPlayersByRole(role: string)
 	local result = {}
 	for player, data in pairs(_state.players) do
 		if data.role == role then

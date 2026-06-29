@@ -209,7 +209,7 @@ end
   Retorna a lista de personagens com status de desbloqueio para o jogador.
   Formato: { { class, name, free, unlocked, price, role, description }, ... }
 ]]
-function ShopService.getShopCharacters(player: Player): { any }
+function ShopService.getShopCharacters(player: Player)
 	local characters = {}
 
 	-- Cacador (sempre gratuito)

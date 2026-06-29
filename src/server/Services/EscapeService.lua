@@ -124,7 +124,7 @@ end
   Abre os 3 portoes de fuga.
   Cria marcadores visuais na workspace nas posicoes do MapData.
 ]]
-local function openGates(): { any }
+local function openGates()
 	local gates = MapData.GATES
 	local gateMarkers = {}
 
