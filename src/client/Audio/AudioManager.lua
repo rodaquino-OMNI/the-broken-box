@@ -1,572 +1,244 @@
 --!strict
 --[[
-  AudioManager.lua
-  Gerenciador de audio do cliente (client-side).
-  Responsavel por:
-    - Trilha musical de 3 camadas com crossfade (Calma / Alerta / Perseguicao / Climax)
-    - Batimentos cardiacos baseados em proximidade do Cacador
-    - Distorcao de borda (vignette) quando o Cacador esta a <= 20 studs
-    - SFX para eventos discretos (missao, morte, dano, Rage, etc.)
-  
-  Escuta comandos de audio do servidor via GameStateEvent.
-  Usa Sound objects para reproducao e TweenService para crossfade.
+  AudioManager.lua — Cliente. 7 canais FINAL:
+    LOBBY_MUSIC     — lobby e loja (mesma)
+    MAP_AMBIENT     — musica do mapa (DIFERENTE do lobby)
+    CHASE_SECTION_1 — trecho 1 (> 60 studs)
+    CHASE_SECTION_2 — trecho 2 (30-60 studs)
+    CHASE_SECTION_3 — trecho 3 (5-30 studs)
+    CHASE_SECTION_4 — trecho 4 (colado / Rage)
+    FUGA            — 1 so, comeca calma, buildup natural, climax nos portoes
 
-  IMPORTANTE: Este modulo cria objetos Sound com IDs placeholder.
-  Os IDs reais devem ser substituidos conforme docs/audio-asset-guide.md.
-
-  Init/Start pattern.
-  Referencias: GDD Design de Audio de Tensao, GameConstants.Audio
+  4 trechos da MESMA musica, crossfade sequencial, NAO empilham.
+  FUGA: comeca do inicio em "PreFuga", continua em "Fuga" sem reiniciar.
+  Escuta AUDIO_MUSIC_STATE { layerState, chaseSegment }.
 ]]
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-
-local LocalPlayer = Players.LocalPlayer
-
--- Dependencias compartilhadas
-local GameConstants = require(ReplicatedStorage.GameConstants)
-local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
+local P = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local TS = game:GetService("TweenService")
+local LP = P.LocalPlayer
+local GC = require(RS.GameConstants)
+local RU = require(RS.Util.RemoteEventUtils)
 
 local AudioManager = {}
 AudioManager.Name = "AudioManager"
 
--- ============================================================
--- Constantes de audio (placeholder IDs — ver docs/audio-asset-guide.md)
--- ============================================================
+local C = GC.Audio; local XF = C.CROSSFADE_DURATION
+local ER = C.DISTORTION_RADIUS; local HR = C.HEARTBEAT_RADIUS
 
---[[
-  PLACEHOLDER: Substituir por IDs reais do Toolbox Roblox.
-  Buscar por: "bitcrushed", "lo-fi", "horror", "terror", "distortion"
-]]
-local AUDIO_IDS = {
-	-- Trilha musical (3 camadas + climax)
-	MUSIC_CALMA = "rbxassetid://0",        -- Placeholder: musica ambiente calma
-	MUSIC_ALERTA = "rbxassetid://0",       -- Placeholder: tensao crescente
-	MUSIC_PERSEGUICAO = "rbxassetid://0",  -- Placeholder: perseguicao intensa
-	MUSIC_CLIMAX = "rbxassetid://0",       -- Placeholder: climax da fuga
-
-	-- Batimentos cardiacos
-	HEARTBEAT = "rbxassetid://0",          -- Placeholder: batimento cardiaco loop
-
-	-- SFX
-	SFX_MISSION_COMPLETE = "rbxassetid://0", -- Placeholder: missao concluida
-	SFX_PLAYER_DAMAGED = "rbxassetid://0",   -- Placeholder: jogador ferido
-	SFX_PLAYER_DIED = "rbxassetid://0",      -- Placeholder: jogador morto
-	SFX_RAGE_ACTIVATE = "rbxassetid://0",    -- Placeholder: Rage ativado
-	SFX_GATE_OPEN = "rbxassetid://0",        -- Placeholder: portao abrindo
-	SFX_FIRE = "rbxassetid://0",             -- Placeholder: incendio/colapso
-	SFX_ESCAPE_START = "rbxassetid://0",     -- Placeholder: inicio da fuga
+local ID = {
+	L="rbxassetid://0", M="rbxassetid://0",
+	C1="rbxassetid://0", C2="rbxassetid://0", C3="rbxassetid://0", C4="rbxassetid://0",
+	F="rbxassetid://0", HB="rbxassetid://0",
+	MC="rbxassetid://0", PD="rbxassetid://0", DMG="rbxassetid://0",
+	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
 }
 
--- ============================================================
--- Estado interno
--- ============================================================
-local _musicSounds: { [string]: Sound } = {}   -- Music layer -> Sound object
-local _heartbeatSound: Sound? = nil              -- Som de batimento cardiaco
-local _currentLayer: string = "Calma"
-local _crossfadeActive: boolean = false
-local _audioFolder: Folder? = nil                -- Pasta para Sound objects
+local lby: Sound?, amb: Sound?, ch: { Sound } = {}, fug: Sound?, hb: Sound?
+local curSt = ""; local curSeg = 0; local fugOn = false
+local tws: { Tween } = {}
+local sfx: { [string]: Sound } = {}
+local fld: Folder?
+local eGui: ScreenGui?, vig: Frame?, eFr: { Frame } = {}
+local gse: RemoteEvent?, gsc: RBXScriptConnection?
 
--- Tabela de tweens ativos por camada
-local _activeTweens: { [string]: Tween } = {}
+local function getFld(): Folder
+	if fld then return fld end
+	fld = Instance.new("Folder")
+	fld.Name = "AudioManager_Sounds"; fld.Parent = LP:WaitForChild("PlayerGui")
+	return fld
+end
+
+local function mk(id: string, nm: string, lp: boolean?): Sound
+	local s = Instance.new("Sound")
+	s.Name = nm; s.SoundId = id; s.Volume = 0; s.Looped = lp or false
+	s.Parent = getFld(); return s
+end
+
+local function gsx(id: string, nm: string): Sound
+	if sfx[nm] then return sfx[nm] end
+	local s = mk(id, nm, false); sfx[nm] = s; return s
+end
+
+local function ct(): ()
+	for _, t in ipairs(tws) do
+		if t and t.PlaybackState == Enum.PlaybackState.Playing then t:Cancel() end
+	end; tws = {}
+end
+
+local function fd(s: Sound?, v: number): ()
+	if not s then return end
+	if math.abs(s.Volume - v) < 0.01 then
+		if v > 0 and not s.IsPlaying then s:Play() end
+		return
+	end
+	if v > 0 and not s.IsPlaying then s.Volume = 0; s:Play() end
+	local ti = TweenInfo.new(XF, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+	local t = TS:Create(s, ti, { Volume = v }); t:Play()
+	table.insert(tws, t)
+	if v == 0 then
+		task.delay(XF + 0.1, function()
+			if s and s.Volume < 0.01 and s.IsPlaying then s:Stop() end
+		end)
+	end
+end
+
+-- Crossfade entre trechos de chase (so 1 toca)
+local function xfc(oldSeg: number, newSeg: number): ()
+	if oldSeg == newSeg then return end
+	if oldSeg >= 1 and oldSeg <= 4 then fd(ch[oldSeg], 0) end
+	if newSeg >= 1 and newSeg <= 4 then fd(ch[newSeg], 1) end
+end
+
+-- FUGA: 1 so, toca do inicio, nao reinicia
+local function startF(): ()
+	if not fug then return end
+	if fug.IsPlaying then fug:Stop() end
+	fug.TimePosition = 0; fug.Looped = false
+	fug.Volume = 0; fug:Play()
+	fd(fug, 1); fugOn = true
+end
+
+local function stopAll(): ()
+	fd(lby, 0); fd(amb, 0)
+	for i = 1, 4 do fd(ch[i], 0) end; curSeg = 0
+end
+
+local function updMusic(st: string, seg: number): ()
+	if st == curSt then
+		if st == "Playing" and seg ~= curSeg then xfc(curSeg, seg); curSeg = seg end
+		return
+	end
+	curSt = st
+
+	if st == "Fuga" then
+		fd(lby, 0); fd(amb, 0)
+		for i = 1, 4 do fd(ch[i], 0) end; curSeg = 0
+		if fugOn then fd(fug, 1) end
+		return
+	end
+
+	if fugOn then fd(fug, 0); fugOn = false end
+	stopAll(); ct()
+
+	if st == "Lobby" then
+		fd(lby, 1)
+	elseif st == "Playing" then
+		fd(amb, 1)
+		if seg >= 1 and seg <= 4 then fd(ch[seg], 1); curSeg = seg end
+	elseif st == "PreFuga" then
+		startF()
+	end
+end
 
 -- Edge distortion UI
-local _edgeGui: ScreenGui? = nil
-local _vignetteFrame: Frame? = nil
-local _edgeFrames: { Frame } = {}  -- Top, Bottom, Left, Right edges
-
--- Cache de SFX para reutilizacao
-local _sfxCache: { [string]: Sound } = {}
-
--- Conexoes
-local _gameStateEvent: RemoteEvent? = nil
-local _gameStateConnection: RBXScriptConnection? = nil
-
--- ============================================================
--- Constantes de crossfade
--- ============================================================
-local AUDIO_CFG = GameConstants.Audio
-local CROSSFADE_TIME = AUDIO_CFG.CROSSFADE_DURATION  -- 2s
-local EDGE_DISTORTION_RADIUS = AUDIO_CFG.DISTORTION_RADIUS  -- 20 studs
-local HEARTBEAT_RADIUS = AUDIO_CFG.HEARTBEAT_RADIUS  -- 40 studs
-
--- ============================================================
--- Cores da distorcao de borda
--- ============================================================
-local EDGE_COLOR = Color3.fromRGB(0, 0, 0)  -- Preto para vignette
-
--- ============================================================
--- Criacao da UI de distorcao de borda
--- ============================================================
-
---[[
-  Cria a ScreenGui com sobreposicao de vignette nas bordas.
-  Escurece as bordas da tela quando o Cacador esta perto.
-]]
-local function createEdgeDistortion()
-	-- Criar ScreenGui
-	_edgeGui = Instance.new("ScreenGui")
-	_edgeGui.Name = "AudioEdgeDistortion"
-	_edgeGui.ResetOnSpawn = false
-	_edgeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	_edgeGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-	-- Frame do vignette (preenche a tela toda, usado como container)
-	_vignetteFrame = Instance.new("Frame")
-	_vignetteFrame.Name = "VignetteContainer"
-	_vignetteFrame.Size = UDim2.new(1, 0, 1, 0)
-	_vignetteFrame.BackgroundTransparency = 1
-	_vignetteFrame.BorderSizePixel = 0
-	_vignetteFrame.ZIndex = 10
-	_vignetteFrame.Parent = _edgeGui
-
-	-- Criar 4 bordas com transparencia variavel
-	local function createEdge(name: string, size: UDim2, position: UDim2): Frame
-		local edge = Instance.new("Frame")
-		edge.Name = name
-		edge.Size = size
-		edge.Position = position
-		edge.BackgroundColor3 = EDGE_COLOR
-		edge.BackgroundTransparency = 1  -- Inicia invisivel
-		edge.BorderSizePixel = 0
-		edge.ZIndex = 10
-		edge.Parent = _vignetteFrame
-		return edge
+local function mkEdge()
+	eGui = Instance.new("ScreenGui")
+	eGui.Name = "AudioEdgeDistortion"; eGui.ResetOnSpawn = false
+	eGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	eGui.Parent = LP:WaitForChild("PlayerGui")
+	vig = Instance.new("Frame")
+	vig.Name = "Vignette"; vig.Size = UDim2.new(1, 0, 1, 0)
+	vig.BackgroundTransparency = 1; vig.BorderSizePixel = 0; vig.ZIndex = 10
+	vig.Parent = eGui
+	local function e(n: string, sz: UDim2, pos: UDim2): Frame
+		local f = Instance.new("Frame")
+		f.Name = n; f.Size = sz; f.Position = pos
+		f.BackgroundColor3 = Color3.fromRGB(0, 0, 0); f.BackgroundTransparency = 1
+		f.BorderSizePixel = 0; f.ZIndex = 10; f.Parent = vig; return f
 	end
-
-	_edgeFrames[1] = createEdge("Top", UDim2.new(1, 0, 0, 80), UDim2.new(0, 0, 0, 0))
-	_edgeFrames[2] = createEdge("Bottom", UDim2.new(1, 0, 0, 80), UDim2.new(0, 0, 1, -80))
-	_edgeFrames[3] = createEdge("Left", UDim2.new(0, 60, 1, 0), UDim2.new(0, 0, 0, 0))
-	_edgeFrames[4] = createEdge("Right", UDim2.new(0, 60, 1, 0), UDim2.new(1, -60, 0, 0))
-
-	print("[TheBrokenBox] AudioManager: UI de distorcao de borda criada.")
+	eFr[1] = e("Top",    UDim2.new(1, 0, 0, 80),  UDim2.new(0, 0, 0, 0))
+	eFr[2] = e("Bottom", UDim2.new(1, 0, 0, 80),  UDim2.new(0, 0, 1, -80))
+	eFr[3] = e("Left",   UDim2.new(0, 60, 1, 0),   UDim2.new(0, 0, 0, 0))
+	eFr[4] = e("Right",  UDim2.new(0, 60, 1, 0),   UDim2.new(1, -60, 0, 0))
 end
 
---[[
-  Atualiza a opacidade das bordas baseada na distancia do Cacador.
-  dist == 0: bordas totalmente visiveis (alpha = 0.5)
-  dist >= EDGE_DISTORTION_RADIUS: bordas invisiveis
-  Interpolacao linear entre os extremos.
-]]
-local function updateEdgeDistortion(dist: number): ()
-	if not _vignetteFrame then
-		return
+local function updEdge(d: number): ()
+	if not vig then return end
+	local a: number
+	if d >= ER or d <= 0 then a = 0
+	else a = 0.5 * (1 - d / ER) end
+	for _, f in ipairs(eFr) do if f then f.BackgroundTransparency = 1 - a end end
+end
+
+-- Heartbeat
+local function updHB(d: number, int: string?): ()
+	if not hb then return end
+	if d >= HR or d <= 0 then
+		if hb.IsPlaying then hb:Stop(); hb.Volume = 0 end; return
 	end
+	local pf = 1 - math.clamp(d / HR, 0, 1)
+	local vol = 0.2 + 0.8 * pf; local spd = 1.0 + 1.5 * pf
+	if int == "damaged" then vol = math.min(1, vol + 0.3); spd = math.min(3, spd + 0.5) end
+	hb.Volume = vol; hb.PlaybackSpeed = spd
+	if not hb.IsPlaying then hb:Play() end
+end
 
-	local alpha: number
+-- SFX
+local function pSfx(id: string, nm: string, vol: number?): ()
+	local s = gsx(id, nm); s.Volume = vol or 0.8
+	if s.IsPlaying then s:Stop() end; s:Play()
+end
 
-	if dist >= EDGE_DISTORTION_RADIUS or dist <= 0 then
-		alpha = 0
-	else
-		-- Alpha proporcional: mais escuro quanto mais perto
-		alpha = 0.5 * (1 - dist / EDGE_DISTORTION_RADIUS)
-	end
-
-	-- Aplicar a todas as bordas
-	for _, edge in ipairs(_edgeFrames) do
-		if edge then
-			edge.BackgroundTransparency = 1 - alpha
-		end
+local function hSfx(tp: string): ()
+	if     tp == "mission_complete" then pSfx(ID.MC,   "MC",   0.7)
+	elseif tp == "player_died"      then pSfx(ID.PD,   "PD",   0.9)
+	elseif tp == "player_damaged"   then pSfx(ID.DMG,  "DMG",  0.6)
+	elseif tp == "rage_activate"    then pSfx(ID.RAGE, "RAGE", 1.0)
+	elseif tp == "gate_open"        then pSfx(ID.GATE, "GATE", 0.8)
+	elseif tp == "fire"             then pSfx(ID.FIRE, "FIRE", 0.6)
+	elseif tp == "escape_start"     then pSfx(ID.ESC,  "ESC",  1.0)
 	end
 end
 
--- ============================================================
--- Criacao e gerenciamento de Sound objects
--- ============================================================
-
---[[
-  Cria ou obtem a pasta de audio no PlayerGui.
-]]
-local function getAudioFolder(): Folder
-	if _audioFolder then
-		return _audioFolder
-	end
-
-	_audioFolder = Instance.new("Folder")
-	_audioFolder.Name = "AudioManager_Sounds"
-	_audioFolder.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-	return _audioFolder
-end
-
---[[
-  Cria um Sound object com o ID especificado.
-  looped: se o som deve tocar em loop.
-]]
-local function createSound(soundId: string, name: string, looped: boolean?): Sound
-	local folder = getAudioFolder()
-
-	local sound = Instance.new("Sound")
-	sound.Name = name
-	sound.SoundId = soundId
-	sound.Volume = 0  -- Inicia mudo (crossfade depois)
-	sound.Looped = looped or false
-	sound.Parent = folder
-
-	return sound
-end
-
---[[
-  Obtem ou cria um Sound para SFX (cacheado).
-]]
-local function getSfxSound(sfxId: string, name: string): Sound
-	if _sfxCache[name] then
-		return _sfxCache[name]
-	end
-
-	local sound = createSound(sfxId, name, false)
-	_sfxCache[name] = sound
-	return sound
-end
-
--- ============================================================
--- Crossfade entre camadas musicais
--- ============================================================
-
---[[
-  Faz crossfade da camada atual para a nova camada.
-  Diminui volume da camada antiga e aumenta da nova em CROSSFADE_TIME segundos.
-]]
-local function crossfadeToLayer(newLayer: string): ()
-	if newLayer == _currentLayer and not _crossfadeActive then
-		return -- Ja esta na camada correta
-	end
-
-	local oldLayer = _currentLayer
-	_currentLayer = newLayer
-
-	print("[TheBrokenBox] AudioManager: Crossfade " .. oldLayer .. " -> " .. newLayer)
-
-	-- Iniciar nova camada (se nao estiver tocando)
-	local newSound = _musicSounds[newLayer]
-	if not newSound then
-		warn("[TheBrokenBox] AudioManager: Som nao encontrado para camada " .. newLayer)
-		return
-	end
-
-	if not newSound.IsPlaying then
-		newSound.Volume = 0
-		newSound:Play()
-	end
-
-	-- Cancelar tweens ativos
-	for layer, tween in pairs(_activeTweens) do
-		if tween.PlaybackState == Enum.PlaybackState.Playing then
-			tween:Cancel()
-		end
-		_activeTweens[layer] = nil
-	end
-
-	_crossfadeActive = true
-
-	-- Fazer fade in da nova camada
-	local tweenInInfo = TweenInfo.new(
-		CROSSFADE_TIME,
-		Enum.EasingStyle.Linear,
-		Enum.EasingDirection.Out
-	)
-
-	local tweenIn = TweenService:Create(newSound, tweenInInfo, { Volume = 1 })
-	tweenIn:Play()
-	_activeTweens[newLayer] = tweenIn
-
-	-- Fazer fade out da camada antiga (se diferente)
-	if oldLayer ~= newLayer then
-		local oldSound = _musicSounds[oldLayer]
-		if oldSound then
-			local tweenOutInfo = TweenInfo.new(
-				CROSSFADE_TIME,
-				Enum.EasingStyle.Linear,
-				Enum.EasingDirection.Out
-			)
-
-			local tweenOut = TweenService:Create(oldSound, tweenOutInfo, { Volume = 0 })
-			tweenOut:Play()
-			_activeTweens[oldLayer] = tweenOut
-
-			-- Parar o som antigo apos o fade
-			task.delay(CROSSFADE_TIME, function()
-				if oldSound and oldSound.Volume < 0.01 then
-					oldSound:Stop()
-				end
-			end)
-		end
-	end
-
-	-- Marcar crossfade como concluido apos o tempo
-	task.delay(CROSSFADE_TIME, function()
-		_crossfadeActive = false
-	end)
-end
-
---[[
-  Inicializa os Sound objects das 4 camadas musicais.
-]]
-local function initMusicLayers(): ()
-	local folder = getAudioFolder()
-
-	local layers = {
-		{ key = "Calma", id = AUDIO_IDS.MUSIC_CALMA },
-		{ key = "Alerta", id = AUDIO_IDS.MUSIC_ALERTA },
-		{ key = "Perseguicao", id = AUDIO_IDS.MUSIC_PERSEGUICAO },
-		{ key = "Climax", id = AUDIO_IDS.MUSIC_CLIMAX },
-	}
-
-	for _, layer in ipairs(layers) do
-		local sound = createSound(layer.id, "Music_" .. layer.key, true)
-		_musicSounds[layer.key] = sound
-	end
-
-	print("[TheBrokenBox] AudioManager: " .. #layers .. " camadas musicais inicializadas.")
-end
-
--- ============================================================
--- Batimentos cardiacos
--- ============================================================
-
---[[
-  Inicializa o Sound de batimento cardiaco.
-]]
-local function initHeartbeat(): ()
-	_heartbeatSound = createSound(AUDIO_IDS.HEARTBEAT, "Heartbeat", true)
-	print("[TheBrokenBox] AudioManager: Batimento cardiaco inicializado.")
-end
-
---[[
-  Atualiza o batimento cardiaco baseado na distancia do Cacador.
-  - dist >= HEARTBEAT_RADIUS: sem batimento
-  - dist < HEARTBEAT_RADIUS: volume e velocidade aumentam com proximidade
-  - PlaybackSpeed: 1.0 (longe) ate 2.5 (muito perto)
-]]
-local function updateHeartbeat(dist: number, intensity: string?): ()
-	if not _heartbeatSound then
-		return
-	end
-
-	if dist >= HEARTBEAT_RADIUS or dist <= 0 then
-		-- Parar batimento
-		if _heartbeatSound.IsPlaying then
-			_heartbeatSound:Stop()
-			_heartbeatSound.Volume = 0
-		end
-		return
-	end
-
-	-- Calcular volume e velocidade baseados na distancia
-	local proximityFactor = 1 - math.clamp(dist / HEARTBEAT_RADIUS, 0, 1)
-	local volume = 0.2 + (0.8 * proximityFactor)  -- 0.2 a 1.0
-	local speed = 1.0 + (1.5 * proximityFactor)    -- 1.0 a 2.5
-
-	-- Intensificar em caso de dano
-	if intensity == "damaged" then
-		volume = math.min(1, volume + 0.3)
-		speed = math.min(3.0, speed + 0.5)
-	end
-
-	_heartbeatSound.Volume = volume
-	_heartbeatSound.PlaybackSpeed = speed
-
-	if not _heartbeatSound.IsPlaying then
-		_heartbeatSound:Play()
+-- Server commands
+local function onCmd(_: Player, msg: {any}): ()
+	local d = msg.data
+	if msg.type == "AUDIO_MUSIC_STATE" then
+		updMusic(d and d.layerState or "Lobby", d and d.chaseSegment or 0)
+	elseif msg.type == "AUDIO_SFX" then
+		if d and d.sfx then hSfx(d.sfx) end
+	elseif msg.type == "AUDIO_HEARTBEAT" then
+		local prox = d and d.proximity or math.huge
+		updHB(prox, d and d.intensity); updEdge(prox)
 	end
 end
 
--- ============================================================
--- Reproducao de SFX
--- ============================================================
-
---[[
-  Toca um SFX one-shot.
-  O Sound e reutilizado de um cache.
-]]
-local function playSfx(sfxId: string, name: string, volume: number?): ()
-	local sound = getSfxSound(sfxId, name)
-	sound.Volume = volume or 0.8
-
-	if sound.IsPlaying then
-		sound:Stop()
-	end
-
-	sound:Play()
-end
-
---[[
-  Toca um SFX baseado no tipo de evento.
-]]
-local function handleSfxEvent(sfxType: string, data: {any}?): ()
-	if sfxType == "mission_complete" then
-		playSfx(AUDIO_IDS.SFX_MISSION_COMPLETE, "MissionComplete", 0.7)
-	elseif sfxType == "player_died" then
-		playSfx(AUDIO_IDS.SFX_PLAYER_DIED, "PlayerDied", 0.9)
-	elseif sfxType == "player_damaged" then
-		playSfx(AUDIO_IDS.SFX_PLAYER_DAMAGED, "PlayerDamaged", 0.6)
-	elseif sfxType == "rage_activate" then
-		playSfx(AUDIO_IDS.SFX_RAGE_ACTIVATE, "RageActivate", 1.0)
-	elseif sfxType == "gate_open" then
-		playSfx(AUDIO_IDS.SFX_GATE_OPEN, "GateOpen", 0.8)
-	elseif sfxType == "fire" then
-		playSfx(AUDIO_IDS.SFX_FIRE, "Fire", 0.6)
-	elseif sfxType == "escape_start" then
-		playSfx(AUDIO_IDS.SFX_ESCAPE_START, "EscapeStart", 1.0)
-	else
-		warn("[TheBrokenBox] AudioManager: SFX desconhecido: " .. tostring(sfxType))
-	end
-
-	print("[TheBrokenBox] AudioManager: SFX reproduzido — " .. tostring(sfxType))
-end
-
--- ============================================================
--- Processamento de comandos do servidor
--- ============================================================
-
---[[
-  Callback quando recebe comando de audio via GameStateEvent.
-]]
-local function onAudioCommand(_player: Player, message: {any}): ()
-	local msgType = message.type
-	local data = message.data
-
-	if msgType == "AUDIO_MUSIC_LAYER" then
-		-- Troca de camada musical com crossfade
-		local layer = data and data.layer
-		if layer then
-			crossfadeToLayer(layer)
-		end
-
-	elseif msgType == "AUDIO_SFX" then
-		-- Reproduzir SFX
-		local sfxType = data and data.sfx
-		if sfxType then
-			handleSfxEvent(sfxType, data.data)
-		end
-
-	elseif msgType == "AUDIO_HEARTBEAT" then
-		-- Atualizar batimento cardiaco
-		local proximity = data and data.proximity or math.huge
-		local intensity = data and data.intensity
-		updateHeartbeat(proximity, intensity)
-		-- Tambem atualizar distorcao de borda
-		updateEdgeDistortion(proximity)
-	else
-		-- Nao e um comando de audio — ignorar silenciosamente
-	end
-end
-
--- ============================================================
--- Limpeza
--- ============================================================
-
---[[
-  Para toda a musica e libera recursos.
-]]
-function AudioManager.stopAll(): ()
-	-- Parar todas as camadas
-	for _, sound in pairs(_musicSounds) do
-		if sound.IsPlaying then
-			sound:Stop()
-		end
-		_musicSounds = {}
-	end
-
-	-- Parar batimento
-	if _heartbeatSound then
-		_heartbeatSound:Stop()
-		_heartbeatSound = nil
-	end
-
-	-- Limpar cache de SFX
-	for _, sound in pairs(_sfxCache) do
-		if sound.IsPlaying then
-			sound:Stop()
-		end
-	end
-	_sfxCache = {}
-
-	-- Remover UI de distorcao
-	if _edgeGui then
-		_edgeGui:Destroy()
-		_edgeGui = nil
-		_vignetteFrame = nil
-		_edgeFrames = {}
-	end
-
-	-- Remover pasta de audio
-	if _audioFolder then
-		_audioFolder:Destroy()
-		_audioFolder = nil
-	end
-
-	-- Desconectar listener
-	if _gameStateConnection then
-		_gameStateConnection:Disconnect()
-		_gameStateConnection = nil
-	end
-
-	_currentLayer = "Calma"
-	_crossfadeActive = false
-	_activeTweens = {}
-
-	print("[TheBrokenBox] AudioManager: Todos os sons parados e recursos liberados.")
-end
-
--- ============================================================
--- Init/Start pattern
--- ============================================================
-
---[[
-  Init(): setup sincrono — cria UI de distorcao e Sound objects.
-]]
+-- Init/Start/Stop
 function AudioManager.Init(): ()
-	print("[TheBrokenBox] AudioManager.Init()")
-
-	-- Criar UI de distorcao de borda
-	createEdgeDistortion()
-
-	-- Inicializar Sound objects das camadas musicais
-	initMusicLayers()
-
-	-- Inicializar batimento cardiaco
-	initHeartbeat()
-
-	-- Encontrar o GameStateEvent em ReplicatedStorage
-	local eventsFolder = ReplicatedStorage:FindFirstChild("Events")
-	if eventsFolder then
-		_gameStateEvent = RemoteEventUtils.findRemoteEvent(eventsFolder, "GameStateEvent")
-	end
-
-	if not _gameStateEvent then
-		warn("[TheBrokenBox] AudioManager: GameStateEvent nao encontrado! Comandos de audio nao serao recebidos.")
-	end
-
-	print("[TheBrokenBox] AudioManager.Init() concluido.")
+	mkEdge()
+	lby   = mk(ID.L,  "Music_Lobby",  true)
+	amb   = mk(ID.M,  "Music_MapAmb", true)
+	ch[1] = mk(ID.C1, "Music_ChS1",   true)
+	ch[2] = mk(ID.C2, "Music_ChS2",   true)
+	ch[3] = mk(ID.C3, "Music_ChS3",   true)
+	ch[4] = mk(ID.C4, "Music_ChS4",   true)
+	fug   = mk(ID.F,  "Music_Fuga",   false)  -- nao loop
+	hb    = mk(ID.HB, "Heartbeat",    true)
+	local ev = RS:FindFirstChild("Events")
+	if ev then gse = RU.findRemoteEvent(ev, "GameStateEvent") end
 end
 
---[[
-  Start(): conecta listeners e inicia a musica ambiente.
-]]
 function AudioManager.Start(): ()
-	print("[TheBrokenBox] AudioManager.Start() — registrando listeners...")
-
-	-- Conectar ao GameStateEvent para receber comandos de audio
-	if _gameStateEvent then
-		_gameStateConnection = _gameStateEvent.OnClientEvent:Connect(onAudioCommand)
-		print("[TheBrokenBox] AudioManager: Listener do GameStateEvent conectado.")
-	else
-		warn("[TheBrokenBox] AudioManager: GameStateEvent nao disponivel! Audio nao funcionara.")
-		return
+	if gse then
+		gsc = gse.OnClientEvent:Connect(onCmd)
+		if lby then lby.Volume = 1; lby:Play(); curSt = "Lobby" end
 	end
+end
 
-	-- Iniciar musica ambiente (camada Calma por padrao)
-	local calmSound = _musicSounds["Calma"]
-	if calmSound then
-		calmSound.Volume = 1
-		calmSound:Play()
-		print("[TheBrokenBox] AudioManager: Musica ambiente (Calma) iniciada.")
-	end
-
-	print("[TheBrokenBox] AudioManager.Start() concluido.")
+function AudioManager.stopAll(): ()
+	if lby and lby.IsPlaying then lby:Stop() end; lby = nil
+	if amb and amb.IsPlaying then amb:Stop() end; amb = nil
+	for i = 1, 4 do if ch[i] and ch[i].IsPlaying then ch[i]:Stop() end; ch[i] = nil end
+	if fug and fug.IsPlaying then fug:Stop() end; fug = nil
+	if hb then hb:Stop(); hb = nil end
+	for _, s in pairs(sfx) do if s.IsPlaying then s:Stop() end end; sfx = {}
+	ct()
+	if eGui then eGui:Destroy(); eGui = nil; vig = nil; eFr = {} end
+	if fld then fld:Destroy(); fld = nil end
+	if gsc then gsc:Disconnect(); gsc = nil end
+	curSt = ""; curSeg = 0; fugOn = false
 end
 
 return AudioManager

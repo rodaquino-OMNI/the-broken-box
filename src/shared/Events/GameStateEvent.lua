@@ -43,8 +43,15 @@ GameStateEvent.MESSAGES = {
 		-- data: { winner = "Survivors" | "Hunter", result = "FugaTotal" | "FugaParcial" | "Contencao", rewards = {...} }
 
 	-- Audio (Servidor -> Cliente)
-	AUDIO_MUSIC_LAYER = "AUDIO_MUSIC_LAYER",
-		-- data: { layer = "Calma" | "Alerta" | "Perseguicao" | "Climax", crossfade = number }
+	AUDIO_MUSIC_STATE = "AUDIO_MUSIC_STATE",
+		-- data: { layerState = "Lobby" | "Playing" | "FugaPrestes" | "FugaAbriu", chaseSegment = number, isRage = boolean }
+		-- layerState: fase do jogo para audio
+		--   "Lobby": SAME_MUSIC (lobby, loja, mapa)
+		--   "Playing": SAME_MUSIC + chase segment (apenas 1 trecho toca por vez, crossfade)
+		--   "FugaPrestes": FUGA_PRESTES (ciclo acabando)
+		--   "FugaAbriu": FUGA_ABRIU (portoes abertos, substitui tudo)
+		-- chaseSegment: 0=sem chase, 1=intro >60s, 2=build 30-60s, 3=climax <30s, 4=peak colado/Rage
+		-- isRage: true durante Rage (forca Trecho 4)
 	AUDIO_SFX = "AUDIO_SFX",
 		-- data: { sfx = string, data = {...} }
 		-- sfx: "mission_complete" | "player_died" | "player_damaged" | "rage_activate" | "gate_open" | "fire" | "escape_start"

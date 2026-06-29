@@ -19,42 +19,41 @@ local GameConstants = {}
 -- DADOS GERAIS DA PARTIDA (ref: GDD M1-M4, Tabela-Mestra)
 -- ============================================================
 GameConstants.Game = {
-	SURVIVORS_PER_MATCH = 4,          -- Minimo de Sobreviventes (max. 7)
-	PREPARATION_TIME = 5,             -- Tempo de preparacao antes da cacada (s)
-	CYCLE_BASE_DURATION = 240,        -- Duracao base do Ciclo (s)
-	CYCLE_EXTEND_PER_DEATH = 20,      -- +20s no Ciclo por morte de Sobrevivente
-	CYCLE_REDUCE_PER_MISSION = 10,    -- -10s no Ciclo por missao concluida
-	ESCAPE_WINDOW_BASE = 60,         -- Janela de Fuga base (s)
-	ESCAPE_WINDOW_REDUCE_PER_MISSION = 5,  -- -5s por missao pendente
-	ESCAPE_WINDOW_FLOOR = 10,        -- Piso da janela de Fuga (s)
-	RAGE_PAUSES_CYCLE = true,        -- Rage pausa o cronometro do Ciclo
+	SURVIVORS_PER_MATCH = 4,
+	PREPARATION_TIME = 5,
+	CYCLE_BASE_DURATION = 240,
+	CYCLE_EXTEND_PER_DEATH = 20,
+	CYCLE_REDUCE_PER_MISSION = 10,
+	ESCAPE_WINDOW_BASE = 60,
+	ESCAPE_WINDOW_REDUCE_PER_MISSION = 5,
+	ESCAPE_WINDOW_FLOOR = 10,
+	RAGE_PAUSES_CYCLE = true,
 }
 
 -- ============================================================
 -- STAMINA E MOVIMENTO (ref: GDD M4)
 -- ============================================================
 GameConstants.Stamina = {
-	SPEND_PER_SECOND = 7,            -- Gasto de stamina ao correr (/s)
-	REGEN_PER_SECOND = 9,            -- Regeneracao de stamina (/s)
-	EXHAUST_DELAY = 0.5,             -- Atraso pos-esgotamento antes de regenerar (s)
-	JUMP_COST = 10,                  -- Custo de stamina por pulo
-	JUMP_COOLDOWN = 2,               -- Cooldown entre pulos (s)
+	SPEND_PER_SECOND = 7,
+	REGEN_PER_SECOND = 9,
+	EXHAUST_DELAY = 0.5,
+	JUMP_COST = 10,
+	JUMP_COOLDOWN = 2,
 }
 
 -- ============================================================
 -- VELOCIDADE BASE DOS SOBREVIVENTES (ref: GDD Personagens)
 -- ============================================================
 GameConstants.Survivors = {
-	BASE_SPEED = 22,                  -- Velocidade base padrao (studs/s)
+	BASE_SPEED = 22,
 
 	MEDICO = {
 		NAME = "Medico",
 		MAX_HP = 80,
 		SPEED = 22,
 		STAMINA = 100,
-		FREE = true,                  -- Gratis no MVP
+		FREE = true,
 		ROLE = "Suporte/Cura",
-		-- Habilidades (ref: GDD Medico)
 		POTION = {
 			WINDUP = 2,
 			COOLDOWN = 15,
@@ -65,8 +64,8 @@ GameConstants.Survivors = {
 			WINDUP = 1,
 			COOLDOWN = 10,
 			DASH_DISTANCE = 15,
-			RADIUS = 10,              -- Cubo 10x10x10 ao redor
-			DAMAGE = {0, 10, 20, 30}, -- Escala por aliados curados
+			RADIUS = 10,
+			DAMAGE = {0, 10, 20, 30},
 		},
 	},
 
@@ -75,9 +74,8 @@ GameConstants.Survivors = {
 		MAX_HP = 120,
 		SPEED = 20,
 		STAMINA = 110,
-		FREE = false,                 -- Pago (moedas)
+		FREE = false,
 		ROLE = "Controle a Distancia",
-		-- Habilidades (ref: GDD Soldado)
 		DASH = {
 			WINDUP = 0.5,
 			COOLDOWN = 20,
@@ -92,9 +90,8 @@ GameConstants.Survivors = {
 			CANCEL_COOLDOWN = 15,
 			AIM_MAX = 10,
 			DAMAGE = 40,
-			HITBOX = {3, 3, 100},     -- Largura, Altura, Comprimento (studs)
+			HITBOX = {3, 3, 100},
 		},
-		-- LMS condicional: vs Soldado Fundido -> SPEED 22, +30% dano Bazuca
 	},
 
 	SACKBOY = {
@@ -102,16 +99,15 @@ GameConstants.Survivors = {
 		MAX_HP = 110,
 		SPEED = 26,
 		STAMINA = 70,
-		FREE = true,                  -- Gratis no MVP
+		FREE = true,
 		ROLE = "Hit & Run / Controle",
-		-- Habilidades (ref: GDD Sackboy)
 		INK = {
-			WINDUP = {1, 2, 3},       -- Por carga
+			WINDUP = {1, 2, 3},
 			COOLDOWN = 30,
 			MAX_CHARGES = 3,
 			HITBOX = {3, 3, 100},
-			DAMAGE = {5, 10, 15},      -- Por carga
-			SLOW = {30, 40, 0},       -- % por carga
+			DAMAGE = {5, 10, 15},
+			SLOW = {30, 40, 0},
 			SLOW_DURATION = 2,
 			SILENCE_DURATION = {0, 4, 0},
 			STUN_DURATION = {0, 0, 2},
@@ -129,17 +125,16 @@ GameConstants.Survivors = {
 		MAX_HP = 150,
 		SPEED = 18,
 		STAMINA = 110,
-		FREE = false,                 -- Pago (moedas)
+		FREE = false,
 		ROLE = "Tanque / Sacrificio",
-		CAN_BE_HEALED_BY_MEDICO = false, -- So se cura pelo proprio Block
-		-- Habilidades (ref: GDD Robo)
+		CAN_BE_HEALED_BY_MEDICO = false,
 		GRAB = {
 			WINDUP = 1,
 			COOLDOWN = 22,
 			SPEED = 15,
 			DURATION = 2,
 			RANGE = 30,
-			INVINCIBILITY_DURATION = 8, -- Invencibilidade que da ao Cacador
+			INVINCIBILITY_DURATION = 8,
 		},
 		BLOCK = {
 			WINDOW = 1.5,
@@ -167,55 +162,52 @@ GameConstants.Survivors = {
 GameConstants.Hunter = {
 	NAME = "O Distorcido",
 	MAX_HP = 2000,
-	BASE_SPEED = 26,                  -- studs/s
-	RAGE_SPEED = 28,                  -- studs/s durante Rage
+	BASE_SPEED = 26,
+	RAGE_SPEED = 28,
 	STAMINA = 110,
 
-	-- Furia e Rage (ref: GDD M5)
 	FURY = {
-		MAX = 100,                    -- Medidor vai de 0 a 100+
-		RAGE_THRESHOLD = 80,          -- Limiar para ativar Rage
-		GAIN_ON_ATTACKED = 10,        -- Furia ao ser atacado/atordoado
-		GAIN_PER_SECOND_PROXIMITY = 1, -- Furia/s apos 20s a <=40 studs
-		PROXIMITY_RADIUS = 40,        -- Raio de proximidade (studs)
-		PROXIMITY_TIME = 20,          -- Tempo para comecar a ganhar (s)
-		RAGE_WINDUP = 5,              -- Windup da transformacao (s)
-		RAGE_DURATION_BASE = 30,      -- Duracao base do Rage (s)
-		RAGE_EXTEND_PER_KILL = 10,    -- +10s por morte durante Rage
-		RAGE_PULSE_DAMAGE = 20,       -- Dano em area ao ativar Rage
-		RAGE_PULSE_RADIUS = 30,       -- Raio do pulso de ativacao (studs)
+		MAX = 100,
+		RAGE_THRESHOLD = 80,
+		GAIN_ON_ATTACKED = 10,
+		GAIN_PER_SECOND_PROXIMITY = 1,
+		PROXIMITY_RADIUS = 40,
+		PROXIMITY_TIME = 20,
+		RAGE_WINDUP = 5,
+		RAGE_DURATION_BASE = 30,
+		RAGE_EXTEND_PER_KILL = 10,
+		RAGE_PULSE_DAMAGE = 20,
+		RAGE_PULSE_RADIUS = 30,
 	},
 
-	-- Stun e I-frames (ref: GDD M6)
-	STUN_I_FRAMES = 2,                -- Invencibilidade pos-stun (s)
+	STUN_I_FRAMES = 2,
 
-	-- Habilidades (ref: GDD Design de Inimigo, Tabela-Mestra)
 	M1 = {
-		DAMAGE = 20,                  -- Dano base do Tapa
-		RAGE_DAMAGE = 25,             -- Dano em Rage
-		HITBOX_COUNT = 5,             -- Quantidade de hitboxes
-		HITBOX_DURATION = 0.5,        -- Duracao total das hitboxes (s)
-		WINDUP = 0.6,                 -- Tempo de preparacao (s)
-		COOLDOWN = 0.8,               -- Tempo entre ataques (s)
-		KNOCKBACK = 3,                -- Empurrao (studs)
+		DAMAGE = 20,
+		RAGE_DAMAGE = 25,
+		HITBOX_COUNT = 5,
+		HITBOX_DURATION = 0.5,
+		WINDUP = 0.6,
+		COOLDOWN = 0.8,
+		KNOCKBACK = 3,
 	},
 	PULL = {
-		WINDUP = 1,                   -- Tempo de preparacao (s)
-		COOLDOWN = 12,                -- Tempo de recarga (s)
-		SPEED = 15,                   -- Velocidade do projetil (studs/s)
-		DURATION = 2,                 -- Duracao maxima do braco (s)
-		RANGE = 30,                   -- Alcance maximo (studs)
-		STUN_DURATION = 0.5,          -- Duracao do stun ao puxar (s)
+		WINDUP = 1,
+		COOLDOWN = 12,
+		SPEED = 15,
+		DURATION = 2,
+		RANGE = 30,
+		STUN_DURATION = 0.5,
 	},
 	ROAR = {
-		WINDUP = 2,                   -- Tempo de preparacao (s)
-		COOLDOWN = 25,                -- Tempo de recarga (s)
-		SLOW_AMOUNT = 40,             -- Porcentagem de lentidao (%)
-		SLOW_DURATION = 3,            -- Duracao da lentidao (s)
-		SLOW_RADIUS = 60,             -- Raio da lentidao (studs)
-		REVEAL_DURATION = 4,          -- Duracao da revelacao (s)
-		REVEAL_RADIUS = 100,          -- Raio da revelacao (studs)
-		RAGE_DAMAGE = 10,             -- Dano adicional em Rage
+		WINDUP = 2,
+		COOLDOWN = 25,
+		SLOW_AMOUNT = 40,
+		SLOW_DURATION = 3,
+		SLOW_RADIUS = 60,
+		REVEAL_DURATION = 4,
+		REVEAL_RADIUS = 100,
+		RAGE_DAMAGE = 10,
 	},
 }
 
@@ -223,27 +215,27 @@ GameConstants.Hunter = {
 -- MISSOES (ref: GDD M1)
 -- ============================================================
 GameConstants.Missions = {
-	TOTAL_PER_MATCH = 10,             -- Total de missoes por partida
-	MIN_EACH_VARIANT = 1,             -- Minimo de 1 de cada variavel
+	TOTAL_PER_MATCH = 10,
+	MIN_EACH_VARIANT = 1,
 
 	V1_BREAKER = {
 		NAME = "Disjuntor de Energia",
-		REPETITIONS = 4,              -- Completar 4 vezes
+		REPETITIONS = 4,
 		PERIGO = "Escuridao localizada",
 	},
 	V2_GENERATOR = {
 		NAME = "Gerador",
-		CABLES = 5,                   -- Conectar 5 cabos
+		CABLES = 5,
 		REPETITIONS = 4,
 		PERIGO = "Barreira eletrica",
-		BARRIER_DAMAGE = 10,          -- Dano por travessia
-		BARRIER_IMMUNITY = 5,         -- Janela de imunidade (s)
+		BARRIER_DAMAGE = 10,
+		BARRIER_IMMUNITY = 5,
 	},
 	V3_OIL = {
 		NAME = "Maquina de Petroleo",
-		REPETITIONS = 1,              -- Uma vez (minigame de ponteiro)
+		REPETITIONS = 1,
 		PERIGO = "Poca de oleo",
-		SLOW_PERCENT = 35,            -- Lentidao ao pisar (%)
+		SLOW_PERCENT = 35,
 	},
 }
 
@@ -251,39 +243,34 @@ GameConstants.Missions = {
 -- ECONOMIA (ref: GDD Progressao de Jogador)
 -- ============================================================
 GameConstants.Economy = {
-	COIN_MISSAO = 15,                -- Moedas por missao concluida
-	COIN_FUGA = 40,                  -- Moedas por fuga bem-sucedida (so quem escapou)
-	UNLOCK_COST_SOLDADO = 150,       -- Custo de desbloqueio do Soldado
-	UNLOCK_COST_ROBO = 200,          -- Custo de desbloqueio do Robo
+	COIN_MISSAO = 15,
+	COIN_FUGA = 40,
+	UNLOCK_COST_SOLDADO = 150,
+	UNLOCK_COST_ROBO = 200,
 }
 
 -- ============================================================
 -- HITBOXES E LAYERS (ref: GDD Sistema de Hitboxes e Layers)
 -- ============================================================
 GameConstants.Hitbox = {
-	-- Regra: dano aplicado 1 vez por alvo colidido (nunca empilha no mesmo alvo)
-
-	-- Tipos de hitbox
 	FORMS = {
-		PROJECTILE = "Projetil",       -- Viaja, para em parede/alvo
-		INSTANT_LINE = "Linha",        -- Instantanea, para na parede
-		AREA_CUBE = "Cubo",            -- Cubo unico grande, atravessa parede
-		BODY = "Corpo",                -- Hitbox de corpo do personagem
-		REACTION_AREA = "Reacao",      -- Area reativa (ex.: Block do Robo)
+		PROJECTILE = "Projetil",
+		INSTANT_LINE = "Linha",
+		AREA_CUBE = "Cubo",
+		BODY = "Corpo",
+		REACTION_AREA = "Reacao",
 	},
 
-	-- Regras de parede
 	WALL_RULES = {
-		PROJECTILES_STOP = true,       -- Projeteis/misseis param na parede/chao
-		AREA_CUBES_IGNORE = true,      -- Cubos grandes ignoram ambiente (atravessam)
+		PROJECTILES_STOP = true,
+		AREA_CUBES_IGNORE = true,
 	},
 
-	-- Layers de colisao (nomes semanticos)
 	LAYERS = {
-		HUNTER_ATTACK = "HunterAttack",      -- Ataques do Cacador -> Sobreviventes
-		SURVIVOR_ATTACK = "SurvivorAttack",  -- Ataques dos Sobreviventes -> Cacador
-		ENVIRONMENT = "Environment",          -- Paredes, chao, obstaculos
-		INVINCIBLE = "Invincible",            -- Durante i-frames (Cacador)
+		HUNTER_ATTACK = "HunterAttack",
+		SURVIVOR_ATTACK = "SurvivorAttack",
+		ENVIRONMENT = "Environment",
+		INVINCIBLE = "Invincible",
 	},
 }
 
@@ -291,15 +278,19 @@ GameConstants.Hitbox = {
 -- AUDIO (ref: GDD Design de Audio de Tensao)
 -- ============================================================
 GameConstants.Audio = {
-	-- Trilha dinamica: distancias de crossfade
-	LAYER_CALM_MAX = 60,              -- Ate 60 studs: camada Calma
-	LAYER_ALERT_MAX = 30,             -- Ate 30 studs: camada Alerta
-	-- Abaixo de 30 studs: camada Perseguicao
-	CROSSFADE_DURATION = 2,           -- Duracao do crossfade entre camadas (s)
-
-	-- Efeitos de proximidade
-	HEARTBEAT_RADIUS = 40,            -- Raio para batimentos audiveis (studs)
-	DISTORTION_RADIUS = 20,           -- Raio para distorcao de borda (studs)
+	-- 1 musica compartilhada + 4 trechos sequenciais de chase + 2 fugas
+	-- SAME_MUSIC: mesma faixa no Lobby, Loja e Mapa ambiente
+	-- CHASE: 1 musica em 4 TRECHOS sequenciais (NAO camadas — crossfade entre eles)
+	--   Trecho 1 (>60 studs), Trecho 2 (30-60), Trecho 3 (5-30), Trecho 4 (<=5/Rage)
+	-- FUGA_PRESTES: ciclo acabando
+	-- FUGA_ABRIU: portoes abertos (substitui tudo)
+	CHASE_SEGMENT_1_MAX = 60,     -- >60 = Trecho 1 (intro/base)
+	CHASE_SEGMENT_2_MAX = 30,     -- 30-60 = Trecho 2 (build)
+	CHASE_SEGMENT_3_MAX = 5,      -- 5-30 = Trecho 3 (climax); <=5 = Trecho 4 (peak)
+	CROSSFADE_DURATION = 2,       -- Duracao do crossfade entre trechos (s)
+	FUGA_PRESTES_TIME = 15,       -- Tempo restante para ativar FUGA_PRESTES (s)
+	HEARTBEAT_RADIUS = 40,
+	DISTORTION_RADIUS = 20,
 }
 
 -- ============================================================

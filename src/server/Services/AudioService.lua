@@ -1,486 +1,176 @@
 --!strict
 --[[
-  AudioService.lua
-  Servico server-authoritative de audio e atmosfera.
-  Orquestra a trilha dinamica de 3 camadas (Calma → Alerta → Perseguicao),
-  SFX de eventos e comandos de audio enviados aos clientes.
+  AudioService.lua — Servidor. 7 canais FINAL:
+    LOBBY_MUSIC     — lobby e loja (mesma)
+    MAP_AMBIENT     — musica do mapa (DIFERENTE do lobby)
+    CHASE_SECTION_1 — trecho 1 (> 60 studs)
+    CHASE_SECTION_2 — trecho 2 (30-60 studs)
+    CHASE_SECTION_3 — trecho 3 (5-30 studs)
+    CHASE_SECTION_4 — trecho 4 (colado / Rage)
+    FUGA            — 1 musica so, comeca calma, buildup natural, climax nos portoes
 
-  Trilha dinamica (ref: GDD Design de Audio de Tensao):
-    - Calma:     default, quando Cacador > 60 studs do Sobrevivente mais proximo
-    - Alerta:    Cacador entre 30-60 studs
-    - Perseguicao: Cacador < 30 studs (ou durante Rage)
-    - Crossfade: 2s entre camadas
-
-  Eventos que disparam SFX:
-    - survivorDamaged -> heartbeat SFX
-    - rageActivated -> Perseguicao
-    - rageDeactivated -> retorna a camada apropriada
-    - escapeStarted -> trilha de climax da fuga
-    - missionCompleted -> SFX
-    - playerDied -> SFX
-
-  Envia comandos de audio aos clientes via GameStateEvent
-  com message types AUDIO_MUSIC_LAYER, AUDIO_SFX, AUDIO_HEARTBEAT.
-
-  Init/Start pattern.
-  Referencias: GDD Design de Audio de Tensao, GameConstants.Audio
+  4 trechos da MESMA musica, TROCAM via crossfade, NAO empilham.
+  FUGA: 1 so. Comeca do inicio qdo ciclo acaba. Nao reinicia nos portoes.
+  Protocolo: AUDIO_MUSIC_STATE { layerState, chaseSegment }
+  layerState: "Lobby" | "Playing" | "PreFuga" | "Fuga"
 ]]
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
-
--- Dependencias compartilhadas
-local GameConstants = require(ReplicatedStorage.GameConstants)
-local Signal = require(ReplicatedStorage.Util.Signal)
-local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
+local P = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local Run = game:GetService("RunService")
+local GC = require(RS.GameConstants)
+local Sig = require(RS.Util.Signal)
+local RU = require(RS.Util.RemoteEventUtils)
 
 local AudioService = {}
 AudioService.Name = "AudioService"
+AudioService.audioCommand = Sig.new()
 
--- ============================================================
--- Sinais do servico
--- ============================================================
-AudioService.audioCommand = Signal.new()  -- (target: Player | "all", command: string, data: {})
+local MS = nil; local _gse: RemoteEvent? = nil
+local _rage = false; local _gs = "Lobby"
+local _cycle: number = math.huge
+local _lastSt = ""; local _lastSeg = -1
+local _hbc: RBXScriptConnection? = nil
+local C = GC.Audio
 
--- ============================================================
--- Referencias a outros servicos (injetadas no Init)
--- ============================================================
-local MatchService = nil
-local _gameStateEvent: RemoteEvent? = nil
-
--- ============================================================
--- Estado interno
--- ============================================================
-type MusicLayer = "Calma" | "Alerta" | "Perseguicao" | "Climax"
-
-local _currentLayer: MusicLayer = "Calma"
-local _lastLayerUpdate: number = 0         -- Timestamp da ultima mudanca (para crossfade)
-local _isInRage: boolean = false           -- Se o Cacador esta em Rage
-local _isEscaping: boolean = false         -- Se a partida esta na fase de Fuga
-local _musicState: { currentLayer: MusicLayer, isRage: boolean, isEscaping: boolean } = {
-	currentLayer = "Calma",
-	isRage = false,
-	isEscaping = false,
-}
-
--- Heartbeat connection
-local _heartbeatConnection: RBXScriptConnection? = nil
-
--- ============================================================
--- Constantes locais (do GameConstants)
--- ============================================================
-local AUDIO_CFG = GameConstants.Audio
-
--- ============================================================
--- Funcoes internas: envio de comandos de audio
--- ============================================================
-
---[[
-  Envia um comando de audio para todos os clientes.
-]]
-local function sendAudioToAll(commandType: string, data: {any}): ()
-	if not _gameStateEvent then
-		warn("[TheBrokenBox] AudioService: GameStateEvent nao disponivel!")
-		return
-	end
-
-	RemoteEventUtils.fireAll(_gameStateEvent, commandType, data)
+local function sndAll(cmd: string, data: {any}): ()
+	if _gse then RU.fireAll(_gse, cmd, data) end
+end
+local function sndP(p: Player, cmd: string, data: {any}): ()
+	if _gse then RU.firePlayer(_gse, p, cmd, data) end
+end
+local function sndSt(st: string, seg: number): ()
+	sndAll("AUDIO_MUSIC_STATE", { layerState = st, chaseSegment = seg })
+	_lastSt = st; _lastSeg = seg
+end
+local function sndSfx(tp: string, data: {any}?): ()
+	sndAll("AUDIO_SFX", { sfx = tp, data = data or {} })
 end
 
---[[
-  Envia um comando de audio para um jogador especifico.
-]]
-local function sendAudioToPlayer(player: Player, commandType: string, data: {any}): ()
-	if not _gameStateEvent then
-		warn("[TheBrokenBox] AudioService: GameStateEvent nao disponivel!")
-		return
-	end
-
-	RemoteEventUtils.firePlayer(_gameStateEvent, player, commandType, data)
-end
-
---[[
-  Envia comando de troca de camada musical para todos os clientes.
-]]
-local function sendMusicLayerCommand(layer: MusicLayer): ()
-	sendAudioToAll("AUDIO_MUSIC_LAYER", {
-		layer = layer,
-		crossfade = AUDIO_CFG.CROSSFADE_DURATION,
-	})
-end
-
---[[
-  Envia comando de SFX para todos os clientes.
-]]
-local function sendSfxCommand(sfxType: string, data: {any}?): ()
-	sendAudioToAll("AUDIO_SFX", {
-		sfx = sfxType,
-		data = data or {},
-	})
-end
-
---[[
-  Envia comando de batimento cardiaco para um jogador especifico.
-  proximity: distancia do Cacador em studs (0 se nao ha calculo).
-]]
-local function sendHeartbeatCommand(player: Player, proximity: number): ()
-	sendAudioToPlayer(player, "AUDIO_HEARTBEAT", {
-		proximity = proximity,
-	})
-end
-
--- ============================================================
--- Calculo de proximidade Cacador -> Sobrevivente mais proximo
--- ============================================================
-
---[[
-  Calcula a distancia entre o Cacador e o Sobrevivente mais proximo.
-  Retorna a distancia em studs, ou math.huge se nao houver Cacador ou Sobreviventes.
-]]
-local function getMinHunterDistance(): number
-	if not MatchService then
-		return math.huge
-	end
-
-	local hunter = MatchService.getHunter()
-	if not hunter then
-		return math.huge
-	end
-
-	-- Obter posicao do Cacador
-	local hunterChar = hunter.Character
-	if not hunterChar then
-		return math.huge
-	end
-
-	local hunterRoot = hunterChar:FindFirstChild("HumanoidRootPart")
-	if not hunterRoot then
-		return math.huge
-	end
-
-	local hunterPos = hunterRoot.Position
-
-	-- Calcular distancia para cada Sobrevivente vivo
-	local survivors = MatchService.getPlayersByRole("Survivor")
-	local minDist: number = math.huge
-
-	for _, survivor in ipairs(survivors) do
-		local data = MatchService.getPlayerData(survivor)
-		if data and data.isAlive then
-			local survivorChar = survivor.Character
-			if survivorChar then
-				local survivorRoot = survivorChar:FindFirstChild("HumanoidRootPart")
-				if survivorRoot then
-					local dist = (survivorRoot.Position - hunterPos).Magnitude
-					if dist < minDist then
-						minDist = dist
-					end
-				end
+local function minDist(): number
+	if not MS then return math.huge end
+	local h = MS.getHunter()
+	if not h or not h.Character then return math.huge end
+	local hr = h.Character:FindFirstChild("HumanoidRootPart")
+	if not hr then return math.huge end
+	local hp = hr.Position
+	local md: number = math.huge
+	for _, s in ipairs(MS.getPlayersByRole("Survivor")) do
+		local d = MS.getPlayerData(s)
+		if d and d.isAlive and s.Character then
+			local sr = s.Character:FindFirstChild("HumanoidRootPart")
+			if sr then
+				local dist = (sr.Position - hp).Magnitude
+				if dist < md then md = dist end
 			end
 		end
 	end
-
-	return minDist
+	return md
 end
 
---[[
-  Calcula a distancia entre o Cacador e um Sobrevivente especifico.
-  Retorna a distancia em studs, ou math.huge se nao puder calcular.
-]]
-local function getPlayerDistanceToHunter(player: Player): number
-	if not MatchService then
-		return math.huge
-	end
-
-	local hunter = MatchService.getHunter()
-	if not hunter then
-		return math.huge
-	end
-
-	local hunterChar = hunter.Character
-	local playerChar = player.Character
-	if not hunterChar or not playerChar then
-		return math.huge
-	end
-
-	local hunterRoot = hunterChar:FindFirstChild("HumanoidRootPart")
-	local playerRoot = playerChar:FindFirstChild("HumanoidRootPart")
-	if not hunterRoot or not playerRoot then
-		return math.huge
-	end
-
-	return (playerRoot.Position - hunterRoot.Position).Magnitude
+local function pDist(p: Player): number
+	if not MS then return math.huge end
+	local h = MS.getHunter()
+	if not h or not h.Character or not p.Character then return math.huge end
+	local hr = h.Character:FindFirstChild("HumanoidRootPart")
+	local pr = p.Character:FindFirstChild("HumanoidRootPart")
+	if not hr or not pr then return math.huge end
+	return (pr.Position - hr.Position).Magnitude
 end
 
--- ============================================================
--- Logica da trilha dinamica
--- ============================================================
+local function cSeg(dist: number): number
+	if dist == math.huge then return 0 end
+	if _rage then return 4 end
+	if dist > C.CHASE_SEGMENT_1_MAX then return 1
+	elseif dist > C.CHASE_SEGMENT_2_MAX then return 2
+	elseif dist > C.CHASE_SEGMENT_3_MAX then return 3
+	else return 4 end
+end
 
---[[
-  Determina qual camada musical deve tocar com base na distancia.
-  Regras:
-    - Rage ativo: Perseguicao
-    - Escaping: Climax
-    - Distancia > LAYER_CALM_MAX (60 studs): Calma
-    - Distancia > LAYER_ALERT_MAX (30 studs): Alerta
-    - Distancia <= LAYER_ALERT_MAX: Perseguicao
-]]
-local function determineMusicLayer(): MusicLayer
-	if _isEscaping then
-		return "Climax"
+local function updSt(): ()
+	local st = _gs
+	if st == "Lobby" or st == "Selecting" or st == "Ended" then
+		if _lastSt ~= "Lobby" then sndSt("Lobby", 0) end
+		return
 	end
-
-	if _isInRage then
-		return "Perseguicao"
+	if st == "Escaping" then
+		if _lastSt ~= "Fuga" then _rage = false; sndSt("Fuga", 0) end
+		return
 	end
-
-	local minDist = getMinHunterDistance()
-	local audioCfg = AUDIO_CFG
-
-	if minDist > audioCfg.LAYER_CALM_MAX then
-		return "Calma"
-	elseif minDist > audioCfg.LAYER_ALERT_MAX then
-		return "Alerta"
+	local seg = cSeg(minDist())
+	if _cycle > 0 and _cycle <= C.FUGA_PRESTES_TIME then
+		if _lastSt ~= "PreFuga" then sndSt("PreFuga", 0) end
 	else
-		return "Perseguicao"
+		if _lastSt ~= "Playing" or _lastSeg ~= seg then sndSt("Playing", seg) end
 	end
 end
 
---[[
-  Atualiza a camada musical se necessario.
-  Chamado no ciclo de Heartbeat (~1Hz).
-  Evita spam: so envia comando se a camada mudou.
-]]
-local function updateMusicLayer(): ()
-	local newLayer = determineMusicLayer()
-
-	if newLayer ~= _currentLayer then
-		local oldLayer = _currentLayer
-		_currentLayer = newLayer
-		_lastLayerUpdate = os.clock()
-
-		print("[TheBrokenBox] AudioService: Camada musical alterada: " .. oldLayer .. " -> " .. newLayer)
-		sendMusicLayerCommand(newLayer)
-
-		-- Atualizar estado rastreado
-		_musicState.currentLayer = newLayer
-	end
-end
-
---[[
-  Envia comandos de batimento cardiaco baseados em proximidade
-  para cada Sobrevivente individualmente.
-  Batimentos sao audiveis ate HEARTBEAT_RADIUS (40 studs).
-]]
-local function updateHeartbeats(): ()
-	if not MatchService then
-		return
-	end
-
-	local hunter = MatchService.getHunter()
-	if not hunter then
-		return
-	end
-
-	local survivors = MatchService.getPlayersByRole("Survivor")
-	local heartbeatRadius = AUDIO_CFG.HEARTBEAT_RADIUS
-
-	for _, survivor in ipairs(survivors) do
-		local data = MatchService.getPlayerData(survivor)
-		if data and data.isAlive then
-			local dist = getPlayerDistanceToHunter(survivor)
-			if dist < heartbeatRadius then
-				sendHeartbeatCommand(survivor, dist)
+local function updHB(): ()
+	if not MS then return end
+	local h = MS.getHunter()
+	if not h then return end
+	for _, s in ipairs(MS.getPlayersByRole("Survivor")) do
+		local d = MS.getPlayerData(s)
+		if d and d.isAlive then
+			local dist = pDist(s)
+			if dist < C.HEARTBEAT_RADIUS then
+				sndP(s, "AUDIO_HEARTBEAT", { proximity = dist })
 			end
 		end
 	end
 end
 
--- ============================================================
--- Loop de Heartbeat (atualizacao periodica ~0.5Hz)
--- ============================================================
-
-local _lastCheckTime: number = 0
-
-local function onHeartbeat(_deltaTime: number): ()
-	local now = os.clock()
-
-	-- Verificar a cada 2s (evitar spam de comandos)
-	if now - _lastCheckTime < 2.0 then
-		return
-	end
-
-	_lastCheckTime = now
-
-	-- Verificar estado da partida
-	if MatchService then
-		local state = MatchService.getMatchState()
-		if state == "Escaping" and not _isEscaping then
-			-- Nao forcar Climax aqui — o escapeStarted ja cuida disso
-		elseif state ~= "Playing" and state ~= "Escaping" then
-			return -- Nao atualizar musica fora da partida
-		end
-	end
-
-	-- Atualizar camada musical
-	updateMusicLayer()
-
-	-- Atualizar batimentos cardiacos
-	updateHeartbeats()
+local _lastChk = 0
+local function onHb(_: number): ()
+	local n = os.clock()
+	if n - _lastChk < 2.0 then return end
+	_lastChk = n
+	if MS then _gs = MS.getMatchState() end
+	updSt(); updHB()
 end
 
--- ============================================================
--- API: Callbacks de eventos externos
--- ============================================================
-
---[[
-  Callback: Sobrevivente tomou dano -> batimento cardiaco intenso.
-]]
-function AudioService.onSurvivorDamaged(player: Player, damage: number, source: Player?): ()
-	local dist = getPlayerDistanceToHunter(player)
-
-	sendAudioToPlayer(player, "AUDIO_HEARTBEAT", {
-		proximity = dist,
-		intensity = "damaged",  -- Indica intensidade extra
-		damage = damage,
-	})
-
-	print("[TheBrokenBox] AudioService: Batimento cardiaco (dano) para " .. player.Name)
+function AudioService.onSurvivorDamaged(p: Player, dmg: number, _src: Player?): ()
+	sndP(p, "AUDIO_HEARTBEAT", { proximity = pDist(p), intensity = "damaged", damage = dmg })
 end
-
---[[
-  Callback: Rage ativado -> forca camada Perseguicao.
-]]
-function AudioService.onRageActivated(hunter: Player): ()
-	_isInRage = true
-	_currentLayer = "Perseguicao"
-	_musicState.isRage = true
-
-	print("[TheBrokenBox] AudioService: Rage ativado — forçando Perseguição")
-	sendMusicLayerCommand("Perseguicao")
+function AudioService.onRageActivated(_h: Player): ()
+	_rage = true; _lastSeg = -1; updSt()
 end
-
---[[
-  Callback: Rage desativado -> retorna a camada apropriada.
-]]
-function AudioService.onRageDeactivated(hunter: Player, remainingFury: number): ()
-	_isInRage = false
-	_musicState.isRage = false
-
-	-- Recalcular camada baseada na distancia
-	_currentLayer = determineMusicLayer()
-
-	print("[TheBrokenBox] AudioService: Rage desativado — retornando para " .. _currentLayer)
-	sendMusicLayerCommand(_currentLayer)
+function AudioService.onRageDeactivated(_h: Player, _f: number): ()
+	_rage = false; _lastSeg = -1; updSt()
 end
-
---[[
-  Callback: Fuga iniciada -> trilha de climax.
-]]
 function AudioService.onEscapeStarted(): ()
-	_isEscaping = true
-	_isInRage = false  -- Rage nao pode ser usado na Fuga
-	_musicState.isEscaping = true
-	_musicState.currentLayer = "Climax"
-	_currentLayer = "Climax"
-
-	print("[TheBrokenBox] AudioService: Fuga iniciada — trilha de climax!")
-	sendMusicLayerCommand("Climax")
-
-	-- SFX global de colapso/incendio
-	sendSfxCommand("escape_start")
+	_rage = false; _gs = "Escaping"; _lastSt = ""; _lastSeg = -1; updSt()
+	sndSfx("escape_start")
+end
+function AudioService.onMissionCompleted(_p: Player, mid: string, mt: string): ()
+	sndSfx("mission_complete", { missionId = mid, missionType = mt })
+end
+function AudioService.onPlayerDied(p: Player): ()
+	sndSfx("player_died", { playerName = p.Name })
+end
+function AudioService.onCycleTick(t: number): ()
+	_cycle = t; updSt(); updHB()
 end
 
---[[
-  Callback: Missao concluida -> SFX.
-]]
-function AudioService.onMissionCompleted(player: Player, missionId: string, missionType: string): ()
-	print("[TheBrokenBox] AudioService: Missao concluida por " .. player.Name .. " — " .. missionId)
-	sendSfxCommand("mission_complete", {
-		missionId = missionId,
-		missionType = missionType,
-	})
+function AudioService.getAudioState()
+	return { layerState = _lastSt, chaseSegment = _lastSeg, isRage = _rage }
+end
+function AudioService.isFugaActive(): boolean
+	return _gs == "Escaping"
+end
+function AudioService.isRageActive(): boolean
+	return _rage
 end
 
---[[
-  Callback: Jogador morreu -> SFX.
-]]
-function AudioService.onPlayerDied(player: Player): ()
-	print("[TheBrokenBox] AudioService: Jogador morreu: " .. player.Name)
-	sendSfxCommand("player_died", {
-		playerName = player.Name,
-	})
+function AudioService.Init(gse: RemoteEvent, ms: any): ()
+	_gse = gse; MS = ms
+	_rage = false; _gs = "Lobby"; _cycle = math.huge
+	_lastChk = 0; _lastSt = ""; _lastSeg = -1
 end
 
---[[
-  Callback: tick do ciclo -> atualiza camada baseada na proximidade.
-  Chamado pelo CycleService a cada segundo.
-]]
-function AudioService.onCycleTick(remainingTime: number): ()
-	-- Atualizacao ja acontece via Heartbeat, mas forcar uma checagem imediata
-	updateMusicLayer()
-	updateHeartbeats()
-end
-
--- ============================================================
--- API: Consulta de estado
--- ============================================================
-
---[[
-  Retorna o estado atual da musica.
-]]
-function AudioService.getMusicState(): { currentLayer: MusicLayer, isRage: boolean, isEscaping: boolean }
-	return _musicState
-end
-
---[[
-  Retorna a camada musical atual.
-]]
-function AudioService.getCurrentLayer(): MusicLayer
-	return _currentLayer
-end
-
--- ============================================================
--- Init/Start pattern
--- ============================================================
-
---[[
-  Init(): setup sincrono. Recebe referencias das dependencias.
-]]
-function AudioService.Init(gameStateEvent: RemoteEvent, matchService: any): ()
-	print("[TheBrokenBox] AudioService.Init()")
-
-	_gameStateEvent = gameStateEvent
-	MatchService = matchService
-
-	-- Estado inicial
-	_currentLayer = "Calma"
-	_isInRage = false
-	_isEscaping = false
-	_lastCheckTime = 0
-	_lastLayerUpdate = os.clock()
-
-	_musicState = {
-		currentLayer = "Calma",
-		isRage = false,
-		isEscaping = false,
-	}
-end
-
---[[
-  Start(): inicia o loop de Heartbeat para atualizar a musica.
-]]
 function AudioService.Start(): ()
-	print("[TheBrokenBox] AudioService.Start() — iniciando loop de musica...")
-
-	-- Conectar Heartbeat para verificacao periodica
-	if _heartbeatConnection then
-		_heartbeatConnection:Disconnect()
-	end
-	_heartbeatConnection = RunService.Heartbeat:Connect(onHeartbeat)
-
-	print("[TheBrokenBox] AudioService.Start() concluido.")
+	if _hbc then _hbc:Disconnect() end
+	_hbc = Run.Heartbeat:Connect(onHb)
 end
 
 return AudioService
