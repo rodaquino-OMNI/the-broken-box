@@ -445,9 +445,9 @@ local function updateHeartbeatPulse(proximity: number): ()
 	for _, child in ipairs(heartbeatIndicator:GetChildren()) do
 		if child:IsA("TextLabel") then
 			if child.Name == "HeartIcon" then
-				heartIcon = child :: TextLabel
+				heartIcon = child
 			elseif child.Name == "HeartLabel" then
-				heartLabel = child :: TextLabel
+				heartLabel = child
 			end
 		end
 	end
@@ -560,7 +560,7 @@ function SurvivorHUD.Start(): ()
 	local uiSyncEvent: RemoteEvent? = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "UISyncEvent" then
-			uiSyncEvent = child :: RemoteEvent
+			uiSyncEvent = child
 			break
 		end
 	end
@@ -577,7 +577,7 @@ function SurvivorHUD.Start(): ()
 	local gameStateEvent: RemoteEvent? = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "GameStateEvent" then
-			gameStateEvent = child :: RemoteEvent
+			gameStateEvent = child
 			break
 		end
 	end

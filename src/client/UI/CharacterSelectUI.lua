@@ -48,7 +48,7 @@ local COLORS = {
 local _screenGui: ScreenGui? = nil
 local _mainFrame: Frame? = nil
 local _titleLabel: TextLabel? = nil
-local _characterFrames: { Frame } = {}
+local _characterFrames = {}
 local _selectButton: TextButton? = nil
 local _statusLabel: TextLabel? = nil
 
@@ -437,10 +437,10 @@ local function findRemoteEvents(): ()
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") then
 			if child.Name == "PlayerActionEvent" then
-				_playerActionEvent = child :: RemoteEvent
+				_playerActionEvent = child
 				print("[TheBrokenBox] CharacterSelectUI: PlayerActionEvent encontrado.")
 			elseif child.Name == "GameStateEvent" then
-				_gameStateEvent = child :: RemoteEvent
+				_gameStateEvent = child
 				print("[TheBrokenBox] CharacterSelectUI: GameStateEvent encontrado.")
 			end
 		end

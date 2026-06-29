@@ -50,12 +50,12 @@ local _screenGui: ScreenGui? = nil
 local _mainFrame: Frame? = nil
 local _titleLabel: TextLabel? = nil
 local _coinLabel: TextLabel? = nil
-local _characterFrames: { Frame } = {}
+local _characterFrames = {}
 local _statusLabel: TextLabel? = nil
 
 -- Estado do jogador (sincronizado via UISyncEvent)
 local _coins: number = 0
-local _unlockedCharacters: { string } = {}
+local _unlockedCharacters = {}
 
 -- RemoteEvents (descobertos via IsA)
 local _playerActionEvent: RemoteEvent? = nil
@@ -192,7 +192,7 @@ local function refreshUI(): ()
 
 	local characters = getShopCharacters()
 	for i, char in ipairs(characters) do
-		local frame = createShopButton(charContainer :: Frame, char, i)
+		local frame = createShopButton(charContainer, char, i)
 		table.insert(_characterFrames, frame)
 	end
 
@@ -516,10 +516,10 @@ local function findRemoteEvents(): ()
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") then
 			if child.Name == "PlayerActionEvent" then
-				_playerActionEvent = child :: RemoteEvent
+				_playerActionEvent = child
 				print("[TheBrokenBox] ShopUI: PlayerActionEvent encontrado.")
 			elseif child.Name == "UISyncEvent" then
-				_uiSyncEvent = child :: RemoteEvent
+				_uiSyncEvent = child
 				print("[TheBrokenBox] ShopUI: UISyncEvent encontrado.")
 			end
 		end

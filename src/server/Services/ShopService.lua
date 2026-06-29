@@ -55,7 +55,7 @@ local UNLOCK_PRICES: { [string]: number } = {
 }
 
 -- Conexoes
-local _connections = {} :: { RBXScriptConnection }
+local _connections = {}
 
 -- ============================================================
 -- API: Precos e verificacao

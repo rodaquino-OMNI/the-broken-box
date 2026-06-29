@@ -25,7 +25,7 @@ local RemoteEventUtils = {}
 function RemoteEventUtils.findRemoteEvent(parent: Instance, name: string): RemoteEvent?
 	local obj = parent:FindFirstChild(name)
 	if obj and obj:IsA("RemoteEvent") then
-		return obj :: RemoteEvent
+		return obj
 	end
 	return nil
 end
@@ -54,7 +54,7 @@ function RemoteEventUtils.filterByIsA(parent: Instance, className: string): {Rem
 	local result = {}
 	for _, child in ipairs(parent:GetChildren()) do
 		if child:IsA(className) then
-			table.insert(result, child :: RemoteEvent)
+			table.insert(result, child)
 		end
 	end
 	return result

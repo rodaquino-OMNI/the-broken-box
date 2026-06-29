@@ -38,11 +38,11 @@ MatchService.damageTaken = Signal.new()        -- (player: Player, damage: numbe
 type MatchState = "Lobby" | "Selecting" | "Preparing" | "Playing" | "Escaping" | "Ended"
 
 local _state = {
-	currentState = "Lobby" :: MatchState,
+	currentState = "Lobby",
 	-- Rastreamento de jogadores
 	players = {},           -- { [Player] = playerData }
 	aliveSurvivors = 0,
-	hunter = nil :: Player?,
+	hunter = nil,
 	-- Mapa de papeis: survivorClass por Player
 	survivorClasses = {},   -- { [Player] = "Medico" | "Soldado" | "Sackboy" | "Robo" }
 }

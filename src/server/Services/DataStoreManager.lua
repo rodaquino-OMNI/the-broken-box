@@ -34,7 +34,7 @@ local Signal = require(ReplicatedStorage.Util.Signal)
 -- ============================================================
 local _isMockMode = false
 local _dataStore: DataStore?
-local _mockData = {} :: { [number]: { any } }  -- In-memory para dev
+local _mockData = {}  -- In-memory para dev
 
 local _dsSuccess, _dsErr = pcall(function()
 	DataStoreService = game:GetService("DataStoreService")
@@ -80,7 +80,7 @@ end
 -- ============================================================
 -- Player data cache (ativo durante a sessao)
 -- ============================================================
-local _playerData = {} :: { [Player]: {} }  -- Cache em runtime
+local _playerData = {}  -- Cache em runtime
 
 -- ============================================================
 -- API: Obter/atualizar dados de um jogador
@@ -119,7 +119,7 @@ function DataStoreManager.savePlayerData(player: Player): boolean
 	while attempt < MAX_RETRIES do
 		attempt = attempt + 1
 		local saveSuccess, saveErr = pcall(function()
-			_dataStore:SetAsync(key, data :: any)
+			_dataStore:SetAsync(key, data)
 		end)
 
 		if saveSuccess then
@@ -257,7 +257,7 @@ function DataStoreManager._loadPlayerData(player: Player): {}
 						data[key] = value
 					end
 				end
-				loadedData = data :: {}
+				loadedData = data
 				print("[TheBrokenBox] DataStoreManager: Dados carregados para " .. player.Name .. " (coins: " .. data.coins .. ")")
 			else
 				loadedData = getDefaultData()

@@ -58,8 +58,8 @@ end
 -- ============================================================
 -- V1: Disjuntor de Energia - 4 alavancas
 -- ============================================================
-local _v1Levers: { Frame, TextButton } = {}  -- Estado de cada alavanca (false=esquerda, true=direita)
-local _v1LeverStates: { boolean } = { false, false, false, false }
+local _v1Levers = {}  -- Estado de cada alavanca (false=esquerda, true=direita)
+local _v1LeverStates = { false, false, false, false }
 local _v1Repetition: number = 0
 local _v1RequiredReps: number = 4
 
@@ -203,8 +203,8 @@ end
 -- ============================================================
 -- V2: Gerador - 5 cabos para conectar em sequencia
 -- ============================================================
-local _v2Cables: { TextButton } = {}
-local _v2CableStates: { boolean } = { false, false, false, false, false }
+local _v2Cables = {}
+local _v2CableStates = { false, false, false, false, false }
 local _v2NextCable: number = 1
 local _v2Repetition: number = 0
 local _v2RequiredReps: number = 4

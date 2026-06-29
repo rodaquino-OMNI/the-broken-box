@@ -42,18 +42,18 @@ type LobbyState = "Gathering" | "Selecting" | "Preparing"
 -- ============================================================
 
 local _state = {
-	currentState = "Gathering" :: LobbyState,
+	currentState = "Gathering",
 	-- Selecoes dos jogadores: { [Player] = characterClass }
-	selections = {} :: { [Player]: string },
+	selections = {},
 	-- Se o jogador ja confirmou (ready)
-	readyPlayers = {} :: { [Player]: boolean },
+	readyPlayers = {},
 	-- Personagens disponiveis (carregado do GameConstants)
 	availableHunter = "Distorcido",  -- Unico Cacador disponivel no MVP
 	-- Timer de selecao
 	selectTimer = 15,  -- segundos
 	selectTimerActive = false,
 	-- Conexoes
-	connections = {} :: { RBXScriptConnection },
+	connections = {},
 }
 
 -- ============================================================

@@ -1338,7 +1338,7 @@ function SurvivorService.Init(
 			if role == "Survivor" then
 				getOrCreateExt(player)
 				refreshCharacterRefs(
-					_survivorExt[player.UserId] :: SurvivorExtState,
+					_survivorExt[player.UserId],
 					player
 				)
 			end
@@ -1358,7 +1358,7 @@ function SurvivorService.Start(): ()
 	for _, player in survivors do
 		getOrCreateExt(player)
 		refreshCharacterRefs(
-			_survivorExt[player.UserId] :: SurvivorExtState,
+			_survivorExt[player.UserId],
 			player
 		)
 	end

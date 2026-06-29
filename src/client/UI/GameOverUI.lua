@@ -277,7 +277,7 @@ local function showGameOver(data: { winner: string, result: string, rewards: {an
 	end
 
 	-- Criar labels de estatisticas
-	local stats: { string } = {}
+	local stats = {}
 
 	if data.stats then
 		if data.stats.missionsDone then
@@ -350,7 +350,7 @@ local function onReturnToLobby(): ()
 	local playerActionEvent: RemoteEvent? = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "PlayerActionEvent" then
-			playerActionEvent = child :: RemoteEvent
+			playerActionEvent = child
 			break
 		end
 	end
@@ -411,7 +411,7 @@ function GameOverUI.Start(): ()
 	local gameStateEvent: RemoteEvent? = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "GameStateEvent" then
-			gameStateEvent = child :: RemoteEvent
+			gameStateEvent = child
 			break
 		end
 	end

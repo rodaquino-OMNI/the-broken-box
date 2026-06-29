@@ -40,7 +40,7 @@ local curSt = ""; local curSeg = 0; local fugOn = false
 local tws: { Tween } = {}
 local sfx: { [string]: Sound } = {}
 local fld: Folder?
-local eGui: ScreenGui?, vig: Frame?, eFr: { Frame } = {}
+local eGui: ScreenGui?, vig: Frame?, eFr = {}
 local gse: RemoteEvent?, gsc: RBXScriptConnection?
 
 local function getFld(): Folder

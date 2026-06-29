@@ -112,18 +112,18 @@ for _, entry in ipairs(serviceModules) do
 			if entry.name == "SurvivorService" then
 				initOk, initErr = pcall(function()
 					mod.Init(
-						gameStateEvent :: RemoteEvent,
-						playerActionEvent :: RemoteEvent,
-						uiSyncEvent :: RemoteEvent,
+						gameStateEvent,
+						playerActionEvent,
+						uiSyncEvent,
 						services.MatchService
 					)
 				end)
-			elseif entry.name == "SurvivorEvents" then
+				elseif entry.name == "SurvivorEvents" then
 				initOk, initErr = pcall(function()
 					mod.Init(
 						services.SurvivorService,
-						playerActionEvent :: RemoteEvent,
-						uiSyncEvent :: RemoteEvent
+						playerActionEvent,
+						uiSyncEvent
 					)
 				end)
 			elseif entry.name == "ShopService" then
@@ -151,13 +151,13 @@ for _, entry in ipairs(serviceModules) do
 				initOk, initErr = pcall(function()
 					mod.Init(
 						services.MissionService,
-						playerActionEvent :: RemoteEvent
+						playerActionEvent
 					)
 				end)
-			elseif entry.name == "AudioService" then
+				elseif entry.name == "AudioService" then
 				initOk, initErr = pcall(function()
 					mod.Init(
-						gameStateEvent :: RemoteEvent,
+						gameStateEvent,
 						services.MatchService
 					)
 				end)
