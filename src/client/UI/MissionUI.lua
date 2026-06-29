@@ -105,7 +105,7 @@ local function sendV1Progress(): ()
 			_v1LeverStates[i] = false
 			if _v1Levers[i] then
 				_v1Levers[i].BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-				_v1Levers[i][2].Text = "←"
+				_v1Levers[i][2].Text = "<-"
 			end
 		end
 
@@ -157,7 +157,7 @@ local function createV1UI(parent: Frame): ()
 			Size = UDim2.new(5/10, -15, 5/10, -15),
 			Position = positions[i],
 			BackgroundColor3 = Color3.fromRGB(150, 50, 50),
-			Text = "←",
+			Text = "<-",
 			TextColor3 = Color3.fromRGB(255, 255, 255),
 			TextSize = 28,
 			Font = Enum.Font.SourceSansBold,
@@ -187,10 +187,10 @@ local function createV1UI(parent: Frame): ()
 
 			if _v1LeverStates[leverIndex] then
 				leverBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
-				leverBtn.Text = "→"
+				leverBtn.Text = "->"
 			else
 				leverBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
-				leverBtn.Text = "←"
+				leverBtn.Text = "<-"
 			end
 
 			sendV1Progress()

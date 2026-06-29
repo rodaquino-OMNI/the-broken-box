@@ -1016,7 +1016,7 @@ end
 
 --[[
   Robo A3: Autodestruicao
-  - windup 3s, cd 60s, boost de velocidade 5s → explode
+  - windup 3s, cd 60s, boost de velocidade 5s -> explode
   - 100 dano ao Cacador (arremessa 100 + stun 6s)
   - Auto-dano 40 + slow 8s
 ]]
@@ -1216,17 +1216,17 @@ local function applyLMSBonus(player: Player, ext: SurvivorExtState): ()
 		print("[TheBrokenBox] LMS Medico: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Soldado" then
-		-- LMS Condicional: vs Soldado Fundido → speed 22, +30% dano Bazuca
+		-- LMS Condicional: vs Soldado Fundido -> speed 22, +30% dano Bazuca
 		humanoid.WalkSpeed = 22  -- Override para speed fixo 22
-		bonusMsg = "+2 vel (→22), +30% dano Bazuca"
+		bonusMsg = "+2 vel (->22), +30% dano Bazuca"
 		print("[TheBrokenBox] LMS Soldado: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Sackboy" then
-		-- LMS Condicional: vs Amaldicoado → speed 28, +20 stamina
+		-- LMS Condicional: vs Amaldicoado -> speed 28, +20 stamina
 		humanoid.WalkSpeed = 28
 		playerData.maxStamina = playerData.maxStamina + 10
 		playerData.stamina = math.min(playerData.stamina + 10, playerData.maxStamina)
-		bonusMsg = "+2 vel (→28), +10 stamina"
+		bonusMsg = "+2 vel (->28), +10 stamina"
 		print("[TheBrokenBox] LMS Sackboy: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Robo" then

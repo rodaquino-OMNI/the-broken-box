@@ -196,7 +196,7 @@ end
 --[[
   Retorna todas as posicoes de missoes ativas como Vector3.
 ]]
-function MapService.getMissionPositions(): { Vector3 }
+function MapService.getMissionPositions()
 	local positions = {}
 	for _, mission in ipairs(_activeMissions) do
 		table.insert(positions, MapData.toVector3(mission.position))
@@ -289,7 +289,7 @@ end
 --[[
   Retorna todas as posicoes de obstaculos como Vector3.
 ]]
-function MapService.getObstaclePositions(): { Vector3 }
+function MapService.getObstaclePositions()
 	local positions = {}
 	for _, obs in ipairs(MapData.OBSTACLES) do
 		table.insert(positions, MapData.toVector3(obs.position))
