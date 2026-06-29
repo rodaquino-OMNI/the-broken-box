@@ -12,7 +12,7 @@
   4 trechos da MESMA musica, TROCAM via crossfade, NAO empilham.
   FUGA: 1 so. Comeca do inicio qdo ciclo acaba. Nao reinicia nos portoes.
   Protocolo: AUDIO_MUSIC_STATE { layerState, chaseSegment }
-  layerState: "Lobby" | "Playing" | "PreFuga" | "Fuga"
+  --  layerState: "Lobby" | "Playing" | "Fuga"
 ]]
 
 local P = game:GetService("Players")
@@ -99,7 +99,7 @@ local function updSt(): ()
 	end
 	local seg = cSeg(minDist())
 	if _cycle > 0 and _cycle <= C.FUGA_PRESTES_TIME then
-		if _lastSt ~= "PreFuga" then sndSt("PreFuga", 0) end
+		if _lastSt ~= "Fuga" then sndSt("Fuga", 0) end
 	else
 		if _lastSt ~= "Playing" or _lastSeg ~= seg then sndSt("Playing", seg) end
 	end
@@ -140,7 +140,6 @@ function AudioService.onRageDeactivated(_h: Player, _f: number): ()
 end
 function AudioService.onEscapeStarted(): ()
 	_rage = false; _gs = "Escaping"; _lastSt = ""; _lastSeg = -1; updSt()
-	sndSfx("escape_start")
 end
 function AudioService.onMissionCompleted(_p: Player, mid: string, mt: string): ()
 	sndSfx("mission_complete", { missionId = mid, missionType = mt })

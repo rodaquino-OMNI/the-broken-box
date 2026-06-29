@@ -7,7 +7,7 @@
     FUGA            - 1 so, comeca calma, buildup natural, climax nos portoes
 
   CHASE usa 1 arquivo, busca via TimePosition, NAO empilha.
-  FUGA: comeca do inicio em "PreFuga", continua em "Fuga" sem reiniciar.
+  --  FUGA: comeca 30s antes dos portoes, continua sem reiniciar quando abrem.
   Escuta AUDIO_MUSIC_STATE { layerState, chaseSegment }.
 ]]
 
@@ -26,11 +26,11 @@ local C = GC.Audio; local XF = C.CROSSFADE_DURATION
 local ER = C.DISTORTION_RADIUS; local HR = C.HEARTBEAT_RADIUS
 
 local ID = {
-	L="rbxassetid://0", M="rbxassetid://0",
-	CHASE="rbxassetid://0",  -- single music file
-	F="rbxassetid://0", HB="rbxassetid://0",
-	MC="rbxassetid://0", PD="rbxassetid://0", DMG="rbxassetid://0",
-	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
+	L="rbxassetid://116136939478767", M="rbxassetid://82683955258091",
+	CHASE="rbxassetid://139063675026894",  -- single music file
+	F="rbxassetid://92687155223324", HB="rbxassetid://0",
+	MC="rbxassetid://78428575828816", PD="rbxassetid://82243172488255", DMG="rbxassetid://140209514807090",
+	RAGE="rbxassetid://135233497786577", GATE="rbxassetid://137752300000769", FIRE="rbxassetid://0",
 }
 
 local CHASE_SECTIONS = {
@@ -167,7 +167,7 @@ local function updMusic(st: string, seg: number): ()
 	if st == "Fuga" then
 		fd(lby, 0); fd(amb, 0)
 		fd(_chaseSound, 0); curSeg = 0
-		if fugOn then fd(fug, 1) end
+		if not fugOn then startF() else fd(fug, 1) end
 		return
 	end
 
@@ -243,7 +243,6 @@ local function hSfx(tp: string): ()
 	elseif tp == "rage_activate"    then pSfx(ID.RAGE, "RAGE", 10/10)
 	elseif tp == "gate_open"        then pSfx(ID.GATE, "GATE", 8/10)
 	elseif tp == "fire"             then pSfx(ID.FIRE, "FIRE", 6/10)
-	elseif tp == "escape_start"     then pSfx(ID.ESC,  "ESC",  10/10)
 	end
 end
 

@@ -54,7 +54,7 @@ GameStateEvent.MESSAGES = {
 		-- isRage: true durante Rage (forca Trecho 4)
 	AUDIO_SFX = "AUDIO_SFX",
 		-- data: { sfx = string, data = {...} }
-		-- sfx: "mission_complete" | "player_died" | "player_damaged" | "rage_activate" | "gate_open" | "fire" | "escape_start"
+		-- sfx: "mission_complete" | "player_died" | "player_damaged" | "rage_activate" | "gate_open" | "fire"
 	AUDIO_HEARTBEAT = "AUDIO_HEARTBEAT",
 		-- data: { proximity = number, intensity = string? }
 

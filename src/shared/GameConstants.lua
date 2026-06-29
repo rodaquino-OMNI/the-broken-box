@@ -288,7 +288,7 @@ GameConstants.Audio = {
 	CHASE_SEGMENT_2_MAX = 30,     -- 30-60 = Trecho 2 (build)
 	CHASE_SEGMENT_3_MAX = 5,      -- 5-30 = Trecho 3 (climax); <=5 = Trecho 4 (peak)
 	CROSSFADE_DURATION = 2,       -- Duracao do crossfade entre trechos (s)
-	FUGA_PRESTES_TIME = 15,       -- Tempo restante para ativar FUGA_PRESTES (s)
+	FUGA_PRESTES_TIME = 30,       -- Tempo restante para ativar FUGA (s)
 	HEARTBEAT_RADIUS = 40,
 	DISTORTION_RADIUS = 20,
 }
