@@ -321,7 +321,7 @@ local function activateHazards(): ()
 					return
 				end
 
-				local humanoid: Humanoid? = char:FindFirstChildOfClass("Humanoid")
+				local humanoid: Humanoid = char:FindFirstChildOfClass("Humanoid")
 				if humanoid then
 					local originalSpeed = humanoid.WalkSpeed
 					local slowedSpeed = originalSpeed * (1 - slowPercent / 100)
@@ -447,7 +447,7 @@ end
 local function startEscapeLoop(): ()
 	local endTime = _state.escapeStartTime + _state.escapeWindowDuration
 
-	local heartBeatConnection: RBXScriptConnection?
+	local heartBeatConnection: RBXScriptConnection
 	heartBeatConnection = RunService.Heartbeat:Connect(function(deltaTime: number)
 		local now = os.clock()
 

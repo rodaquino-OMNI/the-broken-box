@@ -32,8 +32,8 @@ local MatchService = nil
 -- ============================================================
 -- Conexao do RemoteEvent
 -- ============================================================
-local _remoteEvent: RemoteEvent? = nil
-local _remoteConnection: RBXScriptConnection? = nil
+local _remoteEvent: RemoteEvent = nil
+local _remoteConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Handlers de input do Cacador

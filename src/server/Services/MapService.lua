@@ -48,7 +48,7 @@ end
 --[[
   Retorna a posicao de um portao especifico por ID.
 ]]
-function MapService.getGatePosition(gateId: string): Vector3?
+function MapService.getGatePosition(gateId: string): Vector3
 	for _, gate in ipairs(MapData.GATES) do
 		if gate.id == gateId then
 			return MapData.toVector3(gate.position)
@@ -274,7 +274,7 @@ end
 --[[
   Retorna o nome da estrutura onde o jogador esta, ou nil.
 ]]
-function MapService.getPlayerStructure(player: Player): string?
+function MapService.getPlayerStructure(player: Player): string
 	local char = player.Character
 	if not char or not char.PrimaryPart then
 		return nil

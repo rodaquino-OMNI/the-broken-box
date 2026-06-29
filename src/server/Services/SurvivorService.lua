@@ -29,8 +29,8 @@ SurvivorService.Name = "SurvivorService"
 -- ============================================================
 -- Sinais do servico
 -- ============================================================
-SurvivorService.survivorDamaged = Signal.new()  -- (player: Player, damage: number, source: Player?)
-SurvivorService.survivorHealed = Signal.new()   -- (player: Player, amount: number, healer: Player?)
+SurvivorService.survivorDamaged = Signal.new()  -- (player: Player, damage: number, source: Player)
+SurvivorService.survivorHealed = Signal.new()   -- (player: Player, amount: number, healer: Player)
 SurvivorService.survivorDied = Signal.new()     -- (player: Player)
 SurvivorService.abilityUsed = Signal.new()      -- (player: Player, abilityName: string, className: string)
 
@@ -41,8 +41,8 @@ type SurvivorExtState = {
 	userId: number,
 	class: string,
 	cooldowns: { [string]: number },
-	humanoid: Humanoid?,
-	rootPart: BasePart?,
+	humanoid: Humanoid,
+	rootPart: BasePart,
 	-- Medico
 	healCounter: number,          -- Aliados curados desde o ultimo acerto de A2
 	healedAllyIds: { number },    -- IDs ja curados no ciclo atual (evita double-count)
@@ -84,7 +84,7 @@ local _uiSyncEvent = nil
 --[[
   Obtem ou cria o estado estendido de um Sobrevivente.
 ]]
-local function getOrCreateExt(player: Player): SurvivorExtState?
+local function getOrCreateExt(player: Player): SurvivorExtState
 	local userId = player.UserId
 	if _survivorExt[userId] then
 		return _survivorExt[userId]
@@ -157,7 +157,7 @@ end
   Verifica se uma habilidade esta disponivel (fora de cooldown).
 ]]
 local function canUseAbility(ext: SurvivorExtState, abilityName: string): boolean
-	local cdEnd: number? = ext.cooldowns[abilityName]
+	local cdEnd: number = ext.cooldowns[abilityName]
 	if not cdEnd then
 		return true
 	end
@@ -515,7 +515,7 @@ local function medicoA2(player: Player, ext: SurvivorExtState): ()
 		local dashStart = os.clock()
 		local dashDuration = 3/10
 
-		local dashConnection: RBXScriptConnection?
+		local dashConnection: RBXScriptConnection
 		dashConnection = RunService.Heartbeat:Connect(function()
 			if os.clock() - dashStart > dashDuration then
 				if dashConnection then
@@ -645,7 +645,7 @@ local function soldadoA1(player: Player, ext: SurvivorExtState): ()
 		local dashStart = os.clock()
 		local maxDuration = SOLDADO.DASH.DURATION_MAX
 
-		local dashConnection: RBXScriptConnection?
+		local dashConnection: RBXScriptConnection
 		dashConnection = RunService.Heartbeat:Connect(function()
 			local elapsed = os.clock() - dashStart
 
@@ -935,7 +935,7 @@ local function roboA1(player: Player, ext: SurvivorExtState): ()
 		-- Robo fica imovel ate o braco voltar
 		local grabEnd = os.clock() + ROBO.GRAB.DURATION
 
-		local grabConnection: RBXScriptConnection?
+		local grabConnection: RBXScriptConnection
 		grabConnection = RunService.Heartbeat:Connect(function()
 			if os.clock() >= grabEnd then
 				ext.isGrabbing = false
@@ -1126,7 +1126,7 @@ end
   Roteia a acao de habilidade para o handler correto por classe.
   Chamado pelo SurvivorEvents quando recebe SURVIVOR_A1/A2/A3.
 ]]
-function SurvivorService.handleAbilityAction(player: Player, action: string, chargeLevel: number?): ()
+function SurvivorService.handleAbilityAction(player: Player, action: string, chargeLevel: number): ()
 	local ext = getOrCreateExt(player)
 	if not ext then
 		warn("[TheBrokenBox] SurvivorService: Jogador nao e Sobrevivente: " .. player.Name)
@@ -1252,7 +1252,7 @@ end
 local function checkAndApplyLMS(): ()
 	local survivors = _matchService.getPlayersByRole("Survivor")
 	local aliveCount = 0
-	local lastAlive: Player? = nil
+	local lastAlive: Player = nil
 
 	for _, player in survivors do
 		local data = _matchService:getPlayerData(player)
@@ -1296,7 +1296,7 @@ function SurvivorService.Init(
 	-- Conectar ao sinal de dano para verificar Block do Robo
 	-- e para disparar survivorDamaged
 	if matchService and matchService.damageTaken then
-		matchService.damageTaken:Connect(function(player: Player, damage: number, source: Player?)
+		matchService.damageTaken:Connect(function(player: Player, damage: number, source: Player)
 			local ext = _survivorExt[player.UserId]
 			if ext then
 				-- Verificar Block do Robo (contra-ataque)
@@ -1411,7 +1411,7 @@ end
 --[[
   Retorna o estado estendido de um Sobrevivente.
 ]]
-function SurvivorService.getSurvivorExt(player: Player): SurvivorExtState?
+function SurvivorService.getSurvivorExt(player: Player): SurvivorExtState
 	return _survivorExt[player.UserId]
 end
 

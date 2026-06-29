@@ -35,13 +35,13 @@ local ID = {
 	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
 }
 
-local lby: Sound?, amb: Sound?, ch = {}, fug: Sound?, hb: Sound?
+local lby: Sound, amb: Sound, ch = {}, fug: Sound, hb: Sound
 local curSt = ""; local curSeg = 0; local fugOn = false
 local tws = {}
 local sfx = {}
-local fld: Folder?
-local eGui: ScreenGui?, vig: Frame?, eFr = {}
-local gse: RemoteEvent?, gsc: RBXScriptConnection?
+local fld: Folder
+local eGui: ScreenGui, vig: Frame, eFr = {}
+local gse: RemoteEvent, gsc: RBXScriptConnection
 
 local function getFld(): Folder
 	if fld then return fld end
@@ -50,7 +50,7 @@ local function getFld(): Folder
 	return fld
 end
 
-local function mk(id: string, nm: string, lp: boolean?): Sound
+local function mk(id: string, nm: string, lp: boolean): Sound
 	local s = Instance.new("Sound")
 	s.Name = nm; s.SoundId = id; s.Volume = 0; s.Looped = lp or false
 	s.Parent = getFld(); return s
@@ -67,7 +67,7 @@ local function ct(): ()
 	end; tws = {}
 end
 
-local function fd(s: Sound?, v: number): ()
+local function fd(s: Sound, v: number): ()
 	if not s then return end
 	if math.abs(s.Volume - v) < 1/100 then
 		if v > 0 and not s.IsPlaying then s:Play() end
@@ -163,7 +163,7 @@ local function updEdge(d: number): ()
 end
 
 -- Heartbeat
-local function updHB(d: number, int: string?): ()
+local function updHB(d: number, int: string): ()
 	if not hb then return end
 	if d >= HR or d <= 0 then
 		if hb.IsPlaying then hb:Stop(); hb.Volume = 0 end; return
@@ -176,7 +176,7 @@ local function updHB(d: number, int: string?): ()
 end
 
 -- SFX
-local function pSfx(id: string, nm: string, vol: number?): ()
+local function pSfx(id: string, nm: string, vol: number): ()
 	local s = gsx(id, nm); s.Volume = vol or 8/10
 	if s.IsPlaying then s:Stop() end; s:Play()
 end

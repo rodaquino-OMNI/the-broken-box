@@ -33,7 +33,7 @@ local MapService = nil
   Aguarda o personagem de um jogador carregar.
   Retorna o character ou nil apos timeout.
 ]]
-local function waitForCharacter(player: Player, timeout: number): Model?
+local function waitForCharacter(player: Player, timeout: number): Model
 	local startTime = os.clock()
 	while os.clock() - startTime < timeout do
 		local character = player.Character

@@ -25,14 +25,14 @@ local GameOverUI = {}
 -- ============================================================
 -- Referencias de UI
 -- ============================================================
-local screenGui: ScreenGui? = nil
-local mainFrame: Frame? = nil
-local resultLabel: TextLabel? = nil
-local subtitleLabel: TextLabel? = nil
-local coinsLabel: TextLabel? = nil
-local statsFrame: Frame? = nil
-local returnButton: TextButton? = nil
-local statsContainer: Frame? = nil
+local screenGui: ScreenGui = nil
+local mainFrame: Frame = nil
+local resultLabel: TextLabel = nil
+local subtitleLabel: TextLabel = nil
+local coinsLabel: TextLabel = nil
+local statsFrame: Frame = nil
+local returnButton: TextButton = nil
+local statsContainer: Frame = nil
 
 -- ============================================================
 -- Criacao da UI
@@ -347,7 +347,7 @@ local function onReturnToLobby(): ()
 	end
 
 	-- Buscar RemoteEvent PlayerActionEvent
-	local playerActionEvent: RemoteEvent? = nil
+	local playerActionEvent: RemoteEvent = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "PlayerActionEvent" then
 			playerActionEvent = child
@@ -408,7 +408,7 @@ function GameOverUI.Start(): ()
 	end
 
 	-- Escutar GameStateEvent (RemoteEvent server -> client)
-	local gameStateEvent: RemoteEvent? = nil
+	local gameStateEvent: RemoteEvent = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "GameStateEvent" then
 			gameStateEvent = child

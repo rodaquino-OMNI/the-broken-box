@@ -51,7 +51,7 @@ type StaminaState = {
 }
 
 local _staminaStates = {}  -- { [Player] = StaminaState }
-local _heartbeatConnection: RBXScriptConnection? = nil
+local _heartbeatConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Funcoes internas

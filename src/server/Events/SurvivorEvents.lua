@@ -38,7 +38,7 @@ local function onAbility1(player: Player, data: {any}): ()
 		return
 	end
 
-	local chargeLevel: number? = nil
+	local chargeLevel: number = nil
 	if data and data.chargeLevel then
 		chargeLevel = data.chargeLevel
 	end

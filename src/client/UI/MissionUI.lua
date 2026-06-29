@@ -30,14 +30,14 @@ MissionUI.Name = "MissionUI"
 -- ============================================================
 -- Referencias de RemoteEvent
 -- ============================================================
-local _playerActionEvent: RemoteEvent? = nil
+local _playerActionEvent: RemoteEvent = nil
 
 -- ============================================================
 -- Estado interno da UI de missao
 -- ============================================================
-local _screenGui: ScreenGui? = nil
-local _activeMissionId: string? = nil
-local _activeMissionType: string? = nil
+local _screenGui: ScreenGui = nil
+local _activeMissionId: string = nil
+local _activeMissionType: string = nil
 local _currentProgress: number = 0
 local _maxProgress: number = 1
 local _missionActive: boolean = false
@@ -353,8 +353,8 @@ local _v3TargetZoneStart: number = 0
 local _v3TargetZoneEnd: number = 0
 local _v3PointerSpeed: number = 120      -- graus/s
 local _v3PointerDirection: number = 1    -- 1 ou -1
-local _v3PointerFrame: Frame? = nil
-local _v3ClickButton: TextButton? = nil
+local _v3PointerFrame: Frame = nil
+local _v3ClickButton: TextButton = nil
 local _v3IsLocked: boolean = false
 local _v3LastRender: number = 0
 
@@ -519,9 +519,9 @@ end
 -- ============================================================
 -- Barra de Progresso (comum a todos os tipos)
 -- ============================================================
-local _progressBar: Frame? = nil
-local _progressFill: Frame? = nil
-local _progressLabel: TextLabel? = nil
+local _progressBar: Frame = nil
+local _progressFill: Frame = nil
+local _progressLabel: TextLabel = nil
 
 function updateProgressBar(ratio: number): ()
 	if _progressFill then
@@ -678,7 +678,7 @@ end
 --[[
   Cancela a missao atual (enviando ao servidor).
 ]]
-function MissionUI.cancelMission(reason: string?): ()
+function MissionUI.cancelMission(reason: string): ()
 	if not _activeMissionId then
 		return
 	end
@@ -778,7 +778,7 @@ function MissionUI.Init(): ()
 	end
 
 	-- Encontrar GameStateEvent para eventos de missao
-	local gameStateEvent: RemoteEvent? = nil
+	local gameStateEvent: RemoteEvent = nil
 	if eventsFolder then
 		gameStateEvent = RemoteEventUtils.findRemoteEvent(eventsFolder, "GameStateEvent")
 	end

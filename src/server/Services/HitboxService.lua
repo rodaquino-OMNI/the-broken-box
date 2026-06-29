@@ -43,7 +43,7 @@ HitboxService.Name = "HitboxService"
 -- ============================================================
 -- Sinais
 -- ============================================================
-HitboxService.damageApplied = Signal.new()  -- (target: Player, damage: number, source: Player?)
+HitboxService.damageApplied = Signal.new()  -- (target: Player, damage: number, source: Player)
 
 -- ============================================================
 -- Collision Groups
@@ -196,7 +196,7 @@ end
 --[[
   Ativa i-frames para um jogador (muda para layer Invincible).
 ]]
-function HitboxService.setInvincible(player: Player, duration: number?): ()
+function HitboxService.setInvincible(player: Player, duration: number): ()
 	_invinciblePlayers[player] = true
 
 	local part = _bodyHitboxes[player]
@@ -328,7 +328,7 @@ function HitboxService.checkInstantLine(
 	direction: Vector3,
 	maxDistance: number,
 	attacker: Player,
-	ignoreInvincible: boolean?
+	ignoreInvincible: boolean
 ): {player: Player, hitPosition: Vector3}?
 	-- Raycast para detectar paredes (Environment)
 	local raycastParams = RaycastParams.new()
@@ -481,7 +481,7 @@ end
 function HitboxService.applyDamageToTargets(
 	targets: {{player: Player}},
 	damage: number,
-	source: Player?
+	source: Player
 ): ()
 	-- Set para garantir 1x por alvo
 	local hitPlayers = {}

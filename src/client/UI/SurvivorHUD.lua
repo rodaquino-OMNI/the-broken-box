@@ -23,18 +23,18 @@ local SurvivorHUD = {}
 -- ============================================================
 -- Referencias de UI
 -- ============================================================
-local screenGui: ScreenGui? = nil
-local mainFrame: Frame? = nil
+local screenGui: ScreenGui = nil
+local mainFrame: Frame = nil
 
 -- Elementos
-local hpBar: Frame? = nil
-local hpLabel: TextLabel? = nil
-local staminaBar: Frame? = nil
-local staminaLabel: TextLabel? = nil
-local cycleLabel: TextLabel? = nil
-local allyHPFrame: Frame? = nil
-local cooldownFrame: Frame? = nil
-local heartbeatIndicator: Frame? = nil  -- Indicador visual de batimento (E8)
+local hpBar: Frame = nil
+local hpLabel: TextLabel = nil
+local staminaBar: Frame = nil
+local staminaLabel: TextLabel = nil
+local cycleLabel: TextLabel = nil
+local allyHPFrame: Frame = nil
+local cooldownFrame: Frame = nil
+local heartbeatIndicator: Frame = nil  -- Indicador visual de batimento (E8)
 
 -- Estado local
 local _currentHP = 100
@@ -440,8 +440,8 @@ local function updateHeartbeatPulse(proximity: number): ()
 	heartbeatIndicator.Visible = true
 
 	-- Encontrar o icone de coracao e o label
-	local heartIcon: TextLabel? = nil
-	local heartLabel: TextLabel? = nil
+	local heartIcon: TextLabel = nil
+	local heartLabel: TextLabel = nil
 	for _, child in ipairs(heartbeatIndicator:GetChildren()) do
 		if child:IsA("TextLabel") then
 			if child.Name == "HeartIcon" then
@@ -557,7 +557,7 @@ function SurvivorHUD.Start(): ()
 	end
 
 	-- Buscar o RemoteEvent (nao o ModuleScript)
-	local uiSyncEvent: RemoteEvent? = nil
+	local uiSyncEvent: RemoteEvent = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "UISyncEvent" then
 			uiSyncEvent = child
@@ -574,7 +574,7 @@ function SurvivorHUD.Start(): ()
 	uiSyncEvent.OnClientEvent:Connect(onUISyncMessage)
 
 	-- Tambem escutar GameStateEvent para batimentos cardiacos (E8)
-	local gameStateEvent: RemoteEvent? = nil
+	local gameStateEvent: RemoteEvent = nil
 	for _, child in ipairs(eventsFolder:GetChildren()) do
 		if child:IsA("RemoteEvent") and child.Name == "GameStateEvent" then
 			gameStateEvent = child

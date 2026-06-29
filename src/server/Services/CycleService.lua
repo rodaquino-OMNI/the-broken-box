@@ -47,7 +47,7 @@ local _cycleElapsed: number = 0          -- Tempo decorrido desde o inicio
 local _cycleBaseDuration: number = 240   -- Duracao base
 
 -- Conexao do Heartbeat
-local _heartbeatConnection: RBXScriptConnection? = nil
+local _heartbeatConnection: RBXScriptConnection = nil
 
 -- Timestamp do ultimo tick (para precisao)
 local _lastTickTime: number = 0

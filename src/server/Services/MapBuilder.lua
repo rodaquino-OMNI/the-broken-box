@@ -60,7 +60,7 @@ local function criarPart(
 	nome: string,
 	tamanho: Vector3,
 	posicao: Vector3,
-	cor: Color3?,
+	cor: Color3,
 	material: Enum.Material?
 ): Part
 	local part = Instance.new("Part")
@@ -89,7 +89,7 @@ local function criarParede(
 	ate: Vector3,
 	grossura: number,
 	altura: number,
-	cor: Color3?,
+	cor: Color3,
 	material: Enum.Material?
 ): Part
 	local centroX = (de.X + ate.X) / 2
@@ -128,7 +128,7 @@ local function criarPointLight(
 	posicao: Vector3,
 	brilho: number,
 	alcance: number,
-	cor: Color3?
+	cor: Color3
 ): PointLight
 	local luz = Instance.new("PointLight")
 	luz.Name = nome
@@ -155,7 +155,7 @@ local function criarPiso(
 	minX: number, maxX: number,
 	y: number,
 	minZ: number, maxZ: number,
-	cor: Color3?,
+	cor: Color3,
 	material: Enum.Material?
 ): Part
 	local largura = maxX - minX
@@ -179,7 +179,7 @@ local function criarColuna(
 	posX: number, posZ: number,
 	baseY: number, altura: number,
 	lado: number,
-	cor: Color3?,
+	cor: Color3,
 	material: Enum.Material?
 )
 	local parts = {}
@@ -923,7 +923,7 @@ local function criarCorpoBrinquedo(
 	parent: Instance,
 	nome: string,
 	posicao: Vector3,
-	corRoupa: Color3?
+	corRoupa: Color3
 ): ()
 	local folder = Instance.new("Folder")
 	folder.Name = nome

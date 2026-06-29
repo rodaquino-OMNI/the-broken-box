@@ -42,12 +42,12 @@ local StaminaService = nil
 HunterService.rageActivated = Signal.new()    -- (hunter: Player)
 HunterService.rageDeactivated = Signal.new()  -- (hunter: Player, remainingFury: number)
 HunterService.hunterStunned = Signal.new()    -- (hunter: Player, duration: number)
-HunterService.hunterAttacked = Signal.new()   -- (hunter: Player, attacker: Player?)
+HunterService.hunterAttacked = Signal.new()   -- (hunter: Player, attacker: Player)
 
 -- ============================================================
 -- Estado interno do Cacador
 -- ============================================================
-local _hunter: Player? = nil               -- Referencia ao jogador Cacador
+local _hunter: Player = nil               -- Referencia ao jogador Cacador
 local _fury: number = 0                    -- Medidor de Furia (0-100+)
 local _isInRage: boolean = false           -- Se esta em estado de Rage
 local _isStunned: boolean = false          -- Se esta stunado
@@ -65,7 +65,7 @@ local _cooldowns: { [string]: number } = {
 }
 
 -- Conexao do Heartbeat
-local _heartbeatConnection: RBXScriptConnection? = nil
+local _heartbeatConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Estado interno: Aparencia do Rage
@@ -135,7 +135,7 @@ local function _applyRageAppearance(character: Model): ()
 
 	-- Tentar carregar modelo customizado
 	local assetsFolder = ServerStorage:FindFirstChild("Assets")
-	local rageModel: Model? = nil
+	local rageModel: Model = nil
 
 	if assetsFolder then
 		rageModel = assetsFolder:FindFirstChild("DistorcidoRage")
@@ -323,7 +323,7 @@ end
 --[[
   Retorna o jogador Cacador atual (ou nil).
 ]]
-function HunterService.getHunter(): Player?
+function HunterService.getHunter(): Player
 	return _hunter
 end
 
@@ -357,7 +357,7 @@ end
   Callback quando o Cacador e atacado.
   Ganha +10 de furia ao ser atacado/atordoado (ref: GDD M5).
 ]]
-function HunterService.onHunterAttacked(attacker: Player?): ()
+function HunterService.onHunterAttacked(attacker: Player): ()
 	if not _hunter then return end
 
 	local furyConfig = GameConstants.Hunter.FURY

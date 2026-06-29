@@ -23,9 +23,9 @@ local GameConstants = require(ReplicatedStorage.GameConstants)
 local services = {}
 
 -- Cache de RemoteEvents
-local gameStateEvent: RemoteEvent?
-local playerActionEvent: RemoteEvent?
-local uiSyncEvent: RemoteEvent?
+local gameStateEvent: RemoteEvent
+local playerActionEvent: RemoteEvent
+local uiSyncEvent: RemoteEvent
 
 -- ============================================================
 -- Fase 0: Criacao dos RemoteEvents
@@ -79,7 +79,7 @@ print("[TheBrokenBox] GameManager: initServices() - iniciando...")
 
 for _, entry in ipairs(serviceModules) do
 	local modLoaded = false
-	local requirePath: ModuleScript?
+	local requirePath: ModuleScript
 
 	if entry.isEvent then
 		requirePath = script.Events[entry.name]
@@ -242,7 +242,7 @@ local function wireServiceSignals()
 
 	-- HitboxService sinaliza dano aplicado -> notificar MatchService
 	if HitboxService and HitboxService.damageApplied then
-		HitboxService.damageApplied:Connect(function(target: Player, damage: number, source: Player?)
+		HitboxService.damageApplied:Connect(function(target: Player, damage: number, source: Player)
 			if MatchService and MatchService.onDamageApplied then
 				MatchService.onDamageApplied(target, damage, source)
 			end
@@ -251,7 +251,7 @@ local function wireServiceSignals()
 
 	-- SurvivorService sinaliza dano em Sobrevivente -> notificar HUD
 	if SurvivorService and SurvivorService.survivorDamaged then
-		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player?)
+		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player)
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.firePlayer(
@@ -266,7 +266,7 @@ local function wireServiceSignals()
 
 	-- SurvivorService sinaliza cura em Sobrevivente -> notificar HUD
 	if SurvivorService and SurvivorService.survivorHealed then
-		SurvivorService.survivorHealed:Connect(function(player: Player, amount: number, healer: Player?)
+		SurvivorService.survivorHealed:Connect(function(player: Player, amount: number, healer: Player)
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.firePlayer(
@@ -299,7 +299,7 @@ local function wireServiceSignals()
 
 	-- HunterService: quando o Cacador e atacado, ganha Furia
 	if HunterService and MatchService and MatchService.damageTaken then
-		MatchService.damageTaken:Connect(function(target: Player, damage: number, source: Player?)
+		MatchService.damageTaken:Connect(function(target: Player, damage: number, source: Player)
 			if HunterService.isHunter(target) then
 				HunterService.onHunterAttacked(source)
 			end
@@ -331,7 +331,7 @@ local function wireServiceSignals()
 
 	-- LobbyService: quando um personagem e selecionado -> atribuir no MatchService
 	if LobbyService and LobbyService.characterSelected then
-		LobbyService.characterSelected:Connect(function(player: Player, characterClass: string, role: string?)
+		LobbyService.characterSelected:Connect(function(player: Player, characterClass: string, role: string)
 			if role == "Hunter" and MatchService then
 				MatchService.assignHunter(player)
 			elseif role == "Survivor" and MatchService then
@@ -669,7 +669,7 @@ local function wireServiceSignals()
 
 	-- SurvivorService.survivorDamaged -> AudioService (heartbeat SFX)
 	if SurvivorService and SurvivorService.survivorDamaged and AudioService then
-		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player?)
+		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player)
 			AudioService.onSurvivorDamaged(player, damage, source)
 		end)
 		print("[TheBrokenBox] GameManager: SurvivorService.survivorDamaged -> AudioService (heartbeat) conectado.")

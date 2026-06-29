@@ -22,7 +22,7 @@ local RemoteEventUtils = {}
   Procura um RemoteEvent pelo nome no parent.
   Retorna nil se nao encontrar.
 ]]
-function RemoteEventUtils.findRemoteEvent(parent: Instance, name: string): RemoteEvent?
+function RemoteEventUtils.findRemoteEvent(parent: Instance, name: string): RemoteEvent
 	local obj = parent:FindFirstChild(name)
 	if obj and obj:IsA("RemoteEvent") then
 		return obj

@@ -30,7 +30,7 @@ MatchService.Name = "MatchService"
 MatchService.matchStateChanged = Signal.new()  -- (newState: string)
 MatchService.playerDied = Signal.new()         -- (player: Player)
 MatchService.roleAssigned = Signal.new()       -- (player: Player, role: string)
-MatchService.damageTaken = Signal.new()        -- (player: Player, damage: number, source: Player?)
+MatchService.damageTaken = Signal.new()        -- (player: Player, damage: number, source: Player)
 
 -- ============================================================
 -- Estado interno da partida
@@ -53,15 +53,15 @@ local _state = {
 type PlayerData = {
 	userId: number,
 	name: string,
-	role: string?,           -- "Hunter" | "Survivor" | nil
-	survivorClass: string?,   -- Classe do Sobrevivente, se aplicavel
+	role: string,           -- "Hunter" | "Survivor" | nil
+	survivorClass: string,   -- Classe do Sobrevivente, se aplicavel
 	hp: number,
 	maxHp: number,
 	stamina: number,
 	maxStamina: number,
 	speed: number,
 	isAlive: boolean,
-	character: Model?,
+	character: Model,
 }
 
 -- ============================================================
@@ -186,7 +186,7 @@ end
 --[[
   Retorna o papel de um jogador ("Hunter" | "Survivor" | nil).
 ]]
-function MatchService.getPlayerRole(player: Player): string?
+function MatchService.getPlayerRole(player: Player): string
 	local data = _state.players[player]
 	if data then
 		return data.role
@@ -197,14 +197,14 @@ end
 --[[
   Retorna a classe de um Survivor.
 ]]
-function MatchService.getSurvivorClass(player: Player): string?
+function MatchService.getSurvivorClass(player: Player): string
 	return _state.survivorClasses[player]
 end
 
 --[[
   Retorna o Hunter atual (ou nil).
 ]]
-function MatchService.getHunter(): Player?
+function MatchService.getHunter(): Player
 	return _state.hunter
 end
 
@@ -237,7 +237,7 @@ end
   Aplica dano a um jogador. Se HP chegar a 0, dispara playerDied.
   Retorna true se o jogador morreu.
 ]]
-function MatchService.applyDamage(player: Player, damage: number, source: Player?): boolean
+function MatchService.applyDamage(player: Player, damage: number, source: Player): boolean
 	local data = _state.players[player]
 	if not data or not data.isAlive then
 		return false
@@ -284,7 +284,7 @@ end
 --[[
   Retorna os dados completos de um jogador.
 ]]
-function MatchService.getPlayerData(player: Player): PlayerData?
+function MatchService.getPlayerData(player: Player): PlayerData
 	return _state.players[player]
 end
 
@@ -384,7 +384,7 @@ end
 --[[
   Callback opcional: chamado quando dano e aplicado via HitboxService.
 ]]
-function MatchService.onDamageApplied(target: Player, damage: number, source: Player?): ()
+function MatchService.onDamageApplied(target: Player, damage: number, source: Player): ()
 	MatchService.applyDamage(target, damage, source)
 end
 

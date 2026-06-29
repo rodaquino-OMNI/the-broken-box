@@ -253,7 +253,7 @@ end
   Verifica se uma posicao (Vector3) esta dentro de uma estrutura.
   Retorna o nome da estrutura ou nil.
 ]]
-function MapData.getStructureAtPosition(pos: Vector3): string?
+function MapData.getStructureAtPosition(pos: Vector3): string
 	-- Verificar Castelo
 	local castle = MapData.STRUCTURES.CASTLE
 	if pos.X >= castle.min.x and pos.X <= castle.max.x

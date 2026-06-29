@@ -30,7 +30,7 @@ LobbyService.Name = "LobbyService"
 -- Sinais do servico
 -- ============================================================
 LobbyService.lobbyReady = Signal.new()         -- ()
-LobbyService.characterSelected = Signal.new()  -- (player: Player, characterClass: string, role: string?)
+LobbyService.characterSelected = Signal.new()  -- (player: Player, characterClass: string, role: string)
 
 -- ============================================================
 -- Tipos
@@ -192,7 +192,7 @@ function LobbyService.selectCharacter(player: Player, characterClass: string): b
 	_state.selections[player] = characterClass
 
 	-- Determinar o papel
-	local role: string?
+	local role: string
 	if characterClass == "Distorcido" then
 		role = "Hunter"
 	else
@@ -211,7 +211,7 @@ end
 --[[
   Retorna a selecao de um jogador.
 ]]
-function LobbyService.getPlayerSelection(player: Player): string?
+function LobbyService.getPlayerSelection(player: Player): string
 	return _state.selections[player]
 end
 

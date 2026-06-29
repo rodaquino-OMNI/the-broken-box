@@ -45,22 +45,22 @@ local COLORS = {
 -- ============================================================
 -- Estado interno
 -- ============================================================
-local _screenGui: ScreenGui? = nil
-local _mainFrame: Frame? = nil
-local _titleLabel: TextLabel? = nil
+local _screenGui: ScreenGui = nil
+local _mainFrame: Frame = nil
+local _titleLabel: TextLabel = nil
 local _characterFrames = {}
-local _selectButton: TextButton? = nil
-local _statusLabel: TextLabel? = nil
+local _selectButton: TextButton = nil
+local _statusLabel: TextLabel = nil
 
 -- Estado da selecao
-local _selectedCharacter: string? = nil
+local _selectedCharacter: string = nil
 local _characterLocked: boolean = false
 local _isSelecting: boolean = false
 
 -- RemoteEvents (descobertos via IsA)
-local _playerActionEvent: RemoteEvent? = nil
-local _gameStateEvent: RemoteEvent? = nil
-local _gameStateConnection: RBXScriptConnection? = nil
+local _playerActionEvent: RemoteEvent = nil
+local _gameStateEvent: RemoteEvent = nil
+local _gameStateConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Dados dos personagens
@@ -74,7 +74,7 @@ type CharacterInfo = {
 	name: string,
 	role: string,
 	free: boolean,
-	cost: number?,
+	cost: number,
 	description: string,
 }
 

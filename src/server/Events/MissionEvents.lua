@@ -19,7 +19,7 @@ MissionEvents.Name = "MissionEvents"
 
 -- Referencias injetadas
 local _missionService = nil
-local _playerActionEvent: RemoteEvent? = nil
+local _playerActionEvent: RemoteEvent = nil
 
 -- ============================================================
 -- Handlers de interacao com missoes
@@ -94,7 +94,7 @@ end
   Encontra a missao mais proxima de um jogador.
   Usado quando o cliente nao especifica qual missao interagir.
 ]]
-function findNearestMission(player: Player): string?
+function findNearestMission(player: Player): string
 	if not _missionService then
 		return nil
 	end
@@ -110,7 +110,7 @@ function findNearestMission(player: Player): string?
 	end
 
 	local playerPos = rootPart.Position
-	local nearestId: string? = nil
+	local nearestId: string = nil
 	local nearestDist = math.huge
 	local interactRange = 12 -- mesmo de MissionService
 

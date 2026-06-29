@@ -25,7 +25,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DataStoreService: DataStoreService?
+local DataStoreService: DataStoreService
 
 local Signal = require(ReplicatedStorage.Util.Signal)
 
@@ -33,7 +33,7 @@ local Signal = require(ReplicatedStorage.Util.Signal)
 -- Tentar obter DataStoreService (pode falhar no Studio)
 -- ============================================================
 local _isMockMode = false
-local _dataStore: DataStore?
+local _dataStore: DataStore
 local _mockData = {}  -- In-memory para dev
 
 local _dsSuccess, _dsErr = pcall(function()

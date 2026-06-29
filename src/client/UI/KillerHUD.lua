@@ -31,14 +31,14 @@ local KillerHUD = {}
 -- ============================================================
 -- Estado interno do HUD
 -- ============================================================
-local _screenGui: ScreenGui? = nil
-local _furyBar: Frame? = nil
-local _furyFill: Frame? = nil
-local _furyLabel: TextLabel? = nil
+local _screenGui: ScreenGui = nil
+local _furyBar: Frame = nil
+local _furyFill: Frame = nil
+local _furyLabel: TextLabel = nil
 local _cooldownLabels: { [string]: TextLabel } = {}
-local _aliveCountLabel: TextLabel? = nil
-local _cycleLabel: TextLabel? = nil
-local _proximityIndicator: Frame? = nil -- Distorcao de borda
+local _aliveCountLabel: TextLabel = nil
+local _cycleLabel: TextLabel = nil
+local _proximityIndicator: Frame = nil -- Distorcao de borda
 
 -- Cache de estado recebido do servidor
 local _cachedFury: number = 0
@@ -48,8 +48,8 @@ local _cachedProximityLevel: number = 0 -- 0=Calma, 1=Alerta, 2=Perseguicao
 local _cachedCycleTime: number = 240
 
 -- Conexao do UISyncEvent
-local _uiSyncEvent: RemoteEvent? = nil
-local _uiSyncConnection: RBXScriptConnection? = nil
+local _uiSyncEvent: RemoteEvent = nil
+local _uiSyncConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Constantes visuais (estilo retraux)

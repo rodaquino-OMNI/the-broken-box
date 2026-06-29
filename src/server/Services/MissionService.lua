@@ -52,7 +52,7 @@ type MissionData = {
 	position: Vector3,
 	repetitions: number,      -- Total de repeticoes (V1=4, V2=4, V3=1)
 	completedReps: number,    -- Repeticoes ja concluidas
-	assignedPlayer: Player?, -- Jogador atualmente executando (nil se livre)
+	assignedPlayer: Player, -- Jogador atualmente executando (nil se livre)
 	state: MissionState,
 	startTime: number,        -- os.clock() de quando IN_PROGRESS comecou
 	minCompletionTime: number, -- Tempo minimo anti-exploit (s)
@@ -102,7 +102,7 @@ end
 --[[
   Calcula a distancia entre um jogador e uma missao.
 ]]
-local function getPlayerDistanceToMission(player: Player, missionData: MissionData): number?
+local function getPlayerDistanceToMission(player: Player, missionData: MissionData): number
 	local character = player.Character
 	if not character then
 		return nil
@@ -264,7 +264,7 @@ end
   Cancela a missao ativa de um jogador.
   Pode ser chamado por movimento (cliente) ou por desistencia.
 ]]
-function MissionService.cancelMission(player: Player, reason: string?): ()
+function MissionService.cancelMission(player: Player, reason: string): ()
 	for missionId, mission in pairs(_missions) do
 		if mission.assignedPlayer == player and mission.state == "IN_PROGRESS" then
 			local missionType = mission.type
@@ -377,7 +377,7 @@ end
 --[[
   Retorna os dados de uma missao especifica.
 ]]
-function MissionService.getMission(missionId: string): MissionData?
+function MissionService.getMission(missionId: string): MissionData
 	return _missions[missionId]
 end
 

@@ -65,7 +65,7 @@ local _connections = {}
   Retorna o preco de desbloqueio de um personagem.
   Retorna 0 para gratuitos, nil para inexistente.
 ]]
-function ShopService.getUnlockPrice(characterClass: string): number?
+function ShopService.getUnlockPrice(characterClass: string): number
 	if FREE_CHARACTERS[characterClass] then
 		return 0
 	end

@@ -46,21 +46,21 @@ local COLORS = {
 -- ============================================================
 -- Estado interno
 -- ============================================================
-local _screenGui: ScreenGui? = nil
-local _mainFrame: Frame? = nil
-local _titleLabel: TextLabel? = nil
-local _coinLabel: TextLabel? = nil
+local _screenGui: ScreenGui = nil
+local _mainFrame: Frame = nil
+local _titleLabel: TextLabel = nil
+local _coinLabel: TextLabel = nil
 local _characterFrames = {}
-local _statusLabel: TextLabel? = nil
+local _statusLabel: TextLabel = nil
 
 -- Estado do jogador (sincronizado via UISyncEvent)
 local _coins: number = 0
 local _unlockedCharacters = {}
 
 -- RemoteEvents (descobertos via IsA)
-local _playerActionEvent: RemoteEvent? = nil
-local _uiSyncEvent: RemoteEvent? = nil
-local _uiSyncConnection: RBXScriptConnection? = nil
+local _playerActionEvent: RemoteEvent = nil
+local _uiSyncEvent: RemoteEvent = nil
+local _uiSyncConnection: RBXScriptConnection = nil
 
 -- ============================================================
 -- Dados dos personagens (locais, para exibicao)

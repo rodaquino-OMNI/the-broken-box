@@ -26,11 +26,11 @@ local AudioService = {}
 AudioService.Name = "AudioService"
 AudioService.audioCommand = Sig.new()
 
-local MS = nil; local _gse: RemoteEvent? = nil
+local MS = nil; local _gse: RemoteEvent = nil
 local _rage = false; local _gs = "Lobby"
 local _cycle: number = math.huge
 local _lastSt = ""; local _lastSeg = -1
-local _hbc: RBXScriptConnection? = nil
+local _hbc: RBXScriptConnection = nil
 local C = GC.Audio
 
 local function sndAll(cmd: string, data: {any}): ()
@@ -129,7 +129,7 @@ local function onHb(_: number): ()
 	updSt(); updHB()
 end
 
-function AudioService.onSurvivorDamaged(p: Player, dmg: number, _src: Player?): ()
+function AudioService.onSurvivorDamaged(p: Player, dmg: number, _src: Player): ()
 	sndP(p, "AUDIO_HEARTBEAT", { proximity = pDist(p), intensity = "damaged", damage = dmg })
 end
 function AudioService.onRageActivated(_h: Player): ()

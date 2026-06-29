@@ -48,7 +48,7 @@ local InputManager = {}
 local _isMoving = false
 local _isSprinting = false
 local _moveDirection = Vector3.new(0, 0, 0)
-local _playerActionEvent: RemoteEvent? = nil
+local _playerActionEvent: RemoteEvent = nil
 
 -- ============================================================
 -- Mapeamento de teclas padrao (remapeaveis)
