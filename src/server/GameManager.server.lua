@@ -6,9 +6,9 @@
 
   Fases:
     1. setupEvents()     - criar RemoteEvents em ReplicatedStorage
-    2. initServices()     - require + Init() sincrono (injetando dependencias)
+    2. initServices()    - require + Init() sincrono (injetando dependencias)
     3. wireServiceSignals() - conectar sinais entre servicos
-    4. startServices()    - Start() assincrono (listeners, Heartbeat)
+    4. startServices()   - Start() assincrono (listeners, Heartbeat)
 
   Referencias: architecture.md 4. Padrao Init/Start
 ]]
@@ -23,9 +23,27 @@ local GameConstants = require(ReplicatedStorage.GameConstants)
 local services = {}
 
 -- Cache de RemoteEvents
-local gameStateEvent: RemoteEvent
-local playerActionEvent: RemoteEvent
-local uiSyncEvent: RemoteEvent
+local gameStateEvent
+local playerActionEvent
+local uiSyncEvent
+
+-- ============================================================
+-- Helpers para evitar pcall inline + function nesting
+-- ============================================================
+
+-- Wrapper seguro para pcall que loga erros
+local function safePcall(func, ...)
+	local ok, err = pcall(func, ...)
+	if not ok then
+		warn("[TheBrokenBox] GameManager: ERRO em pcall: " .. tostring(err))
+	end
+	return ok, err
+end
+
+-- Wrapper seguro para require (evita pcall(function() return require(...) end))
+local function safeRequire(path)
+	return pcall(require, path)
+end
 
 -- ============================================================
 -- Fase 0: Criacao dos RemoteEvents
@@ -74,12 +92,61 @@ local serviceModules = {
 	{ name = "MissionEvents",    module = nil, isEvent = true },
 }
 
-local function initServices()
-print("[TheBrokenBox] GameManager: initServices() - iniciando...")
+-- Funcao helper: chama Init() com os argumentos corretos para cada servico
+-- Usa if-then-end simples (sem elseif chains)
+local function initServiceEntry(name, mod)
+	-- SurvivorService.Init(gameStateEvent, playerActionEvent, uiSyncEvent, MatchService)
+	if name == "SurvivorService" then
+		safePcall(mod.Init, gameStateEvent, playerActionEvent, uiSyncEvent, services.MatchService)
+		return
+	end
 
-for _, entry in ipairs(serviceModules) do
-	local modLoaded = false
-	local requirePath: ModuleScript
+	-- SurvivorEvents.Init(SurvivorService, playerActionEvent, uiSyncEvent)
+	if name == "SurvivorEvents" then
+		safePcall(mod.Init, services.SurvivorService, playerActionEvent, uiSyncEvent)
+		return
+	end
+
+	-- ShopService.Init() + injectDataStoreManager(DataStoreManager)
+	if name == "ShopService" then
+		safePcall(mod.Init)
+		if services.DataStoreManager and mod.injectDataStoreManager then
+			mod.injectDataStoreManager(services.DataStoreManager)
+		end
+		return
+	end
+
+	-- MissionService.Init(MatchService, MapService)
+	if name == "MissionService" then
+		safePcall(mod.Init, services.MatchService, services.MapService)
+		return
+	end
+
+	-- CycleService.Init(MatchService)
+	if name == "CycleService" then
+		safePcall(mod.Init, services.MatchService)
+		return
+	end
+
+	-- MissionEvents.Init(MissionService, playerActionEvent)
+	if name == "MissionEvents" then
+		safePcall(mod.Init, services.MissionService, playerActionEvent)
+		return
+	end
+
+	-- AudioService.Init(gameStateEvent, MatchService)
+	if name == "AudioService" then
+		safePcall(mod.Init, gameStateEvent, services.MatchService)
+		return
+	end
+
+	-- Default: Init()
+	safePcall(mod.Init)
+end
+
+-- Funcao helper: carrega um modulo e chama Init
+local function loadAndInitService(entry)
+	local requirePath
 
 	if entry.isEvent then
 		requirePath = script.Events[entry.name]
@@ -87,92 +154,34 @@ for _, entry in ipairs(serviceModules) do
 		requirePath = script.Services[entry.name]
 	end
 
-	if requirePath then
-		local success, mod = pcall(function()
-			return require(requirePath)
-		end)
-
-		if success then
-			entry.module = mod
-			services[entry.name] = mod
-			modLoaded = true
-		else
-			warn("[TheBrokenBox] GameManager: ERRO ao carregar " .. entry.name .. ": " .. tostring(mod))
-		end
-	else
+	if not requirePath then
 		warn("[TheBrokenBox] GameManager: Modulo nao encontrado: " .. entry.name)
+		return
 	end
 
-	if modLoaded then
-		local mod = entry.module
+	-- Safe require sem pcall nesting
+	local ok, mod = safeRequire(requirePath)
+	if not ok then
+		warn("[TheBrokenBox] GameManager: ERRO ao carregar " .. entry.name .. ": " .. tostring(mod))
+		return
+	end
 
-		-- Chamar Init() com dependencias apropriadas
-		if mod.Init then
-			local initOk, initErr
-			if entry.name == "SurvivorService" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						gameStateEvent,
-						playerActionEvent,
-						uiSyncEvent,
-						services.MatchService
-					)
-				end)
-				elseif entry.name == "SurvivorEvents" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						services.SurvivorService,
-						playerActionEvent,
-						uiSyncEvent
-					)
-				end)
-			elseif entry.name == "ShopService" then
-				initOk, initErr = pcall(function()
-					mod.Init()
-					-- Injetar DataStoreManager apos Init (dependencia hard)
-					if services.DataStoreManager and mod.injectDataStoreManager then
-						mod.injectDataStoreManager(services.DataStoreManager)
-					end
-				end)
-			elseif entry.name == "MissionService" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						services.MatchService,
-						services.MapService
-					)
-				end)
-			elseif entry.name == "CycleService" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						services.MatchService
-					)
-				end)
-			elseif entry.name == "MissionEvents" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						services.MissionService,
-						playerActionEvent
-					)
-				end)
-				elseif entry.name == "AudioService" then
-				initOk, initErr = pcall(function()
-					mod.Init(
-						gameStateEvent,
-						services.MatchService
-					)
-				end)
-			else
-				initOk, initErr = pcall(function()
-					mod.Init()
-				end)
-			end
+	entry.module = mod
+	services[entry.name] = mod
 
-			if not initOk then
-				warn("[TheBrokenBox] GameManager: ERRO em " .. entry.name .. ".Init(): " .. tostring(initErr))
-			end
-		end
+	-- Chamar Init() com dependencias apropriadas
+	if mod.Init then
+		initServiceEntry(entry.name, mod)
+	end
 
-		print("[TheBrokenBox] GameManager: " .. entry.name .. " carregado.")
+	print("[TheBrokenBox] GameManager: " .. entry.name .. " carregado.")
+end
+
+local function initServices()
+	print("[TheBrokenBox] GameManager: initServices() - iniciando...")
+
+	for _, entry in ipairs(serviceModules) do
+		loadAndInitService(entry)
 	end
 
 	print("[TheBrokenBox] GameManager: initServices() - concluido.")
@@ -181,77 +190,93 @@ end
 -- ============================================================
 -- Fase 2: Conexao de sinais entre servicos (wiring)
 -- ============================================================
-local function wireServiceSignals()
-	print("[TheBrokenBox] GameManager: wireServiceSignals() - conectando sinais...")
 
-	local MatchService = services.MatchService
-	local StaminaService = services.StaminaService
-	local HitboxService = services.HitboxService
-	local SurvivorService = services.SurvivorService
+-- Sub-funcao 1: Injecao de dependencias
+local function wireDependencies()
 	local HunterService = services.HunterService
 	local HunterEvents = services.HunterEvents
+	local SpawnService = services.SpawnService
+	local EscapeService = services.EscapeService
+	local ShopService = services.ShopService
+	local DataStoreManager = services.DataStoreManager
+	local MatchService = services.MatchService
+	local HitboxService = services.HitboxService
+	local StaminaService = services.StaminaService
 	local MapService = services.MapService
+	local MissionService = services.MissionService
 
-	-- Injecao de dependencias do HunterService
+	-- HunterService.injectDependencies(MatchService, HitboxService, StaminaService)
 	if HunterService and HunterService.injectDependencies then
-		HunterService.injectDependencies(
-			MatchService,
-			HitboxService,
-			StaminaService
-		)
+		HunterService.injectDependencies(MatchService, HitboxService, StaminaService)
 		print("[TheBrokenBox] GameManager: HunterService dependencias injetadas.")
 	end
 
-	-- Injecao de dependencias do SpawnService
-	local SpawnService = services.SpawnService
+	-- SpawnService.injectDependencies(MatchService, MapService)
 	if SpawnService and SpawnService.injectDependencies then
-		SpawnService.injectDependencies(
-			MatchService,
-			MapService
-		)
+		SpawnService.injectDependencies(MatchService, MapService)
 		print("[TheBrokenBox] GameManager: SpawnService dependencias injetadas.")
 	end
 
-	-- Injecao de dependencias do HunterEvents
+	-- HunterEvents.injectDependencies(HunterService, MatchService)
 	if HunterEvents and HunterEvents.injectDependencies then
-		HunterEvents.injectDependencies(
-			HunterService,
-			MatchService
-		)
+		HunterEvents.injectDependencies(HunterService, MatchService)
 	end
+
+	-- EscapeService.injectDependencies(MatchService, MapService, MissionService, ShopService)
+	if EscapeService and EscapeService.injectDependencies then
+		EscapeService.injectDependencies(MatchService, MapService, MissionService, ShopService)
+		print("[TheBrokenBox] GameManager: EscapeService dependencias injetadas.")
+	end
+
+	-- ShopService.injectDataStoreManager(DataStoreManager)
+	if ShopService and DataStoreManager and ShopService.injectDataStoreManager then
+		ShopService.injectDataStoreManager(DataStoreManager)
+		print("[TheBrokenBox] GameManager: DataStoreManager injetado no ShopService.")
+	end
+end
+
+-- Sub-funcao 2: Wiring do MatchService + HitboxService + StaminaService
+local function wireCoreServices()
+	local MatchService = services.MatchService
+	local StaminaService = services.StaminaService
+	local HitboxService = services.HitboxService
 
 	-- MatchService sinaliza mudanca de estado da partida
 	if MatchService and MatchService.matchStateChanged then
-		MatchService.matchStateChanged:Connect(function(newState: string)
+		MatchService.matchStateChanged:Connect(function(newState)
 			print("[TheBrokenBox] Estado da partida: " .. newState)
 		end)
 	end
 
 	-- MatchService sinaliza jogador morto -> notificar servicos
 	if MatchService and MatchService.playerDied then
-		MatchService.playerDied:Connect(function(player: Player)
+		MatchService.playerDied:Connect(function(player)
 			if StaminaService and StaminaService.onPlayerDied then
 				StaminaService.onPlayerDied(player)
 			end
 			if HitboxService and HitboxService.onPlayerDied then
 				HitboxService.onPlayerDied(player)
 			end
-			-- SurvivorService conecta internamente via Init()
 		end)
 	end
 
 	-- HitboxService sinaliza dano aplicado -> notificar MatchService
 	if HitboxService and HitboxService.damageApplied then
-		HitboxService.damageApplied:Connect(function(target: Player, damage: number, source: Player)
+		HitboxService.damageApplied:Connect(function(target, damage, source)
 			if MatchService and MatchService.onDamageApplied then
 				MatchService.onDamageApplied(target, damage, source)
 			end
 		end)
 	end
+end
 
-	-- SurvivorService sinaliza dano em Sobrevivente -> notificar HUD
+-- Sub-funcao 3: Wiring do SurvivorService
+local function wireSurvivorService()
+	local SurvivorService = services.SurvivorService
+
+	-- SurvivorService.survivorDamaged -> UISyncEvent (HUD)
 	if SurvivorService and SurvivorService.survivorDamaged then
-		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player)
+		SurvivorService.survivorDamaged:Connect(function(player, damage, source)
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.firePlayer(
@@ -264,9 +289,9 @@ local function wireServiceSignals()
 		end)
 	end
 
-	-- SurvivorService sinaliza cura em Sobrevivente -> notificar HUD
+	-- SurvivorService.survivorHealed -> UISyncEvent (HUD)
 	if SurvivorService and SurvivorService.survivorHealed then
-		SurvivorService.survivorHealed:Connect(function(player: Player, amount: number, healer: Player)
+		SurvivorService.survivorHealed:Connect(function(player, amount, healer)
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.firePlayer(
@@ -279,9 +304,9 @@ local function wireServiceSignals()
 		end)
 	end
 
-	-- SurvivorService sinaliza morte de Sobrevivente -> notificar todos
+	-- SurvivorService.survivorDied -> GameStateEvent (PLAYER_DIED para todos)
 	if SurvivorService and SurvivorService.survivorDied then
-		SurvivorService.survivorDied:Connect(function(player: Player)
+		SurvivorService.survivorDied:Connect(function(player)
 			if gameStateEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.fireAll(
@@ -292,56 +317,61 @@ local function wireServiceSignals()
 			end
 		end)
 	end
+end
 
-	-- ============================================================
-	-- Wiring do HunterService
-	-- ============================================================
+-- Sub-funcao 4: Wiring do HunterService
+local function wireHunterService()
+	local MatchService = services.MatchService
+	local HunterService = services.HunterService
 
-	-- HunterService: quando o Cacador e atacado, ganha Furia
+	-- damageTaken -> onHunterAttacked (ganha Furia)
 	if HunterService and MatchService and MatchService.damageTaken then
-		MatchService.damageTaken:Connect(function(target: Player, damage: number, source: Player)
+		MatchService.damageTaken:Connect(function(target, damage, source)
 			if HunterService.isHunter(target) then
 				HunterService.onHunterAttacked(source)
 			end
 		end)
 	end
 
-	-- MatchService: quando papeis sao atribuidos, notificar HunterService
+	-- roleAssigned -> setHunter
 	if HunterService and MatchService and MatchService.roleAssigned then
-		MatchService.roleAssigned:Connect(function(player: Player, role: string)
+		MatchService.roleAssigned:Connect(function(player, role)
 			if role == "Hunter" then
 				HunterService.setHunter(player)
 			end
 		end)
 	end
 
-	-- MatchService: quando jogador morre, limpar estado do Hunter
+	-- playerDied -> onHunterDied (limpar estado)
 	if HunterService and MatchService and MatchService.playerDied then
-		MatchService.playerDied:Connect(function(player: Player)
+		MatchService.playerDied:Connect(function(player)
 			if HunterService.isHunter(player) then
 				HunterService.onHunterDied()
 			end
 		end)
 	end
+end
 
-	-- ============================================================
-	-- Wiring do LobbyService (E4)
-	-- ============================================================
+-- Sub-funcao 5: Wiring do LobbyService + MapService
+local function wireLobbyService()
+	local MatchService = services.MatchService
 	local LobbyService = services.LobbyService
+	local MapService = services.MapService
 
-	-- LobbyService: quando um personagem e selecionado -> atribuir no MatchService
+	-- LobbyService.characterSelected -> MatchService.assignHunter/assignSurvivor
 	if LobbyService and LobbyService.characterSelected then
-		LobbyService.characterSelected:Connect(function(player: Player, characterClass: string, role: string)
+		LobbyService.characterSelected:Connect(function(player, characterClass, role)
 			if role == "Hunter" and MatchService then
 				MatchService.assignHunter(player)
-			elseif role == "Survivor" and MatchService then
+			end
+			if role == "Survivor" and MatchService then
 				MatchService.assignSurvivor(player, characterClass)
 			end
 		end)
 		print("[TheBrokenBox] GameManager: LobbyService.characterSelected -> MatchService conectado.")
 	end
 
-	-- LobbyService: quando o lobby fica pronto -> transicao para Selecting
+	-- LobbyService.lobbyReady -> MatchService.setMatchState("Selecting")
 	if LobbyService and LobbyService.lobbyReady then
 		LobbyService.lobbyReady:Connect(function()
 			if MatchService then
@@ -351,9 +381,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: LobbyService.lobbyReady -> MatchService.setMatchState conectado.")
 	end
 
-	-- MatchService: quando estado muda -> notificar LobbyService
+	-- MatchService.matchStateChanged(Ended) -> LobbyService.resetToGathering()
 	if MatchService and MatchService.matchStateChanged then
-		MatchService.matchStateChanged:Connect(function(newState: string)
+		MatchService.matchStateChanged:Connect(function(newState)
 			if newState == "Ended" and LobbyService then
 				LobbyService.resetToGathering()
 			end
@@ -361,9 +391,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> LobbyService conectado.")
 	end
 
-	-- MapService: gerar missoes quando a partida iniciar (Playing)
+	-- MatchService.matchStateChanged(Playing) -> MapService.generateMissions + resetSpawnIndex
 	if MatchService and MatchService.matchStateChanged and MapService then
-		MatchService.matchStateChanged:Connect(function(newState: string)
+		MatchService.matchStateChanged:Connect(function(newState)
 			if newState == "Playing" then
 				MapService.generateMissions()
 				MapService.resetSpawnIndex()
@@ -372,41 +402,28 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> MapService (missoes) conectado.")
 	end
 
-	-- MapService: fornecer spawn points quando papeis sao atribuidos
+	-- MatchService.roleAssigned -> MapService.getHunterSpawn/getRandomSurvivorSpawn
 	if MatchService and MatchService.roleAssigned and MapService then
-		MatchService.roleAssigned:Connect(function(player: Player, role: string)
+		MatchService.roleAssigned:Connect(function(player, role)
 			if role == "Hunter" then
-				-- Spawn do Cacador (posicao fixa)
 				local spawnPos = MapService.getHunterSpawn()
-				-- O spawn real e feito pelo MatchService/HunterService
 				print("[TheBrokenBox] GameManager: Spawn do Hunter em " .. tostring(spawnPos))
-			elseif role == "Survivor" then
-				-- Spawn do Sobrevivente (aleatorio)
+			end
+			if role == "Survivor" then
 				local spawnPos = MapService.getRandomSurvivorSpawn()
 				print("[TheBrokenBox] GameManager: Spawn do Survivor " .. player.Name .. " em " .. tostring(spawnPos))
 			end
 		end)
 		print("[TheBrokenBox] GameManager: MatchService.roleAssigned -> MapService (spawns) conectado.")
 	end
+end
 
-	-- ============================================================
-	-- Wiring do EscapeService (E6)
-	-- ============================================================
+-- Sub-funcao 6: Wiring do EscapeService
+local function wireEscapeService()
+	local MatchService = services.MatchService
 	local EscapeService = services.EscapeService
-	local MissionService = services.MissionService
 	local ShopService = services.ShopService
 	local CycleService = services.CycleService
-
-	-- Injecao de dependencias do EscapeService
-	if EscapeService and EscapeService.injectDependencies then
-		EscapeService.injectDependencies(
-			MatchService,
-			MapService,
-			MissionService,  -- Pode ser nil (wire guard interno)
-			ShopService      -- Pode ser nil (wire guard interno)
-		)
-		print("[TheBrokenBox] GameManager: EscapeService dependencias injetadas.")
-	end
 
 	-- CycleService.cycleZero -> EscapeService.startEscape()
 	if CycleService and CycleService.cycleZero and EscapeService then
@@ -417,9 +434,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: CycleService.cycleZero -> EscapeService.startEscape() conectado.")
 	end
 
-	-- EscapeService.playerEscaped -> ShopService (+40 coins)
+	-- EscapeService.playerEscaped -> ShopService.addCoins (+40)
 	if EscapeService and EscapeService.playerEscaped then
-		EscapeService.playerEscaped:Connect(function(player: Player, gateId: string)
+		EscapeService.playerEscaped:Connect(function(player, gateId)
 			if ShopService and ShopService.addCoins then
 				ShopService.addCoins(player, GameConstants.Economy.COIN_FUGA)
 				print("[TheBrokenBox] GameManager: " .. player.Name .. " escapou - +" .. GameConstants.Economy.COIN_FUGA .. " moedas")
@@ -428,15 +445,14 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: EscapeService.playerEscaped -> ShopService conectado.")
 	end
 
-	-- EscapeService.escapeEnded -> MatchService (resolver vitoria)
+	-- EscapeService.escapeEnded -> MatchService (MATCH_ENDED + setMatchState("Ended"))
 	if EscapeService and EscapeService.escapeEnded then
-		EscapeService.escapeEnded:Connect(function(escapedCount: number, totalAtStart: number)
+		EscapeService.escapeEnded:Connect(function(escapedCount, totalAtStart)
 			print("[TheBrokenBox] GameManager: escapeEnded - " .. escapedCount .. " escaparam de " .. totalAtStart)
 
 			if MatchService then
-				-- Resolver vitoria
-				local winner: string
-				local result: string
+				local winner
+				local result
 
 				if escapedCount > 0 then
 					winner = "Survivors"
@@ -473,21 +489,18 @@ local function wireServiceSignals()
 		end)
 		print("[TheBrokenBox] GameManager: EscapeService.escapeEnded -> MatchService (MATCH_ENDED) conectado.")
 	end
+end
 
-	-- ============================================================
-	-- Wiring do DataStoreManager + ShopService (E7)
-	-- ============================================================
+-- Sub-funcao 7: Wiring do ShopService + DataStoreManager
+local function wireShopService()
+	local LobbyService = services.LobbyService
+	local MissionService = services.MissionService
+	local ShopService = services.ShopService
 	local DataStoreManager = services.DataStoreManager
 
-	-- Inject DataStoreManager into ShopService (if not done in Init)
-	if ShopService and DataStoreManager and ShopService.injectDataStoreManager then
-		ShopService.injectDataStoreManager(DataStoreManager)
-		print("[TheBrokenBox] GameManager: DataStoreManager injetado no ShopService.")
-	end
-
-	-- MissionService.missionCompleted -> ShopService (+15 coins)
+	-- MissionService.missionCompleted -> ShopService.addCoins (+15)
 	if MissionService and MissionService.missionCompleted then
-		MissionService.missionCompleted:Connect(function(player: Player, missionId: string)
+		MissionService.missionCompleted:Connect(function(player, missionId)
 			if ShopService and ShopService.addCoins then
 				local GameConstants = require(ReplicatedStorage.GameConstants)
 				ShopService.addCoins(player, GameConstants.Economy.COIN_MISSAO)
@@ -497,15 +510,13 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> ShopService (+15 coins) conectado.")
 	end
 
-	-- ShopService.characterUnlocked -> notificar LobbyService + UISync
+	-- ShopService.characterUnlocked -> LobbyService + UISyncEvent
 	if ShopService and ShopService.characterUnlocked then
-		ShopService.characterUnlocked:Connect(function(player: Player, characterClass: string)
-			-- Notificar LobbyService para atualizar lista de personagens disponiveis
+		ShopService.characterUnlocked:Connect(function(player, characterClass)
 			if LobbyService and LobbyService.onCharacterUnlocked then
 				LobbyService.onCharacterUnlocked(player, characterClass)
 			end
 
-			-- Notificar cliente via UISyncEvent
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				RemoteEventUtils.firePlayer(
@@ -524,9 +535,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: ShopService.characterUnlocked -> LobbyService/UISync conectado.")
 	end
 
-	-- ShopService.coinsUpdated -> notificar cliente via UISyncEvent
+	-- ShopService.coinsUpdated -> UISyncEvent (COINS_UPDATED)
 	if ShopService and ShopService.coinsUpdated then
-		ShopService.coinsUpdated:Connect(function(player: Player, newTotal: number)
+		ShopService.coinsUpdated:Connect(function(player, newTotal)
 			if uiSyncEvent then
 				local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 				local unlockedChars = {}
@@ -550,43 +561,48 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: ShopService.coinsUpdated -> UISyncEvent conectado.")
 	end
 
-		-- Handler: BUY_UNLOCK via PlayerActionEvent -> ShopService.buyCharacter
-		if playerActionEvent and ShopService then
-			playerActionEvent.OnServerEvent:Connect(function(player: Player, message: { type: string, data: {any} })
-				if message and message.type == "BUY_UNLOCK" then
-					local data = message.data or {}
-					local characterClass = data.characterClass
-					if characterClass then
-						print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " - " .. characterClass)
-						ShopService.buyCharacter(player, characterClass)
-					end
+	-- Handler: BUY_UNLOCK via PlayerActionEvent -> ShopService.buyCharacter
+	if playerActionEvent and ShopService then
+		playerActionEvent.OnServerEvent:Connect(function(player, message)
+			if message and message.type == "BUY_UNLOCK" then
+				local data = message.data or {}
+				local characterClass = data.characterClass
+				if characterClass then
+					print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " - " .. characterClass)
+					ShopService.buyCharacter(player, characterClass)
 				end
-			end)
-			print("[TheBrokenBox] GameManager: BUY_UNLOCK handler conectado (PlayerActionEvent -> ShopService).")
-		end
+			end
+		end)
+		print("[TheBrokenBox] GameManager: BUY_UNLOCK handler conectado (PlayerActionEvent -> ShopService).")
+	end
 
-		-- Handler: RETURN_TO_LOBBY + SPECTATE_NEXT via PlayerActionEvent
-		if playerActionEvent and LobbyService then
-			playerActionEvent.OnServerEvent:Connect(function(player: Player, message: { type: string, data: {any} })
-				if message and message.type == "RETURN_TO_LOBBY" then
-					print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY recebido de " .. player.Name)
-					if LobbyService.returnPlayerToLobby then
-						LobbyService.returnPlayerToLobby(player)
-					end
-				elseif message and message.type == "SPECTATE_NEXT" then
-					print("[TheBrokenBox] GameManager: SPECTATE_NEXT recebido de " .. player.Name .. " (handler pendente)")
+	-- Handler: RETURN_TO_LOBBY + SPECTATE_NEXT via PlayerActionEvent
+	if playerActionEvent and LobbyService then
+		playerActionEvent.OnServerEvent:Connect(function(player, message)
+			if message and message.type == "RETURN_TO_LOBBY" then
+				print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY recebido de " .. player.Name)
+				if LobbyService.returnPlayerToLobby then
+					LobbyService.returnPlayerToLobby(player)
 				end
-			end)
-			print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY + SPECTATE_NEXT handlers conectados (PlayerActionEvent).")
-		end
+			end
+			if message and message.type == "SPECTATE_NEXT" then
+				print("[TheBrokenBox] GameManager: SPECTATE_NEXT recebido de " .. player.Name .. " (handler pendente)")
+			end
+		end)
+		print("[TheBrokenBox] GameManager: RETURN_TO_LOBBY + SPECTATE_NEXT handlers conectados (PlayerActionEvent).")
+	end
+end
 
-	-- ============================================================
-	-- Wiring do MissionService + CycleService (E5)
-	-- ============================================================
+-- Sub-funcao 8: Wiring do MissionService + CycleService
+local function wireMissionCycle()
+	local MatchService = services.MatchService
+	local MissionService = services.MissionService
+	local CycleService = services.CycleService
+	local HunterService = services.HunterService
 
-	-- MissionService: missionCompleted -> CycleService (-10s)
+	-- MissionService.missionCompleted -> CycleService.onMissionCompleted (-10s)
 	if MissionService and MissionService.missionCompleted and CycleService then
-		MissionService.missionCompleted:Connect(function(player: Player, missionId: string, missionType: string)
+		MissionService.missionCompleted:Connect(function(player, missionId, missionType)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onMissionCompleted()
 				print("[TheBrokenBox] GameManager: missionCompleted -> CycleService (-10s) - " .. missionId)
@@ -595,9 +611,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> CycleService (-10s) conectado.")
 	end
 
-	-- MatchService: playerDied -> CycleService (+20s)
+	-- MatchService.playerDied -> CycleService.onPlayerDied (+20s)
 	if MatchService and MatchService.playerDied and CycleService then
-		MatchService.playerDied:Connect(function(player: Player)
+		MatchService.playerDied:Connect(function(player)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onPlayerDied(player)
 				print("[TheBrokenBox] GameManager: playerDied -> CycleService (+20s se Survivor) - " .. player.Name)
@@ -606,9 +622,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MatchService.playerDied -> CycleService (+20s) conectado.")
 	end
 
-	-- HunterService: rageActivated -> CycleService (pause)
+	-- HunterService.rageActivated -> CycleService.onRageActivated (pause)
 	if HunterService and HunterService.rageActivated and CycleService then
-		HunterService.rageActivated:Connect(function(hunter: Player)
+		HunterService.rageActivated:Connect(function(hunter)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onRageActivated()
 				print("[TheBrokenBox] GameManager: rageActivated -> CycleService (pause)")
@@ -617,9 +633,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: HunterService.rageActivated -> CycleService (pause) conectado.")
 	end
 
-	-- HunterService: rageDeactivated -> CycleService (resume)
+	-- HunterService.rageDeactivated -> CycleService.onRageDeactivated (resume)
 	if HunterService and HunterService.rageDeactivated and CycleService then
-		HunterService.rageDeactivated:Connect(function(hunter: Player, remainingFury: number)
+		HunterService.rageDeactivated:Connect(function(hunter, remainingFury)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onRageDeactivated()
 				print("[TheBrokenBox] GameManager: rageDeactivated -> CycleService (resume)")
@@ -627,10 +643,18 @@ local function wireServiceSignals()
 		end)
 		print("[TheBrokenBox] GameManager: HunterService.rageDeactivated -> CycleService (resume) conectado.")
 	end
+end
 
-	-- MatchService: estado Playing -> MissionService.initializeMissions() + CycleService.startCycle() + SpawnService.teleportAllPlayers()
+-- Sub-funcao 9: Wiring do estado Playing + SpawnService + CycleService
+local function wirePlayingState()
+	local MatchService = services.MatchService
+	local MissionService = services.MissionService
+	local CycleService = services.CycleService
+	local SpawnService = services.SpawnService
+
+	-- MatchService.matchStateChanged(Playing) -> MissionService + CycleService + SpawnService
 	if MatchService and MatchService.matchStateChanged then
-		MatchService.matchStateChanged:Connect(function(newState: string)
+		MatchService.matchStateChanged:Connect(function(newState)
 			if newState == "Playing" then
 				if MissionService and MissionService.initializeMissions then
 					MissionService.initializeMissions()
@@ -649,9 +673,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MatchService.matchStateChanged -> MissionService+CycleService+SpawnService (Playing) conectado.")
 	end
 
-	-- CycleService.cycleTick -> UISyncEvent (cycleTime para HUDs)
+	-- CycleService.cycleTick -> UISyncEvent (HUD_UPDATE com cycleTime)
 	if CycleService and CycleService.cycleTick and uiSyncEvent then
-		CycleService.cycleTick:Connect(function(remainingTime: number)
+		CycleService.cycleTick:Connect(function(remainingTime)
 			local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 			RemoteEventUtils.fireAll(
 				uiSyncEvent,
@@ -661,37 +685,43 @@ local function wireServiceSignals()
 		end)
 		print("[TheBrokenBox] GameManager: CycleService.cycleTick -> UISyncEvent (cycleTime) conectado.")
 	end
+end
 
-	-- ============================================================
-	-- Wiring do AudioService (E8)
-	-- ============================================================
+-- Sub-funcao 10: Wiring do AudioService
+local function wireAudioService()
+	local MatchService = services.MatchService
+	local SurvivorService = services.SurvivorService
+	local HunterService = services.HunterService
+	local MissionService = services.MissionService
+	local CycleService = services.CycleService
+	local EscapeService = services.EscapeService
 	local AudioService = services.AudioService
 
-	-- SurvivorService.survivorDamaged -> AudioService (heartbeat SFX)
+	-- SurvivorService.survivorDamaged -> AudioService.onSurvivorDamaged (heartbeat)
 	if SurvivorService and SurvivorService.survivorDamaged and AudioService then
-		SurvivorService.survivorDamaged:Connect(function(player: Player, damage: number, source: Player)
+		SurvivorService.survivorDamaged:Connect(function(player, damage, source)
 			AudioService.onSurvivorDamaged(player, damage, source)
 		end)
 		print("[TheBrokenBox] GameManager: SurvivorService.survivorDamaged -> AudioService (heartbeat) conectado.")
 	end
 
-	-- HunterService.rageActivated -> AudioService (Perseguicao)
+	-- HunterService.rageActivated -> AudioService.onRageActivated
 	if HunterService and HunterService.rageActivated and AudioService then
-		HunterService.rageActivated:Connect(function(hunter: Player)
+		HunterService.rageActivated:Connect(function(hunter)
 			AudioService.onRageActivated(hunter)
 		end)
 		print("[TheBrokenBox] GameManager: HunterService.rageActivated -> AudioService conectado.")
 	end
 
-	-- HunterService.rageDeactivated -> AudioService (retorna camada)
+	-- HunterService.rageDeactivated -> AudioService.onRageDeactivated
 	if HunterService and HunterService.rageDeactivated and AudioService then
-		HunterService.rageDeactivated:Connect(function(hunter: Player, remainingFury: number)
+		HunterService.rageDeactivated:Connect(function(hunter, remainingFury)
 			AudioService.onRageDeactivated(hunter, remainingFury)
 		end)
 		print("[TheBrokenBox] GameManager: HunterService.rageDeactivated -> AudioService conectado.")
 	end
 
-	-- EscapeService.escapeStarted -> AudioService (climax)
+	-- EscapeService.escapeStarted -> AudioService.onEscapeStarted
 	if EscapeService and EscapeService.escapeStarted and AudioService then
 		EscapeService.escapeStarted:Connect(function()
 			AudioService.onEscapeStarted()
@@ -699,9 +729,9 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: EscapeService.escapeStarted -> AudioService conectado.")
 	end
 
-	-- MissionService.missionCompleted -> AudioService (SFX)
+	-- MissionService.missionCompleted -> AudioService.onMissionCompleted
 	if MissionService and MissionService.missionCompleted and AudioService then
-		MissionService.missionCompleted:Connect(function(player: Player, missionId: string, missionType: string)
+		MissionService.missionCompleted:Connect(function(player, missionId, missionType)
 			if AudioService.onMissionCompleted then
 				AudioService.onMissionCompleted(player, missionId, missionType)
 			end
@@ -709,21 +739,37 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> AudioService (SFX) conectado.")
 	end
 
-	-- MatchService.playerDied -> AudioService (SFX)
+	-- MatchService.playerDied -> AudioService.onPlayerDied
 	if MatchService and MatchService.playerDied and AudioService then
-		MatchService.playerDied:Connect(function(player: Player)
+		MatchService.playerDied:Connect(function(player)
 			AudioService.onPlayerDied(player)
 		end)
 		print("[TheBrokenBox] GameManager: MatchService.playerDied -> AudioService (SFX) conectado.")
 	end
 
-	-- CycleService.cycleTick -> AudioService (ajustar camada por proximidade)
+	-- CycleService.cycleTick -> AudioService.onCycleTick
 	if CycleService and CycleService.cycleTick and AudioService then
-		CycleService.cycleTick:Connect(function(remainingTime: number)
+		CycleService.cycleTick:Connect(function(remainingTime)
 			AudioService.onCycleTick(remainingTime)
 		end)
 		print("[TheBrokenBox] GameManager: CycleService.cycleTick -> AudioService conectado.")
 	end
+end
+
+-- wireServiceSignals principal
+local function wireServiceSignals()
+	print("[TheBrokenBox] GameManager: wireServiceSignals() - conectando sinais...")
+
+	wireDependencies()
+	wireCoreServices()
+	wireSurvivorService()
+	wireHunterService()
+	wireLobbyService()
+	wireEscapeService()
+	wireShopService()
+	wireMissionCycle()
+	wirePlayingState()
+	wireAudioService()
 
 	print("[TheBrokenBox] GameManager: wireServiceSignals() - concluido.")
 end
@@ -737,9 +783,7 @@ local function startServices()
 	for _, entry in ipairs(serviceModules) do
 		local mod = entry.module
 		if mod and mod.Start then
-			local startOk, startErr = pcall(function()
-				mod.Start()
-			end)
+			local startOk, startErr = pcall(mod.Start)
 			if not startOk then
 				warn("[TheBrokenBox] GameManager: ERRO em " .. entry.name .. ".Start(): " .. tostring(startErr))
 			end

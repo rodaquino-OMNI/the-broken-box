@@ -35,13 +35,22 @@ local ID = {
 	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
 }
 
-local lby: Sound, amb: Sound, ch = {}, fug: Sound, hb: Sound
-local curSt = ""; local curSeg = 0; local fugOn = false
+local lby: Sound
+local amb: Sound
+local ch = {}
+local fug: Sound
+local hb: Sound
+local curSt = ""
+local curSeg = 0
+local fugOn = false
 local tws = {}
 local sfx = {}
 local fld: Folder
-local eGui: ScreenGui, vig: Frame, eFr = {}
-local gse: RemoteEvent, gsc: RBXScriptConnection
+local eGui: ScreenGui
+local vig: Frame
+local eFr = {}
+local gse: RemoteEvent
+local gsc: RBXScriptConnection
 
 local function getFld(): Folder
 	if fld then return fld end
