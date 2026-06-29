@@ -68,14 +68,14 @@ MapData.GATES = {
 MapData.STRUCTURES = {
 	CASTLE = {
 		name = "Castelo",
-		function = "Loopar",
+		["function"] = "Loopar",
 		min = { x = -100, y = 0, z = 50 },
 		max = { x = -30, y = 40, z = 120 },
 		-- Centro aproximado: (-65, 20, 85)
 	},
 	CAVERN = {
 		name = "Caverna",
-		function = "Esconder",
+		["function"] = "Esconder",
 		min = { x = -140, y = -15, z = -90 },
 		max = { x = -60, y = 5, z = -10 },
 		-- Area rebaixada, mais escura
@@ -83,7 +83,7 @@ MapData.STRUCTURES = {
 	},
 	WAREHOUSE = {
 		name = "Estoque",
-		function = "Despistar",
+		["function"] = "Despistar",
 		min = { x = 20, y = 0, z = -130 },
 		max = { x = 100, y = 15, z = -30 },
 		-- Labirinto de corredores/prateleiras

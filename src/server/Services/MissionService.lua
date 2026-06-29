@@ -86,7 +86,7 @@ local MIN_COMPLETION_TIMES = {
   Obtem a configuracao de uma missao a partir do MapService.
   Procura nas missoes ativas pelo ID.
 ]]
-local function getMissionCandidate(missionId: string)?
+local function getMissionCandidate(missionId: string)
 	if not MapService then
 		return nil
 	end
@@ -122,7 +122,7 @@ end
   - Missao existe e esta PENDING
   - Dentro do range
 ]]
-local function canInteractWithMission(player: Player, missionId: string): (boolean, string?)
+local function canInteractWithMission(player: Player, missionId: string): (boolean, string)
 	-- Verificar dados do jogador
 	if not MatchService then
 		return false, "MatchService indisponivel"
@@ -197,7 +197,7 @@ function MissionService.initializeMissions(): ()
 
 	for _, candidate in ipairs(activeMissions) do
 		local missionType = candidate.type
-		local missionConfig: {any}? = nil
+		local missionConfig = nil
 
 		if missionType == "V1" then
 			missionConfig = GameConstants.Missions.V1_BREAKER
@@ -237,7 +237,7 @@ end
   Chamado quando o servidor recebe INTERACT_MISSION.
   Retorna true se a missao foi iniciada.
 ]]
-function MissionService.startMission(player: Player, missionId: string): (boolean, string?)
+function MissionService.startMission(player: Player, missionId: string): (boolean, string)
 	local canStart, reason = canInteractWithMission(player, missionId)
 	if not canStart then
 		return false, reason
@@ -286,7 +286,7 @@ end
   Chamado quando o servidor recebe MISSION_PROGRESS.
   Valida server-side e, quando completo, dispara missionCompleted.
 ]]
-function MissionService.processProgress(player: Player, missionId: string, progressData: {any}?): (boolean, string?)
+function MissionService.processProgress(player: Player, missionId: string, progressData: {any}): (boolean, string)
 	-- Encontrar a missao
 	local mission = _missions[missionId]
 	if not mission then
@@ -391,7 +391,7 @@ end
 --[[
   Retorna a missao que um jogador esta executando, ou nil.
 ]]
-function MissionService.getPlayerMission(player: Player): (string, MissionData)?
+function MissionService.getPlayerMission(player: Player): (string, MissionData)
 	for missionId, mission in pairs(_missions) do
 		if mission.assignedPlayer == player and mission.state == "IN_PROGRESS" then
 			return missionId, mission
