@@ -20,17 +20,25 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- ============================================================
--- Modulos do cliente
+-- Modulos do cliente (WaitForChild para seguranca com Rojo)
 -- ============================================================
-local InputManager = require(script.Parent.Input.InputManager)
-local CameraManager = require(script.Parent.Camera.CameraManager)
-local SurvivorHUD = require(script.Parent.UI.SurvivorHUD)
-local KillerHUD = require(script.Parent.UI.KillerHUD)
-local MissionUI = require(script.Parent.UI.MissionUI)
-local CharacterSelectUI = require(script.Parent.UI.CharacterSelectUI)
-local GameOverUI = require(script.Parent.UI.GameOverUI)
-local ShopUI = require(script.Parent.UI.ShopUI)
-local AudioManager = require(script.Parent.Audio.AudioManager)
+local function safeRequire(parent: Instance, ...: string): any
+	local current = parent
+	for _, name in ipairs({...}) do
+		current = current:WaitForChild(name)
+	end
+	return require(current)
+end
+
+local InputManager = safeRequire(script.Parent, "Input", "InputManager")
+local CameraManager = safeRequire(script.Parent, "Camera", "CameraManager")
+local SurvivorHUD = safeRequire(script.Parent, "UI", "SurvivorHUD")
+local KillerHUD = safeRequire(script.Parent, "UI", "KillerHUD")
+local MissionUI = safeRequire(script.Parent, "UI", "MissionUI")
+local CharacterSelectUI = safeRequire(script.Parent, "UI", "CharacterSelectUI")
+local GameOverUI = safeRequire(script.Parent, "UI", "GameOverUI")
+local ShopUI = safeRequire(script.Parent, "UI", "ShopUI")
+local AudioManager = safeRequire(script.Parent, "Audio", "AudioManager")
 
 local clientModules = {
 	{ name = "InputManager",      module = InputManager },
