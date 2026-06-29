@@ -49,6 +49,8 @@ local _isMoving = false
 local _isSprinting = false
 local _moveDirection = Vector3.new(0, 0, 0)
 local _playerActionEvent: RemoteEvent = nil
+local _baseWalkSpeed: number? = nil  -- cached base WalkSpeed for sprint multiplier
+local _lastHumanoid: Humanoid? = nil -- track humanoid for respawn detection
 
 -- ============================================================
 -- Mapeamento de teclas padrao (remapeaveis)
@@ -113,6 +115,43 @@ local function updateMovement()
 	local direction = calculateMoveDirection()
 	local isMoving = direction.Magnitude > 0
 	local isSprinting = isMoving and UserInputService:IsKeyDown(InputManager.DefaultBinds.Sprint)
+
+	-- Move character locally via Humanoid (immediate client-side movement)
+	-- This is the Roblox built-in movement — the engine handles walking,
+	-- we just tell it which direction. Server notification below is for anti-cheat.
+	local character = LocalPlayer.Character
+	if character then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			-- Cache base walk speed on first access (reset on character change)
+			if _baseWalkSpeed == nil or humanoid ~= _lastHumanoid then
+				_baseWalkSpeed = humanoid.WalkSpeed
+				_lastHumanoid = humanoid
+			end
+
+			if isMoving then
+				-- Transform input direction to world-space relative to camera
+				local camera = workspace.CurrentCamera
+				if camera then
+					local camForward = camera.CFrame.LookVector
+					local camRight = camera.CFrame.RightVector
+					-- Project onto horizontal plane
+					local forward = Vector3.new(camForward.X, 0, camForward.Z).Unit
+					local right = Vector3.new(camRight.X, 0, camRight.Z).Unit
+					-- direction.Z = -1 forward, +1 back; direction.X = -1 left, +1 right
+					local worldDir = forward * (-direction.Z) + right * direction.X
+					humanoid.MoveDirection = worldDir.Magnitude > 0 and worldDir.Unit or worldDir
+				else
+					humanoid.MoveDirection = Vector3.new(direction.X, 0, direction.Z)
+				end
+				-- Sprint: boost WalkSpeed (client-side prediction)
+				humanoid.WalkSpeed = isSprinting and (_baseWalkSpeed * 2) or _baseWalkSpeed
+			else
+				humanoid.MoveDirection = Vector3.new(0, 0, 0)
+				humanoid.WalkSpeed = _baseWalkSpeed or humanoid.WalkSpeed
+			end
+		end
+	end
 
 	if isMoving ~= _isMoving or isSprinting ~= _isSprinting or direction ~= _moveDirection then
 		_isMoving = isMoving
