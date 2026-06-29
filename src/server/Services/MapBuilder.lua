@@ -491,7 +491,7 @@ local function construirCaverna(parent: Instance): { Part }
 					Enum.Material.Slate
 				)
 				-- Variar levemente a cor para efeito de rocha
-				local brilho = 0.7 + math.random() * 0.3
+				local brilho = 7/10 + math.random() * 0.3
 				p.Color = Color3.fromRGB(
 					math.floor(60 * brilho),
 					math.floor(55 * brilho),

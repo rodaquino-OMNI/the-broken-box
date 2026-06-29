@@ -29,9 +29,9 @@ local CameraManager = {}
 -- ============================================================
 local DEFAULT_FOV = 70
 local THIRD_PERSON_DISTANCE = 12         -- Distancia da camera em 3a pessoa (studs)
-local FIRST_PERSON_DISTANCE = 0.5        -- Distancia minima para 1a pessoa
+local FIRST_PERSON_DISTANCE = 5/10        -- Distancia minima para 1a pessoa
 local TRANSITION_SPEED = 10              -- Velocidade de transicao (maior = mais rapido)
-local CAMERA_SENSITIVITY = 1.0           -- Sensibilidade do mouse (multiplicador)
+local CAMERA_SENSITIVITY = 10/10           -- Sensibilidade do mouse (multiplicador)
 
 -- ============================================================
 -- Estado interno

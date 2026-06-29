@@ -106,7 +106,7 @@ local function _saveOriginalAppearance(character: Model): ()
 	end
 
 	-- Salvar escala
-	local scale = 1.0
+	local scale = 10/10
 	if humanoid then
 		scale = humanoid.HipHeight / 2 -- Escala aproximada
 	end

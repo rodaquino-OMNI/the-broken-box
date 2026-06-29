@@ -433,7 +433,7 @@ local function createV3UI(parent: Frame): ()
 		Name = "ZoneIndicator",
 		Size = UDim2.new(1, 0, 1, 0),
 		BackgroundColor3 = Color3.fromRGB(50, 200, 50),
-		BackgroundTransparency = 0.6,
+		BackgroundTransparency = 6/10,
 		BorderSizePixel = 0,
 		ZIndex = 1,
 	})
@@ -559,7 +559,7 @@ local function createProgressBar(parent: Frame): ()
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 		TextSize = 11,
 		Font = Enum.Font.SourceSans,
-		TextStrokeTransparency = 0.8,
+		TextStrokeTransparency = 8/10,
 		BackgroundTransparency = 1,
 		ZIndex = 2,
 	})
@@ -613,7 +613,7 @@ function MissionUI.openMission(missionId: string, missionType: string): ()
 		Size = UDim2.new(0, 300, 0, 280),
 		Position = UDim2.new(0.5, -150, 0.5, -140),
 		BackgroundColor3 = Color3.fromRGB(20, 20, 20),
-		BackgroundTransparency = 0.3,
+		BackgroundTransparency = 3/10,
 		BorderSizePixel = 1,
 		BorderColor3 = Color3.fromRGB(100, 100, 100),
 	})

@@ -169,7 +169,7 @@ local function updHB(d: number, int: string?): ()
 		if hb.IsPlaying then hb:Stop(); hb.Volume = 0 end; return
 	end
 	local pf = 1 - math.clamp(d / HR, 0, 1)
-	local vol = 0.2 + 0.8 * pf; local spd = 1.0 + 1.5 * pf
+	local vol = 2/10 + 0.8 * pf; local spd = 10/10 + 1.5 * pf
 	if int == "damaged" then vol = math.min(1, vol + 0.3); spd = math.min(3, spd + 0.5) end
 	hb.Volume = vol; hb.PlaybackSpeed = spd
 	if not hb.IsPlaying then hb:Play() end

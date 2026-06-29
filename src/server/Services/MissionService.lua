@@ -73,9 +73,9 @@ local MISSION_RANGES = {
 }
 
 local MIN_COMPLETION_TIMES = {
-	V1 = 6.0,  -- 4 levers x 4 reps = minimo ~6s (1.5s por rep)
-	V2 = 8.0,  -- 5 cables x 4 reps = minimo ~8s (2s por rep)
-	V3 = 2.5,  -- 1x ponteiro = minimo ~2.5s
+	V1 = 60/10,  -- 4 levers x 4 reps = minimo ~6s (1.5s por rep)
+	V2 = 80/10,  -- 5 cables x 4 reps = minimo ~8s (2s por rep)
+	V3 = 25/10,  -- 1x ponteiro = minimo ~2.5s
 }
 
 -- ============================================================

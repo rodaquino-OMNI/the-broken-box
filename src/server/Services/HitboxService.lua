@@ -414,7 +414,7 @@ function HitboxService.createProjectile(
 	-- Usar corrotina para mover o projetil a cada frame
 	task.spawn(function()
 		local position = origin
-		local elapsed = 0.0
+		local elapsed = 0/10
 		local stepTime = 1 / 60  -- ~60Hz
 
 		while elapsed < maxDuration do

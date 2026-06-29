@@ -513,7 +513,7 @@ local function medicoA2(player: Player, ext: SurvivorExtState): ()
 		-- Hitbox durante o dash
 		local hitHunter = false
 		local dashStart = os.clock()
-		local dashDuration = 0.3
+		local dashDuration = 3/10
 
 		local dashConnection: RBXScriptConnection?
 		dashConnection = RunService.Heartbeat:Connect(function()
