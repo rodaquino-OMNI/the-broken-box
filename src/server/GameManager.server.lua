@@ -5,10 +5,10 @@
   de todos os servicos na ordem correta (Init/Start pattern).
 
   Fases:
-    1. setupEvents()     — criar RemoteEvents em ReplicatedStorage
-    2. initServices()     — require + Init() sincrono (injetando dependencias)
-    3. wireServiceSignals() — conectar sinais entre servicos
-    4. startServices()    — Start() assincrono (listeners, Heartbeat)
+    1. setupEvents()     - criar RemoteEvents em ReplicatedStorage
+    2. initServices()     - require + Init() sincrono (injetando dependencias)
+    3. wireServiceSignals() - conectar sinais entre servicos
+    4. startServices()    - Start() assincrono (listeners, Heartbeat)
 
   Referencias: architecture.md 4. Padrao Init/Start
 ]]
@@ -31,7 +31,7 @@ local uiSyncEvent: RemoteEvent?
 -- Fase 0: Criacao dos RemoteEvents
 -- ============================================================
 local function setupEvents()
-	print("[TheBrokenBox] GameManager: setupEvents() — criando RemoteEvents...")
+	print("[TheBrokenBox] GameManager: setupEvents() - criando RemoteEvents...")
 
 	-- Garantir que a pasta Events existe
 	local eventsFolder = ReplicatedStorage:FindFirstChild("Events")
@@ -75,7 +75,7 @@ local serviceModules = {
 }
 
 local function initServices()
-print("[TheBrokenBox] GameManager: initServices() — iniciando...")
+print("[TheBrokenBox] GameManager: initServices() - iniciando...")
 
 for _, entry in ipairs(serviceModules) do
 	local modLoaded = false
@@ -175,14 +175,14 @@ for _, entry in ipairs(serviceModules) do
 		print("[TheBrokenBox] GameManager: " .. entry.name .. " carregado.")
 	end
 
-	print("[TheBrokenBox] GameManager: initServices() — concluido.")
+	print("[TheBrokenBox] GameManager: initServices() - concluido.")
 end
 
 -- ============================================================
 -- Fase 2: Conexao de sinais entre servicos (wiring)
 -- ============================================================
 local function wireServiceSignals()
-	print("[TheBrokenBox] GameManager: wireServiceSignals() — conectando sinais...")
+	print("[TheBrokenBox] GameManager: wireServiceSignals() - conectando sinais...")
 
 	local MatchService = services.MatchService
 	local StaminaService = services.StaminaService
@@ -422,7 +422,7 @@ local function wireServiceSignals()
 		EscapeService.playerEscaped:Connect(function(player: Player, gateId: string)
 			if ShopService and ShopService.addCoins then
 				ShopService.addCoins(player, GameConstants.Economy.COIN_FUGA)
-				print("[TheBrokenBox] GameManager: " .. player.Name .. " escapou — +" .. GameConstants.Economy.COIN_FUGA .. " moedas")
+				print("[TheBrokenBox] GameManager: " .. player.Name .. " escapou - +" .. GameConstants.Economy.COIN_FUGA .. " moedas")
 			end
 		end)
 		print("[TheBrokenBox] GameManager: EscapeService.playerEscaped -> ShopService conectado.")
@@ -431,7 +431,7 @@ local function wireServiceSignals()
 	-- EscapeService.escapeEnded -> MatchService (resolver vitoria)
 	if EscapeService and EscapeService.escapeEnded then
 		EscapeService.escapeEnded:Connect(function(escapedCount: number, totalAtStart: number)
-			print("[TheBrokenBox] GameManager: escapeEnded — " .. escapedCount .. " escaparam de " .. totalAtStart)
+			print("[TheBrokenBox] GameManager: escapeEnded - " .. escapedCount .. " escaparam de " .. totalAtStart)
 
 			if MatchService then
 				-- Resolver vitoria
@@ -491,7 +491,7 @@ local function wireServiceSignals()
 			if ShopService and ShopService.addCoins then
 				local GameConstants = require(ReplicatedStorage.GameConstants)
 				ShopService.addCoins(player, GameConstants.Economy.COIN_MISSAO)
-				print("[TheBrokenBox] GameManager: " .. player.Name .. " completou missao " .. missionId .. " — +" .. GameConstants.Economy.COIN_MISSAO .. " moedas")
+				print("[TheBrokenBox] GameManager: " .. player.Name .. " completou missao " .. missionId .. " - +" .. GameConstants.Economy.COIN_MISSAO .. " moedas")
 			end
 		end)
 		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> ShopService (+15 coins) conectado.")
@@ -557,7 +557,7 @@ local function wireServiceSignals()
 					local data = message.data or {}
 					local characterClass = data.characterClass
 					if characterClass then
-						print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " — " .. characterClass)
+						print("[TheBrokenBox] GameManager: BUY_UNLOCK recebido de " .. player.Name .. " - " .. characterClass)
 						ShopService.buyCharacter(player, characterClass)
 					end
 				end
@@ -589,7 +589,7 @@ local function wireServiceSignals()
 		MissionService.missionCompleted:Connect(function(player: Player, missionId: string, missionType: string)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onMissionCompleted()
-				print("[TheBrokenBox] GameManager: missionCompleted -> CycleService (-10s) — " .. missionId)
+				print("[TheBrokenBox] GameManager: missionCompleted -> CycleService (-10s) - " .. missionId)
 			end
 		end)
 		print("[TheBrokenBox] GameManager: MissionService.missionCompleted -> CycleService (-10s) conectado.")
@@ -600,7 +600,7 @@ local function wireServiceSignals()
 		MatchService.playerDied:Connect(function(player: Player)
 			if CycleService.isActive and CycleService.isActive() then
 				CycleService.onPlayerDied(player)
-				print("[TheBrokenBox] GameManager: playerDied -> CycleService (+20s se Survivor) — " .. player.Name)
+				print("[TheBrokenBox] GameManager: playerDied -> CycleService (+20s se Survivor) - " .. player.Name)
 			end
 		end)
 		print("[TheBrokenBox] GameManager: MatchService.playerDied -> CycleService (+20s) conectado.")
@@ -725,14 +725,14 @@ local function wireServiceSignals()
 		print("[TheBrokenBox] GameManager: CycleService.cycleTick -> AudioService conectado.")
 	end
 
-	print("[TheBrokenBox] GameManager: wireServiceSignals() — concluido.")
+	print("[TheBrokenBox] GameManager: wireServiceSignals() - concluido.")
 end
 
 -- ============================================================
 -- Fase 3: Start assincrono de todos os servicos
 -- ============================================================
 local function startServices()
-	print("[TheBrokenBox] GameManager: startServices() — iniciando listeners...")
+	print("[TheBrokenBox] GameManager: startServices() - iniciando listeners...")
 
 	for _, entry in ipairs(serviceModules) do
 		local mod = entry.module
@@ -746,7 +746,7 @@ local function startServices()
 		end
 	end
 
-	print("[TheBrokenBox] GameManager: startServices() — concluido.")
+	print("[TheBrokenBox] GameManager: startServices() - concluido.")
 end
 
 -- ============================================================
