@@ -477,6 +477,10 @@ function HunterService.activateRage(): ()
 	local furyConfig = GameConstants.Hunter.FURY
 	_rageDuration = furyConfig.RAGE_DURATION_BASE
 
+	-- Consumir 80 de furia ao ativar Rage
+	_fury = math.max(0, _fury - furyConfig.RAGE_THRESHOLD)
+	print("[TheBrokenBox] HunterService: Furia consumida: -" .. furyConfig.RAGE_THRESHOLD .. " (restante: " .. _fury .. ")")
+
 	print("[TheBrokenBox] HunterService: RAGE ATIVADO! " .. _hunter.Name)
 
 	-- Obter personagem para transformacao visual e pulso de dano

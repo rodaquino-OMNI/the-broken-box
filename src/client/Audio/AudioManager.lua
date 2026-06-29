@@ -3,19 +3,17 @@
   AudioManager.lua - Cliente. 7 canais FINAL:
     LOBBY_MUSIC     - lobby e loja (mesma)
     MAP_AMBIENT     - musica do mapa (DIFERENTE do lobby)
-    CHASE_SECTION_1 - trecho 1 (> 60 studs)
-    CHASE_SECTION_2 - trecho 2 (30-60 studs)
-    CHASE_SECTION_3 - trecho 3 (5-30 studs)
-    CHASE_SECTION_4 - trecho 4 (colado / Rage)
+    CHASE           - 1 so, 4 trechos via TimePosition seeking
     FUGA            - 1 so, comeca calma, buildup natural, climax nos portoes
 
-  4 trechos da MESMA musica, crossfade sequencial, NAO empilham.
+  CHASE usa 1 arquivo, busca via TimePosition, NAO empilha.
   FUGA: comeca do inicio em "PreFuga", continua em "Fuga" sem reiniciar.
   Escuta AUDIO_MUSIC_STATE { layerState, chaseSegment }.
 ]]
 
 local P = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
+local RunSvc = game:GetService("RunService")
 local TS = game:GetService("TweenService")
 local LP = P.LocalPlayer
 local GC = require(RS.GameConstants)
@@ -29,19 +27,40 @@ local ER = C.DISTORTION_RADIUS; local HR = C.HEARTBEAT_RADIUS
 
 local ID = {
 	L="rbxassetid://0", M="rbxassetid://0",
-	C1="rbxassetid://0", C2="rbxassetid://0", C3="rbxassetid://0", C4="rbxassetid://0",
+	CHASE="rbxassetid://0",  -- single music file
 	F="rbxassetid://0", HB="rbxassetid://0",
 	MC="rbxassetid://0", PD="rbxassetid://0", DMG="rbxassetid://0",
 	RAGE="rbxassetid://0", GATE="rbxassetid://0", FIRE="rbxassetid://0", ESC="rbxassetid://0",
 }
 
+local CHASE_SECTIONS = {
+	[1] = 0,     -- section 1 starts at 0:00 (intro)
+	[2] = 30,    -- section 2 starts at 0:30 (build)
+	[3] = 60,    -- section 3 starts at 1:00 (climax)
+	[4] = 90,    -- section 4 starts at 1:30 (peak)
+}
+
+-- Fim de cada secao = inicio da proxima (ou duracao total do arquivo para ultima)
+local CHASE_FILE_LENGTH = 120
+local CHASE_SECTION_ENDS = {}
+do
+	for i = 1, 4 do
+		if CHASE_SECTIONS[i + 1] then
+			CHASE_SECTION_ENDS[i] = CHASE_SECTIONS[i + 1]
+		else
+			CHASE_SECTION_ENDS[i] = CHASE_FILE_LENGTH
+		end
+	end
+end
+
 local lby: Sound
 local amb: Sound
-local ch = {}
+local _chaseSound: Sound
 local fug: Sound
 local hb: Sound
 local curSt = ""
 local curSeg = 0
+local _chaseLoopConn: RBXScriptConnection
 local fugOn = false
 local tws = {}
 local sfx = {}
@@ -93,11 +112,35 @@ local function fd(s: Sound, v: number): ()
 	end
 end
 
--- Crossfade entre trechos de chase (so 1 toca)
+-- Mantem o CHASE em loop dentro da secao atual (via Heartbeat)
+local function enforceChaseLoop(): ()
+	if not _chaseSound then return end
+	if not _chaseSound.IsPlaying then return end
+	if curSeg < 1 or curSeg > 4 then return end
+
+	local sectionEnd = CHASE_SECTION_ENDS[curSeg]
+	local sectionStart = CHASE_SECTIONS[curSeg]
+	if not sectionEnd or not sectionStart then return end
+
+	if _chaseSound.TimePosition >= sectionEnd then
+		_chaseSound.TimePosition = sectionStart
+	end
+end
+
+-- Seek dentro do unico CHASE Sound conforme a secao
 local function xfc(oldSeg: number, newSeg: number): ()
 	if oldSeg == newSeg then return end
-	if oldSeg >= 1 and oldSeg <= 4 then fd(ch[oldSeg], 0) end
-	if newSeg >= 1 and newSeg <= 4 then fd(ch[newSeg], 1) end
+	if not _chaseSound then return end
+	if newSeg < 1 or newSeg > 4 then return end
+
+	local newPos = CHASE_SECTIONS[newSeg]
+	if not newPos then return end
+
+	-- Seek imediato para nova secao (Hunter se aproximou/afastou)
+	_chaseSound.TimePosition = newPos
+	curSeg = newSeg
+
+	if not _chaseSound.IsPlaying then _chaseSound:Play() end
 end
 
 -- FUGA: 1 so, toca do inicio, nao reinicia
@@ -111,19 +154,19 @@ end
 
 local function stopAll(): ()
 	fd(lby, 0); fd(amb, 0)
-	for i = 1, 4 do fd(ch[i], 0) end; curSeg = 0
+	fd(_chaseSound, 0); curSeg = 0
 end
 
 local function updMusic(st: string, seg: number): ()
 	if st == curSt then
-		if st == "Playing" and seg ~= curSeg then xfc(curSeg, seg); curSeg = seg end
+		if st == "Playing" and seg ~= curSeg then xfc(curSeg, seg) end
 		return
 	end
 	curSt = st
 
 	if st == "Fuga" then
 		fd(lby, 0); fd(amb, 0)
-		for i = 1, 4 do fd(ch[i], 0) end; curSeg = 0
+		fd(_chaseSound, 0); curSeg = 0
 		if fugOn then fd(fug, 1) end
 		return
 	end
@@ -135,7 +178,10 @@ local function updMusic(st: string, seg: number): ()
 		fd(lby, 1)
 	elseif st == "Playing" then
 		fd(amb, 1)
-		if seg >= 1 and seg <= 4 then fd(ch[seg], 1); curSeg = seg end
+		if seg >= 1 and seg <= 4 then
+			fd(_chaseSound, 1)
+			xfc(curSeg, seg)
+		end
 	elseif st == "PreFuga" then
 		startF()
 	end
@@ -219,10 +265,7 @@ function AudioManager.Init(): ()
 	mkEdge()
 	lby   = mk(ID.L,  "Music_Lobby",  true)
 	amb   = mk(ID.M,  "Music_MapAmb", true)
-	ch[1] = mk(ID.C1, "Music_ChS1",   true)
-	ch[2] = mk(ID.C2, "Music_ChS2",   true)
-	ch[3] = mk(ID.C3, "Music_ChS3",   true)
-	ch[4] = mk(ID.C4, "Music_ChS4",   true)
+	_chaseSound = mk(ID.CHASE, "Music_Chase", false)  -- loop manual via Heartbeat
 	fug   = mk(ID.F,  "Music_Fuga",   false)  -- nao loop
 	hb    = mk(ID.HB, "Heartbeat",    true)
 	local ev = RS:FindFirstChild("Events")
@@ -232,6 +275,9 @@ end
 function AudioManager.Start(): ()
 	if gse then
 		gsc = gse.OnClientEvent:Connect(onCmd)
+		if not _chaseLoopConn then
+			_chaseLoopConn = RunSvc.Heartbeat:Connect(enforceChaseLoop)
+		end
 		if lby then lby.Volume = 1; lby:Play(); curSt = "Lobby" end
 	end
 end
@@ -239,7 +285,7 @@ end
 function AudioManager.stopAll(): ()
 	if lby and lby.IsPlaying then lby:Stop() end; lby = nil
 	if amb and amb.IsPlaying then amb:Stop() end; amb = nil
-	for i = 1, 4 do if ch[i] and ch[i].IsPlaying then ch[i]:Stop() end; ch[i] = nil end
+	if _chaseSound and _chaseSound.IsPlaying then _chaseSound:Stop() end; _chaseSound = nil
 	if fug and fug.IsPlaying then fug:Stop() end; fug = nil
 	if hb then hb:Stop(); hb = nil end
 	for _, s in pairs(sfx) do if s.IsPlaying then s:Stop() end end; sfx = {}
@@ -247,6 +293,7 @@ function AudioManager.stopAll(): ()
 	if eGui then eGui:Destroy(); eGui = nil; vig = nil; eFr = {} end
 	if fld then fld:Destroy(); fld = nil end
 	if gsc then gsc:Disconnect(); gsc = nil end
+	if _chaseLoopConn then _chaseLoopConn:Disconnect(); _chaseLoopConn = nil end
 	curSt = ""; curSeg = 0; fugOn = false
 end
 
