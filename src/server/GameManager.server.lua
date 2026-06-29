@@ -149,9 +149,9 @@ local function loadAndInitService(entry)
 	local requirePath
 
 	if entry.isEvent then
-		requirePath = script.Events[entry.name]
+		requirePath = ServerScriptService.Events[entry.name]
 	else
-		requirePath = script.Services[entry.name]
+		requirePath = ServerScriptService.Services[entry.name]
 	end
 
 	if not requirePath then
