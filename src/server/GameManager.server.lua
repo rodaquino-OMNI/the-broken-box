@@ -60,6 +60,7 @@ local serviceModules = {
 	{ name = "HunterService",    module = nil },
 	{ name = "SurvivorService",  module = nil },
 	{ name = "SpawnService",     module = nil },
+	{ name = "MapBuilder",       module = nil },
 	{ name = "MapService",       module = nil },
 	{ name = "MissionService",   module = nil },
 	{ name = "CycleService",     module = nil },
