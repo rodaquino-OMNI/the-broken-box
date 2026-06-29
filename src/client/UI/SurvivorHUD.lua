@@ -521,7 +521,7 @@ local function onUISyncMessage(message: {any}): ()
 
 	elseif msgType == "LMS_ACTIVATED" then
 		-- Exibir indicacao de LMS
-		print("[TheBrokenBox] SurvivorHUD: LMS ativado! " .. tostring(data.class) .. " — " .. tostring(data.bonus))
+		print("[TheBrokenBox] SurvivorHUD: LMS ativado! " .. tostring(data.class) .. " - " .. tostring(data.bonus))
 
 	elseif msgType == "AUDIO_HEARTBEAT" then
 		-- Atualizar indicador visual de batimento cardiaco (E8)
@@ -546,7 +546,7 @@ end
   Start(): registro de listeners e loop de atualizacao.
 ]]
 function SurvivorHUD.Start(): ()
-	print("[TheBrokenBox] SurvivorHUD.Start() — registrando listeners...")
+	print("[TheBrokenBox] SurvivorHUD.Start() - registrando listeners...")
 
 	-- Encontrar o UISyncEvent em ReplicatedStorage
 	local replicatedStorage = ReplicatedStorage

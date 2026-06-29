@@ -3,9 +3,9 @@
   MissionUI.lua
   Interface de missoes (client-side).
   Exibe o minigame conforme o tipo de missao:
-    V1 Breaker  — 4 alavancas, clicar para virar a direita
-    V2 Generator — 5 cabos, conectar na sequencia
-    V3 Oil Machine — zona de ponteiro (Flee-style), clicar para travar
+    V1 Breaker  - 4 alavancas, clicar para virar a direita
+    V2 Generator - 5 cabos, conectar na sequencia
+    V3 Oil Machine - zona de ponteiro (Flee-style), clicar para travar
 
   Progresso enviado ao servidor via MISSION_PROGRESS.
   Cancelamento automatico ao detectar movimento.
@@ -56,7 +56,7 @@ local function createElement(className: string, parent: Instance, props: { [stri
 end
 
 -- ============================================================
--- V1: Disjuntor de Energia — 4 alavancas
+-- V1: Disjuntor de Energia - 4 alavancas
 -- ============================================================
 local _v1Levers: { Frame, TextButton } = {}  -- Estado de cada alavanca (false=esquerda, true=direita)
 local _v1LeverStates: { boolean } = { false, false, false, false }
@@ -201,7 +201,7 @@ local function createV1UI(parent: Frame): ()
 end
 
 -- ============================================================
--- V2: Gerador — 5 cabos para conectar em sequencia
+-- V2: Gerador - 5 cabos para conectar em sequencia
 -- ============================================================
 local _v2Cables: { TextButton } = {}
 local _v2CableStates: { boolean } = { false, false, false, false, false }
@@ -270,7 +270,7 @@ local function createV2UI(parent: Frame): ()
 	createElement("TextLabel", parent, {
 		Name = "V2Title",
 		Size = UDim2.new(1, 0, 0, 24),
-		Text = "Gerador — Conecte os cabos na ordem",
+		Text = "Gerador - Conecte os cabos na ordem",
 		TextColor3 = Color3.fromRGB(255, 200, 100),
 		TextSize = 14,
 		Font = Enum.Font.SourceSansBold,
@@ -346,7 +346,7 @@ local function createV2UI(parent: Frame): ()
 end
 
 -- ============================================================
--- V3: Maquina de Petroleo — ponteiro/zona (Flee-style)
+-- V3: Maquina de Petroleo - ponteiro/zona (Flee-style)
 -- ============================================================
 local _v3PointerAngle: number = 0
 local _v3TargetZoneStart: number = 0
@@ -650,7 +650,7 @@ function MissionUI.openMission(missionId: string, missionType: string): ()
 		MissionUI.cancelMission("user_cancel")
 	end)
 
-	print("[TheBrokenBox] MissionUI: Missao aberta — " .. missionId .. " (" .. missionType .. ")")
+	print("[TheBrokenBox] MissionUI: Missao aberta - " .. missionId .. " (" .. missionType .. ")")
 end
 
 --[[
@@ -693,7 +693,7 @@ function MissionUI.cancelMission(reason: string?): ()
 		)
 	end
 
-	print("[TheBrokenBox] MissionUI: Missao cancelada — " .. (_activeMissionId or "?") .. " (" .. (reason or "?") .. ")")
+	print("[TheBrokenBox] MissionUI: Missao cancelada - " .. (_activeMissionId or "?") .. " (" .. (reason or "?") .. ")")
 	MissionUI.closeMission()
 end
 
@@ -793,7 +793,7 @@ end
   Start(): inicia o loop de deteccao de movimento para cancelamento.
 ]]
 function MissionUI.Start(): ()
-	print("[TheBrokenBox] MissionUI.Start() — iniciando deteccao de movimento...")
+	print("[TheBrokenBox] MissionUI.Start() - iniciando deteccao de movimento...")
 
 	-- Loop de deteccao de movimento (a cada 300ms)
 	task.spawn(function()

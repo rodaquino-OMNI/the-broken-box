@@ -5,7 +5,7 @@
   Detecta teclas pressionadas e envia acoes ao servidor
   via RemoteEvent (PlayerActionEvent).
 
-  Binds padrao (PC — todos remapeaveis):
+  Binds padrao (PC - todos remapeaveis):
     WASD      = Mover
     Mouse     = Olhar / Camera
     Shift     = Correr (segurar)
@@ -14,7 +14,7 @@
     Clique Esq = M1 (Cacador)
     Q         = Habilidade 1
     Botao 1   = Habilidade 2 (ou E alternativo)
-    Botao 2   = Habilidade 3 (Robo — Rage para Cacador)
+    Botao 2   = Habilidade 3 (Robo - Rage para Cacador)
 
   Mobile:
     Joystick virtual esquerdo = Mover
@@ -180,7 +180,7 @@ local function onInputBegan(input: InputObject, gameProcessed: boolean): ()
 		return
 	end
 
-	-- M1 — Clique esquerdo do mouse (Cacador)
+	-- M1 - Clique esquerdo do mouse (Cacador)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		sendAction(PlayerActionEvent.MESSAGES.HUNTER_M1, {
 			aimPosition = LocalPlayer:GetMouse().Hit.Position,
@@ -251,7 +251,7 @@ function InputManager.Init(): ()
 end
 
 function InputManager.Start(): ()
-	print("[TheBrokenBox] InputManager.Start() — registrando listeners de input...")
+	print("[TheBrokenBox] InputManager.Start() - registrando listeners de input...")
 
 	-- Conectar handlers de input
 	UserInputService.InputBegan:Connect(onInputBegan)

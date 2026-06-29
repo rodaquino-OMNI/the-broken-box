@@ -9,7 +9,7 @@
   Usa MapService para obter as coordenadas de spawn.
   Dependencias injetadas pelo GameManager: MatchService, MapService.
 
-  Init/Start pattern. Sem sinais proprios — opera por chamada direta.
+  Init/Start pattern. Sem sinais proprios - opera por chamada direta.
   Referencias: GDD Design do Mapa, architecture.md
 ]]
 
@@ -52,7 +52,7 @@ end
 local function teleportPlayer(player: Player, position: Vector3): ()
 	local character = player.Character
 	if not character then
-		warn("[TheBrokenBox] SpawnService: Personagem nao encontrado para " .. player.Name .. " — aguardando...")
+		warn("[TheBrokenBox] SpawnService: Personagem nao encontrado para " .. player.Name .. " - aguardando...")
 		character = waitForCharacter(player, 5)
 	end
 

@@ -234,11 +234,11 @@ local function showGameOver(data: { winner: string, result: string, rewards: {an
 	-- Subtitulo
 	if subtitleLabel then
 		if resultType == "FugaTotal" then
-			subtitleLabel.Text = "Fuga Total — Todos escaparam!"
+			subtitleLabel.Text = "Fuga Total - Todos escaparam!"
 		elseif resultType == "FugaParcial" then
-			subtitleLabel.Text = "Fuga Parcial — Pelo menos 1 escapou"
+			subtitleLabel.Text = "Fuga Parcial - Pelo menos 1 escapou"
 		else
-			subtitleLabel.Text = "Contencao Total — Ninguem escapou"
+			subtitleLabel.Text = "Contencao Total - Ninguem escapou"
 		end
 	end
 
@@ -316,7 +316,7 @@ local function showGameOver(data: { winner: string, result: string, rewards: {an
 	-- Exibir a UI
 	screenGui.Enabled = true
 
-	print("[TheBrokenBox] GameOverUI: Tela exibida — " .. (isVictory and "VITORIA" or "DERROTA"))
+	print("[TheBrokenBox] GameOverUI: Tela exibida - " .. (isVictory and "VITORIA" or "DERROTA"))
 end
 
 --[[
@@ -377,7 +377,7 @@ local function onGameStateMessage(message: {any}): ()
 	local data = message.data
 
 	if msgType == "MATCH_ENDED" then
-		print("[TheBrokenBox] GameOverUI: MATCH_ENDED recebido — " .. tostring(data.winner))
+		print("[TheBrokenBox] GameOverUI: MATCH_ENDED recebido - " .. tostring(data.winner))
 		showGameOver(data)
 	end
 end
@@ -398,7 +398,7 @@ end
   Start(): registro de listeners.
 ]]
 function GameOverUI.Start(): ()
-	print("[TheBrokenBox] GameOverUI.Start() — registrando listeners...")
+	print("[TheBrokenBox] GameOverUI.Start() - registrando listeners...")
 
 	-- Encontrar eventos em ReplicatedStorage
 	local eventsFolder = ReplicatedStorage:WaitForChild("Events")

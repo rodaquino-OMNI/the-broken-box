@@ -349,7 +349,7 @@ end
   Start(): conecta o listener e constroi a UI.
 ]]
 function KillerHUD.Start(): ()
-	print("[TheBrokenBox] KillerHUD.Start() — construindo UI e registrando listener...")
+	print("[TheBrokenBox] KillerHUD.Start() - construindo UI e registrando listener...")
 
 	-- Criar interface
 	createUI()

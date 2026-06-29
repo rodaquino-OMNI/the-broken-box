@@ -227,7 +227,7 @@ function CameraManager.Init(): ()
 end
 
 function CameraManager.Start(): ()
-	print("[TheBrokenBox] CameraManager.Start() — registrando handlers...")
+	print("[TheBrokenBox] CameraManager.Start() - registrando handlers...")
 
 	-- Atualizar camera a cada frame de renderizacao
 	RunService.RenderStepped:Connect(function(deltaTime: number)

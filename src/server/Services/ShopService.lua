@@ -5,8 +5,8 @@
   desbloqueio de personagens e a loja "A Caixa".
 
   Sinais expostos:
-    coinsUpdated      — (player: Player, newTotal: number)
-    characterUnlocked — (player: Player, characterClass: string)
+    coinsUpdated      - (player: Player, newTotal: number)
+    characterUnlocked - (player: Player, characterClass: string)
 
   Ganhos de moedas:
     - missionCompleted: +15 (COIN_MISSAO)
@@ -129,7 +129,7 @@ end
 ]]
 function ShopService.addCoins(player: Player, amount: number): number
 	if not _dataStoreManager then
-		warn("[TheBrokenBox] ShopService: DataStoreManager nao injetado — moedas nao adicionadas.")
+		warn("[TheBrokenBox] ShopService: DataStoreManager nao injetado - moedas nao adicionadas.")
 		return 0
 	end
 
@@ -220,7 +220,7 @@ function ShopService.getShopCharacters(player: Player): { any }
 		unlocked = true,
 		price = 0,
 		role = "Hunter",
-		description = "O Cacador — criatura sobrenatural",
+		description = "O Cacador - criatura sobrenatural",
 	})
 
 	-- Sobreviventes gratuitos
@@ -291,7 +291,7 @@ end
   Start(): listeners de sinais externos (missionCompleted, playerEscaped).
 ]]
 function ShopService.Start(): ()
-	print("[TheBrokenBox] ShopService.Start() — aguardando sinais de moedas...")
+	print("[TheBrokenBox] ShopService.Start() - aguardando sinais de moedas...")
 	-- Os listeners serao conectados via GameManager.wireServiceSignals()
 	-- usando guard clauses (if services.MissionService then...end)
 end

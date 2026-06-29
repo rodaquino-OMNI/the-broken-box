@@ -52,12 +52,12 @@ local function onInteractMission(player: Player, data: {any}): ()
 		-- Enviar feedback ao cliente (futuro: mensagem na tela)
 		-- Por enquanto, apenas log
 		if reason then
-			print("[TheBrokenBox] MissionEvents: Interacao recusada para " .. player.Name .. " — " .. reason)
+			print("[TheBrokenBox] MissionEvents: Interacao recusada para " .. player.Name .. " - " .. reason)
 		end
 		return
 	end
 
-	print("[TheBrokenBox] MissionEvents: INTERACT_MISSION — " .. player.Name .. " iniciou " .. missionId)
+	print("[TheBrokenBox] MissionEvents: INTERACT_MISSION - " .. player.Name .. " iniciou " .. missionId)
 end
 
 --[[
@@ -77,13 +77,13 @@ local function onMissionProgress(player: Player, data: {any}): ()
 
 	if not success then
 		if reason then
-			print("[TheBrokenBox] MissionEvents: Progresso recusado de " .. player.Name .. " — " .. reason)
+			print("[TheBrokenBox] MissionEvents: Progresso recusado de " .. player.Name .. " - " .. reason)
 		end
 		return
 	end
 
 	if reason == "completed" then
-		print("[TheBrokenBox] MissionEvents: MISSION_PROGRESS — " .. player.Name .. " completou " .. missionId)
+		print("[TheBrokenBox] MissionEvents: MISSION_PROGRESS - " .. player.Name .. " completou " .. missionId)
 	else
 		-- Progresso aceito, mas ainda nao completo
 		-- (log silencioso para nao poluir)
@@ -181,7 +181,7 @@ end
   Start(): inicializacao assincrona (vazia).
 ]]
 function MissionEvents.Start(): ()
-	print("[TheBrokenBox] MissionEvents.Start() — pronto.")
+	print("[TheBrokenBox] MissionEvents.Start() - pronto.")
 end
 
 return MissionEvents

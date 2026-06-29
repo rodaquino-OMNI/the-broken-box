@@ -8,11 +8,11 @@
     - Controle de inicio de partida (minimo 2 jogadores)
 
   Sinais expostos:
-    lobbyReady      — quando o lobby esta pronto para comecar
-    characterSelected — quando um jogador seleciona personagem
+    lobbyReady      - quando o lobby esta pronto para comecar
+    characterSelected - quando um jogador seleciona personagem
 
   Init/Start pattern.
-  Referencias: GDD Lobby — A Caixa, architecture.md 11.9
+  Referencias: GDD Lobby - A Caixa, architecture.md 11.9
 ]]
 
 local Players = game:GetService("Players")
@@ -109,7 +109,7 @@ function LobbyService.getAvailableCharacters(): { any }
 		name = GameConstants.Hunter.NAME,
 		free = true,
 		role = "Hunter",
-		description = "O Cacador — criatura sobrenatural",
+		description = "O Cacador - criatura sobrenatural",
 	})
 
 	-- Sobreviventes gratuitos
@@ -285,7 +285,7 @@ end
   Atualiza a lista de personagens disponiveis no lobby.
 ]]
 function LobbyService.onCharacterUnlocked(player: Player, characterClass: string): ()
-	print("[TheBrokenBox] LobbyService: Personagem desbloqueado — " .. characterClass .. " (" .. player.Name .. ")")
+	print("[TheBrokenBox] LobbyService: Personagem desbloqueado - " .. characterClass .. " (" .. player.Name .. ")")
 	-- A lista de getAvailableCharacters ja inclui pagos;
 	-- o LobbyService agora pode delegar verificacao de unlock ao DataStoreManager
 	-- via ShopService se disponivel.
@@ -410,7 +410,7 @@ function LobbyService._assignRoles(): ()
 
 	for player, characterClass in pairs(_state.selections) do
 		local role = (characterClass == "Distorcido") and "Hunter" or "Survivor"
-		print("[TheBrokenBox] LobbyService: Papel final — " .. player.Name .. " = " .. role .. " (" .. characterClass .. ")")
+		print("[TheBrokenBox] LobbyService: Papel final - " .. player.Name .. " = " .. role .. " (" .. characterClass .. ")")
 		-- A atribuicao real (MatchService.assignHunter/assignSurvivor) e feita
 		-- pelo GameManager quando recebe o sinal characterSelected
 	end
@@ -435,7 +435,7 @@ end
   Start(): registro de listeners.
 ]]
 function LobbyService.Start(): ()
-	print("[TheBrokenBox] LobbyService.Start() — Aguardando jogadores no lobby A Caixa...")
+	print("[TheBrokenBox] LobbyService.Start() - Aguardando jogadores no lobby A Caixa...")
 
 	-- Listener de novos jogadores entrando no lobby
 	local conn = Players.PlayerAdded:Connect(function(player: Player)

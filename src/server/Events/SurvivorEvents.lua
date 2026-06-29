@@ -63,7 +63,7 @@ local function onAbility2(player: Player, data: {any}): ()
 end
 
 --[[
-  SURVIVOR_A3: Habilidade 3 (R) — apenas Robo
+  SURVIVOR_A3: Habilidade 3 (R) - apenas Robo
   - Robo: Autodestruicao
 ]]
 local function onAbility3(player: Player, data: {any}): ()
@@ -116,7 +116,7 @@ end
   Start(): inicializacao assincrona (vazia por enquanto).
 ]]
 function SurvivorEvents.Start(): ()
-	print("[TheBrokenBox] SurvivorEvents.Start() — pronto.")
+	print("[TheBrokenBox] SurvivorEvents.Start() - pronto.")
 end
 
 return SurvivorEvents

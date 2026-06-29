@@ -9,7 +9,7 @@
   Usa script.Parent para requires (convencao Rojo).
   Usa IsA("RemoteEvent") para encontrar RemoteEvents em ReplicatedStorage.
 
-  Referencias: GDD Progressao de Jogador, Lobby — A Caixa
+  Referencias: GDD Progressao de Jogador, Lobby - A Caixa
 ]]
 
 local Players = game:GetService("Players")
@@ -24,7 +24,7 @@ local GameConstants = require(ReplicatedStorage.GameConstants)
 local ShopUI = {}
 
 -- ============================================================
--- Cores e estilo (retraux — consistente com CharacterSelectUI)
+-- Cores e estilo (retraux - consistente com CharacterSelectUI)
 -- ============================================================
 local COLORS = {
 	BG = Color3.fromRGB(15, 15, 20),
@@ -91,7 +91,7 @@ local function getShopCharacters(): { CharacterInfo }
 		free = true,
 		unlocked = true,
 		price = 0,
-		description = "O Cacador — criatura sobrenatural (HP 2000)",
+		description = "O Cacador - criatura sobrenatural (HP 2000)",
 	})
 
 	-- Sobreviventes gratuitos
@@ -318,7 +318,7 @@ local function createShopButton(parent: Frame, char: CharacterInfo, index: numbe
 				},
 			})
 
-			print("[TheBrokenBox] ShopUI: Solicitando compra — " .. char.class .. " (" .. char.price .. " moedas)")
+			print("[TheBrokenBox] ShopUI: Solicitando compra - " .. char.class .. " (" .. char.price .. " moedas)")
 
 			if _statusLabel then
 				_statusLabel.Text = "Comprando " .. char.name .. "..."
@@ -360,7 +360,7 @@ local function createUI(): ()
 	_titleLabel.Size = UDim2.new(1, -20, 0, 36)
 	_titleLabel.Position = UDim2.new(0, 10, 0, 8)
 	_titleLabel.BackgroundTransparency = 1
-	_titleLabel.Text = "A CAIXA — O VENDEDOR"
+	_titleLabel.Text = "A CAIXA - O VENDEDOR"
 	_titleLabel.TextColor3 = COLORS.TITLE
 	_titleLabel.Font = Enum.Font.SourceSansBold
 	_titleLabel.TextSize = 18
@@ -558,7 +558,7 @@ end
   Start(): aguarda o servidor abrir a loja.
 ]]
 function ShopUI.Start(): ()
-	print("[TheBrokenBox] ShopUI.Start() — aguardando abertura da loja...")
+	print("[TheBrokenBox] ShopUI.Start() - aguardando abertura da loja...")
 	-- A UI sera criada quando o servidor enviar SHOP_OPEN via UISyncEvent.
 end
 

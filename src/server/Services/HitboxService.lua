@@ -6,17 +6,17 @@
   e resolver colisoes com corpos de personagens.
 
   Tipos de hitbox (ref: GDD Sistema de Hitboxes e Layers):
-    1. CORPO (Body)         — hitbox de corpo de cada personagem
-    2. PROJETIL (Projectile)— viaja 15/s x 2s, para em parede/alvo
-    3. LINHA (InstantLine)  — 3x3x100 studs, instantanea, para na parede
-    4. CUBO (AreaCube)      — cubo unico, atravessa parede
-    5. REACAO (ReactionArea)— area reativa (ex.: Block do Robo)
+    1. CORPO (Body)         - hitbox de corpo de cada personagem
+    2. PROJETIL (Projectile)- viaja 15/s x 2s, para em parede/alvo
+    3. LINHA (InstantLine)  - 3x3x100 studs, instantanea, para na parede
+    4. CUBO (AreaCube)      - cubo unico, atravessa parede
+    5. REACAO (ReactionArea)- area reativa (ex.: Block do Robo)
 
   Layers de colisao:
-    HunterAttack   — Ataques do Cacador -> Sobreviventes
-    SurvivorAttack — Ataques dos Sobreviventes -> Cacador
-    Environment    — Paredes, chao, obstaculos
-    Invincible     — Durante i-frames (Cacador)
+    HunterAttack   - Ataques do Cacador -> Sobreviventes
+    SurvivorAttack - Ataques dos Sobreviventes -> Cacador
+    Environment    - Paredes, chao, obstaculos
+    Invincible     - Durante i-frames (Cacador)
 
   Regras:
     - Dano aplicado 1x por alvo colidido (NUNCA empilha no mesmo alvo)
@@ -78,7 +78,7 @@ local function setupCollisionGroups()
 			PhysicsService:CreateCollisionGroup(groupName)
 		end)
 		if not success then
-			-- Grupo ja existe — ok
+			-- Grupo ja existe - ok
 		end
 	end
 
@@ -519,7 +519,7 @@ function HitboxService.Init(): ()
 end
 
 function HitboxService.Start(): ()
-	print("[TheBrokenBox] HitboxService.Start() — registrando listeners...")
+	print("[TheBrokenBox] HitboxService.Start() - registrando listeners...")
 
 	-- Criar hitbox de corpo quando personagem spawna
 	Players.PlayerAdded:Connect(function(player: Player)

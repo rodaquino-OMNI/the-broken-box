@@ -9,7 +9,7 @@
   Usa script.Parent para requires (convencao Rojo).
   Usa IsA("RemoteEvent") para encontrar RemoteEvents em ReplicatedStorage.
 
-  Referencias: GDD Lobby — A Caixa, architecture.md 12.1
+  Referencias: GDD Lobby - A Caixa, architecture.md 12.1
 ]]
 
 local Players = game:GetService("Players")
@@ -87,7 +87,7 @@ local function getAvailableCharacters(): { CharacterInfo }
 		name = GameConstants.Hunter.NAME,
 		role = "Hunter",
 		free = true,
-		description = "O Cacador — criatura sobrenatural (HP 2000)",
+		description = "O Cacador - criatura sobrenatural (HP 2000)",
 	})
 
 	-- Sobreviventes gratuitos
@@ -241,7 +241,7 @@ local function createCharacterButton(parent: Frame, char: CharacterInfo, index: 
 		-- Habilitar botao de confirmar
 		if _selectButton then
 			_selectButton.Visible = true
-			_selectButton.Text = "CONFIRMAR — " .. char.name
+			_selectButton.Text = "CONFIRMAR - " .. char.name
 		end
 	end)
 
@@ -286,7 +286,7 @@ local function createUI(): ()
 	_titleLabel.Size = UDim2.new(1, -20, 0, 40)
 	_titleLabel.Position = UDim2.new(0, 10, 0, 10)
 	_titleLabel.BackgroundTransparency = 1
-	_titleLabel.Text = "A CAIXA — SELECIONE SEU PERSONAGEM"
+	_titleLabel.Text = "A CAIXA - SELECIONE SEU PERSONAGEM"
 	_titleLabel.TextColor3 = COLORS.TITLE
 	_titleLabel.Font = Enum.Font.SourceSansBold
 	_titleLabel.TextSize = 18
@@ -341,7 +341,7 @@ local function createUI(): ()
 			},
 		})
 
-		print("[TheBrokenBox] CharacterSelectUI: Enviando selecao — " .. _selectedCharacter)
+		print("[TheBrokenBox] CharacterSelectUI: Enviando selecao - " .. _selectedCharacter)
 
 		-- Feedback visual
 		_statusLabel.Text = "Enviando selecao: " .. _selectedCharacter .. "..."
@@ -398,7 +398,7 @@ local function onGameStateMessage(message: { type: string, data: { [string]: any
 		local characterClass = data.characterClass
 		local isHunter = data.isHunter
 
-		print("[TheBrokenBox] CharacterSelectUI: Personagem confirmado — " .. tostring(characterClass) .. " (Hunter: " .. tostring(isHunter) .. ")")
+		print("[TheBrokenBox] CharacterSelectUI: Personagem confirmado - " .. tostring(characterClass) .. " (Hunter: " .. tostring(isHunter) .. ")")
 		_characterLocked = true
 		_selectedCharacter = characterClass
 		_isSelecting = false
@@ -479,7 +479,7 @@ end
   Start(): cria a UI ou aguarda o sinal do servidor.
 ]]
 function CharacterSelectUI.Start(): ()
-	print("[TheBrokenBox] CharacterSelectUI.Start() — aguardando fase de selecao...")
+	print("[TheBrokenBox] CharacterSelectUI.Start() - aguardando fase de selecao...")
 
 	-- A UI sera criada quando o servidor enviar CHARACTER_SELECT
 	-- via GameStateEvent. Se o evento ja foi recebido antes do Start,

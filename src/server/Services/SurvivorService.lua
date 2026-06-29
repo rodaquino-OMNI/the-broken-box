@@ -5,10 +5,10 @@
   4 classes: Medico, Soldado, Sackboy, Robo.
 
   Sinais expostos:
-    survivorDamaged  — quando um Sobrevivente toma dano
-    survivorHealed   — quando um Sobrevivente recebe cura
-    survivorDied     — quando um Sobrevivente morre (HP -> 0)
-    abilityUsed      — quando uma habilidade e usada (para SFX/particulas)
+    survivorDamaged  - quando um Sobrevivente toma dano
+    survivorHealed   - quando um Sobrevivente recebe cura
+    survivorDied     - quando um Sobrevivente morre (HP -> 0)
+    abilityUsed      - quando uma habilidade e usada (para SFX/particulas)
 
   Referencias: GDD Sobreviventes, GameConstants.Survivors
 ]]
@@ -386,7 +386,7 @@ local function checkLineHitbox(
 end
 
 -- ============================================================
--- MEDICO — Habilidades
+-- MEDICO - Habilidades
 -- ============================================================
 
 local MEDICO = GameConstants.Survivors.MEDICO
@@ -411,7 +411,7 @@ local function medicoA1(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Medico " .. player.Name .. ": Pocao em Area — windup " .. MEDICO.POTION.WINDUP .. "s")
+	print("[TheBrokenBox] Medico " .. player.Name .. ": Pocao em Area - windup " .. MEDICO.POTION.WINDUP .. "s")
 
 	-- Windup
 	task.delay(MEDICO.POTION.WINDUP, function()
@@ -483,7 +483,7 @@ local function medicoA2(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Medico " .. player.Name .. ": Investida Medicinal — windup " .. MEDICO.CHARGE.WINDUP .. "s")
+	print("[TheBrokenBox] Medico " .. player.Name .. ": Investida Medicinal - windup " .. MEDICO.CHARGE.WINDUP .. "s")
 
 	ext.isDashing = true
 
@@ -588,7 +588,7 @@ local function medicoA2(player: Player, ext: SurvivorExtState): ()
 end
 
 -- ============================================================
--- SOLDADO — Habilidades
+-- SOLDADO - Habilidades
 -- ============================================================
 
 local SOLDADO = GameConstants.Survivors.SOLDADO
@@ -617,7 +617,7 @@ local function soldadoA1(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Soldado " .. player.Name .. ": Dash Tatico — windup " .. SOLDADO.DASH.WINDUP .. "s")
+	print("[TheBrokenBox] Soldado " .. player.Name .. ": Dash Tatico - windup " .. SOLDADO.DASH.WINDUP .. "s")
 
 	ext.soldadoDashActive = true
 	ext.originalSpeed = humanoid.WalkSpeed
@@ -724,7 +724,7 @@ local function soldadoA2(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Soldado " .. player.Name .. ": Bazuca — windup " .. SOLDADO.BAZOOKA.WINDUP .. "s")
+	print("[TheBrokenBox] Soldado " .. player.Name .. ": Bazuca - windup " .. SOLDADO.BAZOOKA.WINDUP .. "s")
 
 	startCooldown(ext, "Bazooka", SOLDADO.BAZOOKA.COOLDOWN)
 
@@ -752,7 +752,7 @@ local function soldadoA2(player: Player, ext: SurvivorExtState): ()
 end
 
 -- ============================================================
--- SACKBOY — Habilidades
+-- SACKBOY - Habilidades
 -- ============================================================
 
 local SACKBOY = GameConstants.Survivors.SACKBOY
@@ -863,7 +863,7 @@ local function sackboyA2(player: Player, ext: SurvivorExtState): ()
 end
 
 -- ============================================================
--- ROBO — Habilidades
+-- ROBO - Habilidades
 -- ============================================================
 
 local ROBO = GameConstants.Survivors.ROBO
@@ -891,7 +891,7 @@ local function roboA1(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Robo " .. player.Name .. ": Agarrar — windup " .. ROBO.GRAB.WINDUP .. "s")
+	print("[TheBrokenBox] Robo " .. player.Name .. ": Agarrar - windup " .. ROBO.GRAB.WINDUP .. "s")
 
 	-- Windup: Robo fica imovel
 	ext.isGrabbing = true
@@ -970,7 +970,7 @@ local function roboA2(player: Player, ext: SurvivorExtState): ()
 
 	startCooldown(ext, "Block", ROBO.BLOCK.COOLDOWN)
 
-	print("[TheBrokenBox] Robo " .. player.Name .. ": Block ativado — janela " .. ROBO.BLOCK.WINDOW .. "s")
+	print("[TheBrokenBox] Robo " .. player.Name .. ": Block ativado - janela " .. ROBO.BLOCK.WINDOW .. "s")
 
 	ext.isBlocking = true
 	ext.blockEndTime = os.clock() + ROBO.BLOCK.WINDOW
@@ -1039,7 +1039,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 		return
 	end
 
-	print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao — windup " .. ROBO.SELFDESTRUCT.WINDUP .. "s")
+	print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao - windup " .. ROBO.SELFDESTRUCT.WINDUP .. "s")
 
 	ext.isSelfDestructing = true
 	ext.selfDestructPhase = "windup"
@@ -1056,7 +1056,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 		end
 
 		-- Boost de velocidade 5s
-		print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao — boost!")
+		print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao - boost!")
 		ext.selfDestructPhase = "boost"
 		local boostSpeed = origSpeed * 1.5
 		humanoid.WalkSpeed = boostSpeed
@@ -1069,7 +1069,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 			end
 
 			-- EXPLODE!
-			print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao — EXPLODE!")
+			print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao - EXPLODE!")
 
 			local origin = ext.rootPart.Position
 
@@ -1213,13 +1213,13 @@ local function applyLMSBonus(player: Player, ext: SurvivorExtState): ()
 		playerData.maxStamina = playerData.maxStamina + 20
 		playerData.stamina = math.min(playerData.stamina + 20, playerData.maxStamina)
 		bonusMsg = "+2 vel, +20 stamina"
-		print("[TheBrokenBox] LMS Medico: " .. player.Name .. " — " .. bonusMsg)
+		print("[TheBrokenBox] LMS Medico: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Soldado" then
 		-- LMS Condicional: vs Soldado Fundido → speed 22, +30% dano Bazuca
 		humanoid.WalkSpeed = 22  -- Override para speed fixo 22
 		bonusMsg = "+2 vel (→22), +30% dano Bazuca"
-		print("[TheBrokenBox] LMS Soldado: " .. player.Name .. " — " .. bonusMsg)
+		print("[TheBrokenBox] LMS Soldado: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Sackboy" then
 		-- LMS Condicional: vs Amaldicoado → speed 28, +20 stamina
@@ -1227,12 +1227,12 @@ local function applyLMSBonus(player: Player, ext: SurvivorExtState): ()
 		playerData.maxStamina = playerData.maxStamina + 10
 		playerData.stamina = math.min(playerData.stamina + 10, playerData.maxStamina)
 		bonusMsg = "+2 vel (→28), +10 stamina"
-		print("[TheBrokenBox] LMS Sackboy: " .. player.Name .. " — " .. bonusMsg)
+		print("[TheBrokenBox] LMS Sackboy: " .. player.Name .. " - " .. bonusMsg)
 
 	elseif className == "Robo" then
 		-- LMS Incondicional: +2 speed (ja aplicado) + Autodestruicao cd reduzido
 		bonusMsg = "+2 vel, cd Autodestruicao reduzido"
-		print("[TheBrokenBox] LMS Robo: " .. player.Name .. " — " .. bonusMsg)
+		print("[TheBrokenBox] LMS Robo: " .. player.Name .. " - " .. bonusMsg)
 	end
 
 	-- Notificar cliente do LMS
@@ -1303,7 +1303,7 @@ function SurvivorService.Init(
 				if ext.class == "Robo" and ext.isBlocking then
 					local blocked = SurvivorService.checkRoboBlock(player)
 					if blocked then
-						-- O dano foi absorvido — mas como ja foi aplicado pelo
+						-- O dano foi absorvido - mas como ja foi aplicado pelo
 						-- MatchService, curamos de volta
 						_matchService.healPlayer(player, damage)
 						return

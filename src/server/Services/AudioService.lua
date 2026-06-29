@@ -1,13 +1,13 @@
 --!strict
 --[[
-  AudioService.lua — Servidor. 7 canais FINAL:
-    LOBBY_MUSIC     — lobby e loja (mesma)
-    MAP_AMBIENT     — musica do mapa (DIFERENTE do lobby)
-    CHASE_SECTION_1 — trecho 1 (> 60 studs)
-    CHASE_SECTION_2 — trecho 2 (30-60 studs)
-    CHASE_SECTION_3 — trecho 3 (5-30 studs)
-    CHASE_SECTION_4 — trecho 4 (colado / Rage)
-    FUGA            — 1 musica so, comeca calma, buildup natural, climax nos portoes
+  AudioService.lua - Servidor. 7 canais FINAL:
+    LOBBY_MUSIC     - lobby e loja (mesma)
+    MAP_AMBIENT     - musica do mapa (DIFERENTE do lobby)
+    CHASE_SECTION_1 - trecho 1 (> 60 studs)
+    CHASE_SECTION_2 - trecho 2 (30-60 studs)
+    CHASE_SECTION_3 - trecho 3 (5-30 studs)
+    CHASE_SECTION_4 - trecho 4 (colado / Rage)
+    FUGA            - 1 musica so, comeca calma, buildup natural, climax nos portoes
 
   4 trechos da MESMA musica, TROCAM via crossfade, NAO empilham.
   FUGA: 1 so. Comeca do inicio qdo ciclo acaba. Nao reinicia nos portoes.

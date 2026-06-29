@@ -1,13 +1,13 @@
 --!strict
 --[[
-  AudioManager.lua — Cliente. 7 canais FINAL:
-    LOBBY_MUSIC     — lobby e loja (mesma)
-    MAP_AMBIENT     — musica do mapa (DIFERENTE do lobby)
-    CHASE_SECTION_1 — trecho 1 (> 60 studs)
-    CHASE_SECTION_2 — trecho 2 (30-60 studs)
-    CHASE_SECTION_3 — trecho 3 (5-30 studs)
-    CHASE_SECTION_4 — trecho 4 (colado / Rage)
-    FUGA            — 1 so, comeca calma, buildup natural, climax nos portoes
+  AudioManager.lua - Cliente. 7 canais FINAL:
+    LOBBY_MUSIC     - lobby e loja (mesma)
+    MAP_AMBIENT     - musica do mapa (DIFERENTE do lobby)
+    CHASE_SECTION_1 - trecho 1 (> 60 studs)
+    CHASE_SECTION_2 - trecho 2 (30-60 studs)
+    CHASE_SECTION_3 - trecho 3 (5-30 studs)
+    CHASE_SECTION_4 - trecho 4 (colado / Rage)
+    FUGA            - 1 so, comeca calma, buildup natural, climax nos portoes
 
   4 trechos da MESMA musica, crossfade sequencial, NAO empilham.
   FUGA: comeca do inicio em "PreFuga", continua em "Fuga" sem reiniciar.

@@ -1,7 +1,7 @@
 --!strict
 --[[
   HunterService.lua
-  Servico server-authoritative do Cacador — O Distorcido.
+  Servico server-authoritative do Cacador - O Distorcido.
   Gerencia:
     - Sistema de Furia e Rage (ref: GDD M5)
     - Stun e I-frames (ref: GDD M6)
@@ -143,7 +143,7 @@ local function _applyRageAppearance(character: Model): ()
 
 	if rageModel and rageModel:IsA("Model") then
 		-- Aplicar aparencia do modelo customizado
-		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage encontrado — aplicando aparencia customizada...")
+		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage encontrado - aplicando aparencia customizada...")
 
 		-- Copiar cores do corpo do modelo para o personagem
 		local bodyPartNames = {
@@ -181,7 +181,7 @@ local function _applyRageAppearance(character: Model): ()
 				-- Ajustar escala das partes
 				for _, child in ipairs(character:GetChildren()) do
 					if child:IsA("BasePart") then
-						-- Manter proporcao — o HipHeight ja ajusta a escala geral
+						-- Manter proporcao - o HipHeight ja ajusta a escala geral
 					end
 				end
 				print("[TheBrokenBox] HunterService: Escala ajustada para " .. tostring(targetScale))
@@ -189,7 +189,7 @@ local function _applyRageAppearance(character: Model): ()
 		end
 	else
 		-- Fallback: aparencia escura
-		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage NAO encontrado — aplicando fallback escuro...")
+		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage NAO encontrado - aplicando fallback escuro...")
 
 		local rageColor = Color3.new(0.05, 0.05, 0.05)
 
@@ -241,7 +241,7 @@ end
 local function _revertRageAppearance(character: Model): ()
 	if not character then return end
 	if not _originalAppearance then
-		warn("[TheBrokenBox] HunterService: Aparencia original nao salva — nada para reverter.")
+		warn("[TheBrokenBox] HunterService: Aparencia original nao salva - nada para reverter.")
 		return
 	end
 
@@ -581,7 +581,7 @@ function HunterService.applyStun(duration: number): ()
 
 	-- Durante i-frames, nao pode ser stunado
 	if os.clock() < _iframesUntil then
-		print("[TheBrokenBox] HunterService: Stun ignorado — i-frames ativos!")
+		print("[TheBrokenBox] HunterService: Stun ignorado - i-frames ativos!")
 		return
 	end
 
@@ -685,14 +685,14 @@ function HunterService.applySpeed(player: Player, speed: number): ()
 end
 
 -- ============================================================
--- API: M1 — Tapa (ataque basico)
+-- API: M1 - Tapa (ataque basico)
 -- ============================================================
 -- Ref: GDD Design de Inimigo, Tabela-Mestra
 -- 5 hitboxes em 0.5s, dano 20 (25 Rage), knockback 3 studs
 -- ============================================================
 
 --[[
-  Executa o M1 — Tapa.
+  Executa o M1 - Tapa.
   Chamado quando o servidor recebe HUNTER_M1 do cliente.
   Validacao: cooldown, vivo, nao stunado.
 ]]
@@ -707,11 +707,11 @@ function HunterService.performM1(): ()
 		return
 	end
 	if _isStunned then
-		warn("[TheBrokenBox] HunterService: M1 ignorado — stunado!")
+		warn("[TheBrokenBox] HunterService: M1 ignorado - stunado!")
 		return
 	end
 	if _rageWindupActive then
-		warn("[TheBrokenBox] HunterService: M1 ignorado — windup do Rage em andamento!")
+		warn("[TheBrokenBox] HunterService: M1 ignorado - windup do Rage em andamento!")
 		return
 	end
 
@@ -830,11 +830,11 @@ function HunterService.performPull(aimDirection: Vector3): ()
 		return
 	end
 	if _isStunned then
-		warn("[TheBrokenBox] HunterService: Pull ignorado — stunado!")
+		warn("[TheBrokenBox] HunterService: Pull ignorado - stunado!")
 		return
 	end
 	if _rageWindupActive then
-		warn("[TheBrokenBox] HunterService: Pull ignorado — windup do Rage em andamento!")
+		warn("[TheBrokenBox] HunterService: Pull ignorado - windup do Rage em andamento!")
 		return
 	end
 
@@ -889,7 +889,7 @@ function HunterService.performPull(aimDirection: Vector3): ()
 					end
 
 					-- Stun de 0.5s no Sobrevivente
-					-- (stun travando movimento — sera implementado com SurvivorService no E3)
+					-- (stun travando movimento - sera implementado com SurvivorService no E3)
 					-- Por enquanto, aplicamos dano 0 como "stun de movimento"
 					-- No futuro, SurvivorService tera applyStun()
 				end
@@ -923,11 +923,11 @@ function HunterService.performRoar(): ()
 		return
 	end
 	if _isStunned then
-		warn("[TheBrokenBox] HunterService: Roar ignorado — stunado!")
+		warn("[TheBrokenBox] HunterService: Roar ignorado - stunado!")
 		return
 	end
 	if _rageWindupActive then
-		warn("[TheBrokenBox] HunterService: Roar ignorado — windup do Rage em andamento!")
+		warn("[TheBrokenBox] HunterService: Roar ignorado - windup do Rage em andamento!")
 		return
 	end
 
@@ -968,12 +968,12 @@ function HunterService.performRoar(): ()
 
 			-- Aplicar slow (sera gerenciado pelo SurvivorService no E3)
 			-- Por enquanto, aplicamos atraves do MatchService
-			print("[TheBrokenBox] HunterService: Grito — slow 40% em " .. player.Name .. " por " .. roarConfig.SLOW_DURATION .. "s")
+			print("[TheBrokenBox] HunterService: Grito - slow 40% em " .. player.Name .. " por " .. roarConfig.SLOW_DURATION .. "s")
 
 			-- Dano em Rage
 			if rageDamage > 0 then
 				MatchService.applyDamage(player, rageDamage, _hunter)
-				print("[TheBrokenBox] HunterService: Grito — dano " .. rageDamage .. " em " .. player.Name .. " (Rage)")
+				print("[TheBrokenBox] HunterService: Grito - dano " .. rageDamage .. " em " .. player.Name .. " (Rage)")
 			end
 		end
 
@@ -990,7 +990,7 @@ function HunterService.performRoar(): ()
 			local role = MatchService.getPlayerRole(player)
 			if role ~= "Survivor" then continue end
 
-			print("[TheBrokenBox] HunterService: Grito — revelou " .. player.Name .. " por " .. roarConfig.REVEAL_DURATION .. "s")
+			print("[TheBrokenBox] HunterService: Grito - revelou " .. player.Name .. " por " .. roarConfig.REVEAL_DURATION .. "s")
 			-- Revelacao: sera enviada ao cliente via UISyncEvent
 		end
 
@@ -1001,7 +1001,7 @@ end
 -- ============================================================
 -- Loop do Heartbeat: Furia por proximidade
 -- ============================================================
--- Ref: GDD M5 — Furia
+-- Ref: GDD M5 - Furia
 -- +1/s apos 20s continuos a <=40 studs de algum Sobrevivente
 -- Pode trocar de alvo sem zerar; sair do raio zera a contagem
 
@@ -1107,7 +1107,7 @@ end
   Start(): registro de listeners e loop de Heartbeat.
 ]]
 function HunterService.Start(): ()
-	print("[TheBrokenBox] HunterService.Start() — iniciando loop de Heartbeat...")
+	print("[TheBrokenBox] HunterService.Start() - iniciando loop de Heartbeat...")
 
 	-- Loop de Heartbeat para Furia por proximidade
 	_heartbeatConnection = RunService.Heartbeat:Connect(function(_deltaTime: number)

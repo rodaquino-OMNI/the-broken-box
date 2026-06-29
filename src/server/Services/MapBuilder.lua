@@ -15,7 +15,7 @@
   Todas as coordenadas sao lidas do MapData (shared).
   Todas as Parts sao Anchored = true.
 
-  Init/Start pattern — compatível com GameManager.
+  Init/Start pattern - compatível com GameManager.
   Referencias: GDD Design do Mapa, MapData.lua, architecture.md
 ]]
 
@@ -665,7 +665,7 @@ end
 -- ============================================================
 
 --[[
-  Constroi marcador visual V1 — Disjuntor (Breaker).
+  Constroi marcador visual V1 - Disjuntor (Breaker).
   Painel cinza metalico com 4 pequenas alavancas.
 ]]
 local function construirMarkerV1(parent: Instance, pos: { x: number, y: number, z: number }, id: string)
@@ -706,7 +706,7 @@ local function construirMarkerV1(parent: Instance, pos: { x: number, y: number, 
 end
 
 --[[
-  Constroi marcador visual V2 — Gerador.
+  Constroi marcador visual V2 - Gerador.
   Caixa laranja/amarela com 5 cilindros de cabo.
 ]]
 local function construirMarkerV2(parent: Instance, pos: { x: number, y: number, z: number }, id: string)
@@ -749,7 +749,7 @@ local function construirMarkerV2(parent: Instance, pos: { x: number, y: number, 
 end
 
 --[[
-  Constroi marcador visual V3 — Maquina de Petroleo.
+  Constroi marcador visual V3 - Maquina de Petroleo.
   Maquina vermelha escura/preta com um ponteiro.
 ]]
 local function construirMarkerV3(parent: Instance, pos: { x: number, y: number, z: number }, id: string)
@@ -931,7 +931,7 @@ local function criarCorpoBrinquedo(
 
 	local baseY = posicao.Y
 
-	-- Tronco (deitado — rotacionado 90 graus no Z)
+	-- Tronco (deitado - rotacionado 90 graus no Z)
 	local tronco = criarPart(
 		folder, "Tronco",
 		Vector3.new(2, 3, 1.5),
@@ -1093,10 +1093,10 @@ end
 
 --[[
   Start(): chamado apos wiring.
-  Nada a fazer — mapa ja foi construido no Init.
+  Nada a fazer - mapa ja foi construido no Init.
 ]]
 function MapBuilder.Start(): ()
-	print("[TheBrokenBox] MapBuilder.Start() — mapa ja construido.")
+	print("[TheBrokenBox] MapBuilder.Start() - mapa ja construido.")
 end
 
 return MapBuilder

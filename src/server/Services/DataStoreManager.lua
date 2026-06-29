@@ -13,8 +13,8 @@
     }
 
   Sinais:
-    dataLoaded — (player: Player, data: {})
-    dataSaved  — (player: Player)
+    dataLoaded - (player: Player, data: {})
+    dataSaved  - (player: Player)
 
   Init/Start pattern.
   Retry com exponential backoff (max 3 tentativas).
@@ -291,7 +291,7 @@ end
   Init(): setup sincrono. Abre o DataStore.
 ]]
 function DataStoreManager.Init(): ()
-	print("[TheBrokenBox] DataStoreManager.Init() — modo: " .. (_isMockMode and "MOCK" or "REAL"))
+	print("[TheBrokenBox] DataStoreManager.Init() - modo: " .. (_isMockMode and "MOCK" or "REAL"))
 
 	if not _isMockMode and DataStoreService then
 		local openSuccess, storeOrErr = pcall(function()
@@ -311,7 +311,7 @@ end
   Start(): registra listeners de PlayerAdded / PlayerRemoving.
 ]]
 function DataStoreManager.Start(): ()
-	print("[TheBrokenBox] DataStoreManager.Start() — registrando listeners de persistencia...")
+	print("[TheBrokenBox] DataStoreManager.Start() - registrando listeners de persistencia...")
 
 	-- Carregar dados quando um jogador entra
 	local connAdded = Players.PlayerAdded:Connect(function(player: Player)

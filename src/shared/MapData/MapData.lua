@@ -9,7 +9,7 @@
   Referenciado por MapService (server) e futuramente por
   modulos de cliente que precisem de dados do mapa.
 
-  Referencias: GDD Design do Mapa — Criatividade Morta,
+  Referencias: GDD Design do Mapa - Criatividade Morta,
                architecture.md 3.2 (MapData)
 ]]
 
@@ -94,20 +94,20 @@ MapData.STRUCTURES = {
 -- ============================================================
 -- LOCAIS CANDIDATOS DE MISSAO (~14, 10 ativos por partida)
 -- ============================================================
--- Tipos: V1 (Disjuntor — escuridao), V2 (Gerador — barreira),
---        V3 (Petroleo — poco de oleo)
+-- Tipos: V1 (Disjuntor - escuridao), V2 (Gerador - barreira),
+--        V3 (Petroleo - poco de oleo)
 -- Distribuicao segue GDD: V1 na Caverna/aproximacoes,
 --   V2 nos gargalos do Estoque e entradas do Castelo,
 --   V3 no campo aberto e rampas largas.
 
 MapData.MISSION_CANDIDATES = {
-	-- === CAVERNA E APROXIMACOES (V1 — Disjuntor) ===
+	-- === CAVERNA E APROXIMACOES (V1 - Disjuntor) ===
 	{
 		id = "MC_01",
 		position = { x = -110, y = -8, z = -50 },
 		type = "V1",  -- Disjuntor (escuridao)
 		structure = "Caverna",
-		description = "Fundo da Caverna — area escura",
+		description = "Fundo da Caverna - area escura",
 	},
 	{
 		id = "MC_02",
@@ -124,7 +124,7 @@ MapData.MISSION_CANDIDATES = {
 		description = "Entrada/saida da Caverna",
 	},
 
-	-- === CASTELO E APROXIMACOES (V2 — Gerador) ===
+	-- === CASTELO E APROXIMACOES (V2 - Gerador) ===
 	{
 		id = "MC_04",
 		position = { x = -80, y = 5, z = 70 },
@@ -154,7 +154,7 @@ MapData.MISSION_CANDIDATES = {
 		description = "Muralha externa do Castelo",
 	},
 
-	-- === ESTOQUE (V2 — Gerador, gargalos) ===
+	-- === ESTOQUE (V2 - Gerador, gargalos) ===
 	{
 		id = "MC_08",
 		position = { x = 40, y = 3, z = -100 },
@@ -170,41 +170,41 @@ MapData.MISSION_CANDIDATES = {
 		description = "Prateleiras centrais do Estoque",
 	},
 
-	-- === CAMPO ABERTO (V3 — Petroleo) ===
+	-- === CAMPO ABERTO (V3 - Petroleo) ===
 	{
 		id = "MC_10",
 		position = { x = 20, y = 3, z = 0 },
 		type = "V3",  -- Maquina de Petroleo (poca lenta)
 		structure = "Campo",
-		description = "Campo central — entre as tres estruturas",
+		description = "Campo central - entre as tres estruturas",
 	},
 	{
 		id = "MC_11",
 		position = { x = -10, y = 3, z = 40 },
 		type = "V3",
 		structure = "Campo",
-		description = "Campo norte — area aberta",
+		description = "Campo norte - area aberta",
 	},
 	{
 		id = "MC_12",
 		position = { x = 50, y = 3, z = -10 },
 		type = "V3",
 		structure = "Campo",
-		description = "Campo leste — rampa larga",
+		description = "Campo leste - rampa larga",
 	},
 	{
 		id = "MC_13",
 		position = { x = -30, y = 3, z = -110 },
 		type = "V3",
 		structure = "Campo",
-		description = "Campo sul — entre Caverna e Estoque",
+		description = "Campo sul - entre Caverna e Estoque",
 	},
 	{
 		id = "MC_14",
 		position = { x = 0, y = 3, z = -50 },
 		type = "V3",
 		structure = "Campo",
-		description = "Campo oeste — area de transicao",
+		description = "Campo oeste - area de transicao",
 	},
 }
 

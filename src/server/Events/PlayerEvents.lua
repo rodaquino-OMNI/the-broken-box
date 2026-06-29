@@ -92,7 +92,7 @@ function PlayerEvents.Init(): ()
 end
 
 function PlayerEvents.Start(): ()
-	print("[TheBrokenBox] PlayerEvents.Start() — registrando listeners de jogadores...")
+	print("[TheBrokenBox] PlayerEvents.Start() - registrando listeners de jogadores...")
 
 	-- Jogadores ja conectados (para late-join)
 	for _, player in ipairs(Players:GetPlayers()) do

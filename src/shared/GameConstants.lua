@@ -157,7 +157,7 @@ GameConstants.Survivors = {
 }
 
 -- ============================================================
--- CACADOR — O DISTORCIDO (ref: GDD M5-M7, Design de Inimigo)
+-- CACADOR - O DISTORCIDO (ref: GDD M5-M7, Design de Inimigo)
 -- ============================================================
 GameConstants.Hunter = {
 	NAME = "O Distorcido",
@@ -280,7 +280,7 @@ GameConstants.Hitbox = {
 GameConstants.Audio = {
 	-- 1 musica compartilhada + 4 trechos sequenciais de chase + 2 fugas
 	-- SAME_MUSIC: mesma faixa no Lobby, Loja e Mapa ambiente
-	-- CHASE: 1 musica em 4 TRECHOS sequenciais (NAO camadas — crossfade entre eles)
+	-- CHASE: 1 musica em 4 TRECHOS sequenciais (NAO camadas - crossfade entre eles)
 	--   Trecho 1 (>60 studs), Trecho 2 (30-60), Trecho 3 (5-30), Trecho 4 (<=5/Rage)
 	-- FUGA_PRESTES: ciclo acabando
 	-- FUGA_ABRIU: portoes abertos (substitui tudo)

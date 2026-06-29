@@ -6,9 +6,9 @@
   e fluxo de estados (Lobby -> Selecting -> Playing -> Escaping -> Ended).
 
   Sinais expostos:
-    matchStateChanged  — quando o estado da partida muda
-    playerDied         — quando um jogador morre (HP -> 0)
-    roleAssigned       — quando papeis sao atribuidos
+    matchStateChanged  - quando o estado da partida muda
+    playerDied         - quando um jogador morre (HP -> 0)
+    roleAssigned       - quando papeis sao atribuidos
 
   Referencias: GDD Condicoes de Vitoria e Derrota, architecture.md
 ]]

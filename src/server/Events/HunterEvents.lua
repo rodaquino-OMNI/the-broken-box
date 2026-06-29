@@ -62,7 +62,7 @@ local function onPlayerAction(player: Player, message: {any})
 	local msgData = message.data
 
 	-- ============================================================
-	-- HUNTER_M1 — Tapa (ataque basico)
+	-- HUNTER_M1 - Tapa (ataque basico)
 	-- ============================================================
 	if msgType == PlayerActionEvent.MESSAGES.HUNTER_M1 then
 		print("[TheBrokenBox] HunterEvents: HUNTER_M1 de " .. player.Name)
@@ -73,7 +73,7 @@ local function onPlayerAction(player: Player, message: {any})
 	end
 
 	-- ============================================================
-	-- HUNTER_PULL — Braco Esticado
+	-- HUNTER_PULL - Braco Esticado
 	-- ============================================================
 	if msgType == PlayerActionEvent.MESSAGES.HUNTER_PULL then
 		print("[TheBrokenBox] HunterEvents: HUNTER_PULL de " .. player.Name)
@@ -98,7 +98,7 @@ local function onPlayerAction(player: Player, message: {any})
 	end
 
 	-- ============================================================
-	-- HUNTER_ROAR — Grito
+	-- HUNTER_ROAR - Grito
 	-- ============================================================
 	if msgType == PlayerActionEvent.MESSAGES.HUNTER_ROAR then
 		print("[TheBrokenBox] HunterEvents: HUNTER_ROAR de " .. player.Name)
@@ -108,7 +108,7 @@ local function onPlayerAction(player: Player, message: {any})
 	end
 
 	-- ============================================================
-	-- HUNTER_RAGE — Ativar Rage
+	-- HUNTER_RAGE - Ativar Rage
 	-- ============================================================
 	if msgType == PlayerActionEvent.MESSAGES.HUNTER_RAGE then
 		print("[TheBrokenBox] HunterEvents: HUNTER_RAGE de " .. player.Name)
@@ -157,7 +157,7 @@ end
   Start(): conecta o listener OnServerEvent.
 ]]
 function HunterEvents.Start(): ()
-	print("[TheBrokenBox] HunterEvents.Start() — registrando listener do PlayerActionEvent...")
+	print("[TheBrokenBox] HunterEvents.Start() - registrando listener do PlayerActionEvent...")
 
 	if not _remoteEvent then
 		warn("[TheBrokenBox] HunterEvents: PlayerActionEvent nao disponivel! Inputs do Cacador NAO serao processados.")

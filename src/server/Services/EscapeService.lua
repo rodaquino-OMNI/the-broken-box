@@ -15,9 +15,9 @@
     - Resolve condicao de vitoria/derrota ao fim da janela
 
   Sinais expostos:
-    escapeStarted  — quando a janela de fuga abre
-    playerEscaped  — quando um jogador escapa (player: Player, gateId: string)
-    escapeEnded    — quando a janela fecha (survivorsEscaped: number, totalSurvivors: number)
+    escapeStarted  - quando a janela de fuga abre
+    playerEscaped  - quando um jogador escapa (player: Player, gateId: string)
+    escapeEnded    - quando a janela fecha (survivorsEscaped: number, totalSurvivors: number)
 
   Referencias: GDD M2 Portoes e Fuga, E6 stories
 ]]
@@ -170,7 +170,7 @@ local function openGates(): { any }
 		label.Parent = billboard
 
 		table.insert(gateMarkers, marker)
-		print("[TheBrokenBox] EscapeService: Portao aberto: " .. gate.id .. " — " .. gate.name .. " em " .. tostring(pos))
+		print("[TheBrokenBox] EscapeService: Portao aberto: " .. gate.id .. " - " .. gate.name .. " em " .. tostring(pos))
 	end
 
 	return gateMarkers
@@ -182,19 +182,19 @@ end
 
 --[[
   Ativa os perigos das missoes pendentes.
-  V1 (Breaker): Escuridao localizada — remove PointLights na area
-  V2 (Generator): Barreira eletrica — 10 de dano, 5s de imunidade por jogador
-  V3 (Oil): Poca de oleo — 35% de lentidao
+  V1 (Breaker): Escuridao localizada - remove PointLights na area
+  V2 (Generator): Barreira eletrica - 10 de dano, 5s de imunidade por jogador
+  V3 (Oil): Poca de oleo - 35% de lentidao
 ]]
 local function activateHazards(): ()
 	if not _missionService or not _missionService.getPendingMissions then
-		print("[TheBrokenBox] EscapeService: MissionService nao disponivel — sem perigos para ativar.")
+		print("[TheBrokenBox] EscapeService: MissionService nao disponivel - sem perigos para ativar.")
 		return
 	end
 
 	local pendingMissions = _missionService.getPendingMissions()
 	if not pendingMissions or #pendingMissions == 0 then
-		print("[TheBrokenBox] EscapeService: Nenhuma missao pendente — sem perigos.")
+		print("[TheBrokenBox] EscapeService: Nenhuma missao pendente - sem perigos.")
 		return
 	end
 
@@ -269,7 +269,7 @@ local function activateHazards(): ()
 
 				if _matchService and _matchService.applyDamage then
 					_matchService.applyDamage(player, damage, nil)
-					print("[TheBrokenBox] EscapeService: Barreira eletrica — " .. player.Name .. " sofreu " .. damage .. " de dano")
+					print("[TheBrokenBox] EscapeService: Barreira eletrica - " .. player.Name .. " sofreu " .. damage .. " de dano")
 				end
 			end)
 
@@ -356,7 +356,7 @@ end
 
 --[[
   Spawna fogo estetico ao redor dos portoes.
-  O fogo NAO causa dano — apenas sinaliza o colapso.
+  O fogo NAO causa dano - apenas sinaliza o colapso.
 ]]
 local function spawnAestheticFire(gateMarkers: { any }): ()
 	for _, marker in ipairs(gateMarkers) do
@@ -518,7 +518,7 @@ function registerEscape(player: Player, gateId: string): ()
 		_shopService.addCoins(player, coinReward)
 		print("[TheBrokenBox] EscapeService: +" .. coinReward .. " moedas para " .. player.Name)
 	else
-		print("[TheBrokenBox] EscapeService: ShopService nao disponivel — moedas nao creditadas.")
+		print("[TheBrokenBox] EscapeService: ShopService nao disponivel - moedas nao creditadas.")
 	end
 
 	-- Disparar sinal
@@ -569,7 +569,7 @@ function finishEscape(): ()
 		result = "Contencao"
 	end
 
-	print("[TheBrokenBox] EscapeService: Resultado — " .. winner .. " venceu! (" .. result .. ")")
+	print("[TheBrokenBox] EscapeService: Resultado - " .. winner .. " venceu! (" .. result .. ")")
 
 	-- Disparar sinal de escape encerrado
 	EscapeService.escapeEnded:Fire(escapedCount, totalAliveAtStart)
@@ -608,11 +608,11 @@ function cleanupEscapeObjects(): ()
 	end
 	_state.hazardObjects = {}
 
-	-- Restaurar luzes apagadas (V1) — ja foram destruidas se eram Parts;
+	-- Restaurar luzes apagadas (V1) - ja foram destruidas se eram Parts;
 	-- para PointLight/SpotLight que foram desabilitados, reabilitar
 	-- (as luzes foram armazenadas em hazardObjects e destruidas, entao
 	--  se elas eram Parts, foram removidas; se so foram desabilitadas,
-	--  nao temos como reabilitar sem referencia — aceitavel para MVP)
+	--  nao temos como reabilitar sem referencia - aceitavel para MVP)
 
 	-- Destruir fogo estetico
 	for _, fire in ipairs(_state.fireObjects) do
@@ -626,7 +626,7 @@ function cleanupEscapeObjects(): ()
 end
 
 -- ============================================================
--- API: Gatilho principal — ciclo zero
+-- API: Gatilho principal - ciclo zero
 -- ============================================================
 
 --[[

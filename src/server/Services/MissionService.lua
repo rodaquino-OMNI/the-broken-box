@@ -8,9 +8,9 @@
     - Sinais: missionStarted, missionCancelled, missionCompleted
 
   Tipos de missao:
-    V1 Breaker  — 4 alavancas para direita, 4x repeticoes
-    V2 Generator — 5 cabos, conectar em sequencia, 4x repeticoes
-    V3 Oil Machine — 1x ponteiro/zona de acerto
+    V1 Breaker  - 4 alavancas para direita, 4x repeticoes
+    V2 Generator - 5 cabos, conectar em sequencia, 4x repeticoes
+    V3 Oil Machine - 1x ponteiro/zona de acerto
 
   Init/Start pattern.
   Referencias: GDD M1, GameConstants.Missions
@@ -254,7 +254,7 @@ function MissionService.startMission(player: Player, missionId: string): (boolea
 	mission.startTime = os.clock()
 	mission.progress = 0
 
-	print("[TheBrokenBox] MissionService: Missao iniciada — " .. missionId .. " (" .. mission.type .. ") por " .. player.Name)
+	print("[TheBrokenBox] MissionService: Missao iniciada - " .. missionId .. " (" .. mission.type .. ") por " .. player.Name)
 	MissionService.missionStarted:Fire(player, missionId, mission.type)
 
 	return true, nil
@@ -273,7 +273,7 @@ function MissionService.cancelMission(player: Player, reason: string?): ()
 			mission.progress = 0
 			mission.startTime = 0
 
-			print("[TheBrokenBox] MissionService: Missao cancelada — " .. missionId .. " (" .. missionType .. ") por " .. player.Name .. " (" .. (reason or "desconhecido") .. ")")
+			print("[TheBrokenBox] MissionService: Missao cancelada - " .. missionId .. " (" .. missionType .. ") por " .. player.Name .. " (" .. (reason or "desconhecido") .. ")")
 			MissionService.missionCancelled:Fire(player, missionId, missionType, reason or "cancel")
 
 			return
@@ -340,7 +340,7 @@ function MissionService.processProgress(player: Player, missionId: string, progr
 	end
 
 	if newProgress > maxProgress then
-		warn("[TheBrokenBox] MissionService: Progresso suspeito de " .. player.Name .. " — " .. newProgress .. " > " .. maxProgress)
+		warn("[TheBrokenBox] MissionService: Progresso suspeito de " .. player.Name .. " - " .. newProgress .. " > " .. maxProgress)
 		return false, "Progresso invalido"
 	end
 
@@ -352,7 +352,7 @@ function MissionService.processProgress(player: Player, missionId: string, progr
 		-- Verificar tempo minimo (anti-exploit)
 		local elapsed = os.clock() - mission.startTime
 		if elapsed < mission.minCompletionTime then
-			warn("[TheBrokenBox] MissionService: Completou rapido demais! " .. player.Name .. " — " .. string.format("%.2f", elapsed) .. "s < " .. mission.minCompletionTime .. "s")
+			warn("[TheBrokenBox] MissionService: Completou rapido demais! " .. player.Name .. " - " .. string.format("%.2f", elapsed) .. "s < " .. mission.minCompletionTime .. "s")
 			-- Nao completar, aguardar mais
 			return true, "ok" -- Aceita o progresso mas nao completa ainda
 		end
@@ -361,7 +361,7 @@ function MissionService.processProgress(player: Player, missionId: string, progr
 		mission.state = "COMPLETED"
 		mission.completedReps = mission.completedReps + 1
 
-		print("[TheBrokenBox] MissionService: Missao COMPLETA — " .. missionId .. " (" .. mission.type .. ") por " .. player.Name)
+		print("[TheBrokenBox] MissionService: Missao COMPLETA - " .. missionId .. " (" .. mission.type .. ") por " .. player.Name)
 		MissionService.missionCompleted:Fire(player, missionId, mission.type)
 
 		return true, "completed"
@@ -477,7 +477,7 @@ end
   Start(): inicializacao assincrona.
 ]]
 function MissionService.Start(): ()
-	print("[TheBrokenBox] MissionService.Start() — pronto.")
+	print("[TheBrokenBox] MissionService.Start() - pronto.")
 	-- Missoes sao inicializadas quando a partida atinge Playing
 end
 

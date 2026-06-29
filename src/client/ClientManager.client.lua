@@ -56,7 +56,7 @@ local clientModules = {
 -- Fase 1: Init sincrono
 -- ============================================================
 local function initClientModules()
-	print("[TheBrokenBox] ClientManager: initClientModules() — iniciando...")
+	print("[TheBrokenBox] ClientManager: initClientModules() - iniciando...")
 
 	for _, entry in ipairs(clientModules) do
 		local mod = entry.module
@@ -70,14 +70,14 @@ local function initClientModules()
 		end
 	end
 
-	print("[TheBrokenBox] ClientManager: initClientModules() — concluido.")
+	print("[TheBrokenBox] ClientManager: initClientModules() - concluido.")
 end
 
 -- ============================================================
 -- Fase 2: Start
 -- ============================================================
 local function startClientModules()
-	print("[TheBrokenBox] ClientManager: startClientModules() — iniciando...")
+	print("[TheBrokenBox] ClientManager: startClientModules() - iniciando...")
 
 	for _, entry in ipairs(clientModules) do
 		local mod = entry.module
@@ -91,7 +91,7 @@ local function startClientModules()
 		end
 	end
 
-	print("[TheBrokenBox] ClientManager: startClientModules() — concluido.")
+	print("[TheBrokenBox] ClientManager: startClientModules() - concluido.")
 end
 
 -- ============================================================

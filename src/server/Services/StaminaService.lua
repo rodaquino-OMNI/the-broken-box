@@ -151,7 +151,7 @@ function StaminaService.removePlayer(player: Player): ()
 end
 
 --[[
-  Callback quando um jogador morre — limpa estado de stamina.
+  Callback quando um jogador morre - limpa estado de stamina.
 ]]
 function StaminaService.onPlayerDied(player: Player): ()
 	StaminaService.removePlayer(player)
@@ -282,7 +282,7 @@ function StaminaService.Init(): ()
 end
 
 function StaminaService.Start(): ()
-	print("[TheBrokenBox] StaminaService.Start() — iniciando loop de Heartbeat...")
+	print("[TheBrokenBox] StaminaService.Start() - iniciando loop de Heartbeat...")
 
 	-- Conectar ao Heartbeat para atualizacao por frame
 	_heartbeatConnection = RunService.Heartbeat:Connect(function(deltaTime: number)

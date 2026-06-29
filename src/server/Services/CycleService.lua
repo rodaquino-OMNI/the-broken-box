@@ -8,8 +8,8 @@
   Quando zera: dispara cycleZero -> transicao para fase de Fuga.
 
   Sinais:
-    cycleTick(remainingTime: number)  — a cada segundo
-    cycleZero()                       — quando o cronometro zera
+    cycleTick(remainingTime: number)  - a cada segundo
+    cycleZero()                       - quando o cronometro zera
 
   Init/Start pattern, Heartbeat loop.
   Referencias: GDD M1-M2, GameConstants.Game
@@ -103,7 +103,7 @@ end
 -- ============================================================
 
 --[[
-  Inicia o ciclo (chamado quando a partida comeca — Playing).
+  Inicia o ciclo (chamado quando a partida comeca - Playing).
 ]]
 function CycleService.startCycle(): ()
 	local baseDuration = GameConstants.Game.CYCLE_BASE_DURATION
@@ -120,7 +120,7 @@ function CycleService.startCycle(): ()
 	end
 	_heartbeatConnection = RunService.Heartbeat:Connect(onHeartbeat)
 
-	print("[TheBrokenBox] CycleService: Ciclo iniciado — " .. baseDuration .. "s")
+	print("[TheBrokenBox] CycleService: Ciclo iniciado - " .. baseDuration .. "s")
 	CycleService.cycleTick:Fire(_cycleRemaining)
 end
 
@@ -307,7 +307,7 @@ end
   O ciclo e iniciado externamente quando a partida atinge Playing.
 ]]
 function CycleService.Start(): ()
-	print("[TheBrokenBox] CycleService.Start() — pronto.")
+	print("[TheBrokenBox] CycleService.Start() - pronto.")
 end
 
 return CycleService
