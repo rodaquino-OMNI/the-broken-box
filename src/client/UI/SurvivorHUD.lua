@@ -275,9 +275,9 @@ local function updateHP(hp: number, maxHp: number): ()
 		hpBar.Size = UDim2.new(ratio, 0, 1, 0)
 
 		-- Cor muda baseado no HP
-		if ratio > 0.6 then
+		if ratio > 6/10 then
 			hpBar.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-		elseif ratio > 0.3 then
+		elseif ratio > 3/10 then
 			hpBar.BackgroundColor3 = Color3.fromRGB(220, 150, 30)
 		else
 			hpBar.BackgroundColor3 = Color3.fromRGB(220, 30, 30)
@@ -397,8 +397,8 @@ local function updateAllyHP(allyData: { [number]: { name: string, hp: number, ma
 	local order = 1
 	for userId, data in pairs(allyData) do
 		local ratio = math.clamp(data.hp / data.maxHp, 0, 1)
-		local color = ratio > 0.5 and Color3.fromRGB(100, 200, 100)
-			or ratio > 0.25 and Color3.fromRGB(220, 180, 50)
+		local color = ratio > 5/10 and Color3.fromRGB(100, 200, 100)
+			or ratio > 25/100 and Color3.fromRGB(220, 180, 50)
 			or Color3.fromRGB(220, 50, 50)
 
 		local label = createElement("TextLabel", allyHPFrame, {
@@ -458,7 +458,7 @@ local function updateHeartbeatPulse(proximity: number): ()
 	-- Ajustar tamanho do icone (pulso)
 	if heartIcon then
 		local baseSize = 18
-		local pulseSize = baseSize + (baseSize * factor * 0.8)  -- 18 a 32.4
+		local pulseSize = baseSize + (baseSize * factor * 8/10)  -- 18 a 324/10
 		heartIcon.TextSize = math.floor(pulseSize)
 
 		-- Cor: vermelho fraco -> vermelho intenso
@@ -590,7 +590,7 @@ function SurvivorHUD.Start(): ()
 	task.spawn(function()
 		while screenGui and screenGui.Parent do
 			updateCooldowns()
-			task.wait(0.5)
+			task.wait(5/10)
 		end
 	end)
 

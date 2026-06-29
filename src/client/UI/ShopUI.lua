@@ -264,7 +264,7 @@ local function createShopButton(parent: Frame, char: CharacterInfo, index: numbe
 	tagLabel.Name = "TagLabel"
 	tagLabel.Size = UDim2.new(0, 100, 0, 20)
 	tagLabel.Position = UDim2.new(1, -110, 0, 4)
-	tagLabel.BackgroundTransparency = 0.5
+	tagLabel.BackgroundTransparency = 5/10
 	tagLabel.BackgroundColor3 = tagColor
 	tagLabel.Text = tagText
 	tagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -348,7 +348,7 @@ local function createUI(): ()
 	_mainFrame = Instance.new("Frame")
 	_mainFrame.Name = "MainFrame"
 	_mainFrame.Size = UDim2.new(0, 360, 0, 440)
-	_mainFrame.Position = UDim2.new(0.5, -180, 0.5, -220)
+	_mainFrame.Position = UDim2.new(5/10, -180, 5/10, -220)
 	_mainFrame.BackgroundColor3 = COLORS.PANEL
 	_mainFrame.BorderSizePixel = 2
 	_mainFrame.BorderColor3 = COLORS.TITLE
@@ -371,7 +371,7 @@ local function createUI(): ()
 	_coinLabel.Name = "CoinLabel"
 	_coinLabel.Size = UDim2.new(1, -40, 0, 28)
 	_coinLabel.Position = UDim2.new(0, 20, 0, 46)
-	_coinLabel.BackgroundTransparency = 0.7
+	_coinLabel.BackgroundTransparency = 7/10
 	_coinLabel.BackgroundColor3 = COLORS.BG
 	_coinLabel.Text = "" .. _coins .. " MOEDAS"
 	_coinLabel.TextColor3 = COLORS.COIN
@@ -384,7 +384,7 @@ local function createUI(): ()
 	charContainer.Name = "CharContainer"
 	charContainer.Size = UDim2.new(1, -20, 0, 300)
 	charContainer.Position = UDim2.new(0, 10, 0, 80)
-	charContainer.BackgroundTransparency = 0.8
+	charContainer.BackgroundTransparency = 8/10
 	charContainer.BackgroundColor3 = COLORS.BG
 	charContainer.BorderSizePixel = 1
 	charContainer.ScrollBarThickness = 6

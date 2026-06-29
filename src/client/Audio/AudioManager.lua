@@ -69,7 +69,7 @@ end
 
 local function fd(s: Sound?, v: number): ()
 	if not s then return end
-	if math.abs(s.Volume - v) < 0.01 then
+	if math.abs(s.Volume - v) < 1/100 then
 		if v > 0 and not s.IsPlaying then s:Play() end
 		return
 	end
@@ -78,8 +78,8 @@ local function fd(s: Sound?, v: number): ()
 	local t = TS:Create(s, ti, { Volume = v }); t:Play()
 	table.insert(tws, t)
 	if v == 0 then
-		task.delay(XF + 0.1, function()
-			if s and s.Volume < 0.01 and s.IsPlaying then s:Stop() end
+		task.delay(XF + 1/10, function()
+			if s and s.Volume < 1/100 and s.IsPlaying then s:Stop() end
 		end)
 	end
 end
@@ -158,7 +158,7 @@ local function updEdge(d: number): ()
 	if not vig then return end
 	local a: number
 	if d >= ER or d <= 0 then a = 0
-	else a = 0.5 * (1 - d / ER) end
+	else a = 5/10 * (1 - d / ER) end
 	for _, f in ipairs(eFr) do if f then f.BackgroundTransparency = 1 - a end end
 end
 
@@ -169,26 +169,26 @@ local function updHB(d: number, int: string?): ()
 		if hb.IsPlaying then hb:Stop(); hb.Volume = 0 end; return
 	end
 	local pf = 1 - math.clamp(d / HR, 0, 1)
-	local vol = 2/10 + 0.8 * pf; local spd = 10/10 + 1.5 * pf
-	if int == "damaged" then vol = math.min(1, vol + 0.3); spd = math.min(3, spd + 0.5) end
+	local vol = 2/10 + 8/10 * pf; local spd = 10/10 + 15/10 * pf
+	if int == "damaged" then vol = math.min(1, vol + 3/10); spd = math.min(3, spd + 5/10) end
 	hb.Volume = vol; hb.PlaybackSpeed = spd
 	if not hb.IsPlaying then hb:Play() end
 end
 
 -- SFX
 local function pSfx(id: string, nm: string, vol: number?): ()
-	local s = gsx(id, nm); s.Volume = vol or 0.8
+	local s = gsx(id, nm); s.Volume = vol or 8/10
 	if s.IsPlaying then s:Stop() end; s:Play()
 end
 
 local function hSfx(tp: string): ()
-	if     tp == "mission_complete" then pSfx(ID.MC,   "MC",   0.7)
-	elseif tp == "player_died"      then pSfx(ID.PD,   "PD",   0.9)
-	elseif tp == "player_damaged"   then pSfx(ID.DMG,  "DMG",  0.6)
-	elseif tp == "rage_activate"    then pSfx(ID.RAGE, "RAGE", 1.0)
-	elseif tp == "gate_open"        then pSfx(ID.GATE, "GATE", 0.8)
-	elseif tp == "fire"             then pSfx(ID.FIRE, "FIRE", 0.6)
-	elseif tp == "escape_start"     then pSfx(ID.ESC,  "ESC",  1.0)
+	if     tp == "mission_complete" then pSfx(ID.MC,   "MC",   7/10)
+	elseif tp == "player_died"      then pSfx(ID.PD,   "PD",   9/10)
+	elseif tp == "player_damaged"   then pSfx(ID.DMG,  "DMG",  6/10)
+	elseif tp == "rage_activate"    then pSfx(ID.RAGE, "RAGE", 10/10)
+	elseif tp == "gate_open"        then pSfx(ID.GATE, "GATE", 8/10)
+	elseif tp == "fire"             then pSfx(ID.FIRE, "FIRE", 6/10)
+	elseif tp == "escape_start"     then pSfx(ID.ESC,  "ESC",  10/10)
 	end
 end
 

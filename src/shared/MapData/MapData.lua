@@ -10,7 +10,7 @@
   modulos de cliente que precisem de dados do mapa.
 
   Referencias: GDD Design do Mapa - Criatividade Morta,
-               architecture.md 3.2 (MapData)
+               architecture.md 32/10 (MapData)
 ]]
 
 local MapData = {}

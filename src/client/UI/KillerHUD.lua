@@ -83,7 +83,7 @@ local function createUI()
 	_furyBar = Instance.new("Frame")
 	_furyBar.Name = "FuryBar"
 	_furyBar.Size = UDim2.new(0, 300, 0, 24)
-	_furyBar.Position = UDim2.new(0.5, -150, 0, 10)
+	_furyBar.Position = UDim2.new(5/10, -150, 0, 10)
 	_furyBar.BackgroundColor3 = HUD_COLORS.FURY_BG
 	_furyBar.BorderSizePixel = 1
 	_furyBar.Parent = _screenGui
@@ -105,7 +105,7 @@ local function createUI()
 	_furyLabel.TextColor3 = HUD_COLORS.TEXT
 	_furyLabel.Font = Enum.Font.SourceSansBold
 	_furyLabel.TextSize = 14
-	_furyLabel.TextStrokeTransparency = 0.5
+	_furyLabel.TextStrokeTransparency = 5/10
 	_furyLabel.Parent = _furyBar
 
 	-- ============================================================
@@ -114,14 +114,14 @@ local function createUI()
 	_cycleLabel = Instance.new("TextLabel")
 	_cycleLabel.Name = "CycleLabel"
 	_cycleLabel.Size = UDim2.new(0, 300, 0, 22)
-	_cycleLabel.Position = UDim2.new(0.5, -150, 0, 38)
-	_cycleLabel.BackgroundTransparency = 0.7
+	_cycleLabel.Position = UDim2.new(5/10, -150, 0, 38)
+	_cycleLabel.BackgroundTransparency = 7/10
 	_cycleLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	_cycleLabel.Text = "Ciclo: 4:00"
 	_cycleLabel.TextColor3 = Color3.fromRGB(255, 200, 100)
 	_cycleLabel.Font = Enum.Font.SourceSansBold
 	_cycleLabel.TextSize = 14
-	_cycleLabel.TextStrokeTransparency = 0.5
+	_cycleLabel.TextStrokeTransparency = 5/10
 	_cycleLabel.Parent = _screenGui
 
 	-- ============================================================
@@ -133,12 +133,12 @@ local function createUI()
 		label.Size = UDim2.new(0, 180, 0, 22)
 		label.Position = UDim2.new(1, -190, 1, positionY)
 		label.AnchorPoint = Vector2.new(0, 0)
-		label.BackgroundTransparency = 0.7
+		label.BackgroundTransparency = 7/10
 		label.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 		label.TextColor3 = HUD_COLORS.COOLDOWN_READY
 		label.Font = Enum.Font.SourceSans
 		label.TextSize = 13
-		label.TextStrokeTransparency = 0.5
+		label.TextStrokeTransparency = 5/10
 		label.Text = name .. ": PRONTO"
 		label.Parent = _screenGui
 		return label
@@ -156,12 +156,12 @@ local function createUI()
 	_aliveCountLabel.Size = UDim2.new(0, 200, 0, 30)
 	_aliveCountLabel.Position = UDim2.new(1, -210, 0, 10)
 	_aliveCountLabel.AnchorPoint = Vector2.new(0, 0)
-	_aliveCountLabel.BackgroundTransparency = 0.8
+	_aliveCountLabel.BackgroundTransparency = 8/10
 	_aliveCountLabel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 	_aliveCountLabel.TextColor3 = HUD_COLORS.TEXT
 	_aliveCountLabel.Font = Enum.Font.SourceSansBold
 	_aliveCountLabel.TextSize = 16
-	_aliveCountLabel.TextStrokeTransparency = 0.5
+	_aliveCountLabel.TextStrokeTransparency = 5/10
 	_aliveCountLabel.Text = "VIVOS: 4"
 	_aliveCountLabel.Parent = _screenGui
 
@@ -275,9 +275,9 @@ local function updateProximityIndicator()
 	if _cachedProximityLevel <= 0 then
 		alpha = 0 -- Sem distorcao
 	elseif _cachedProximityLevel == 1 then
-		alpha = 0.15 -- Alerta leve
+		alpha = 15/100 -- Alerta leve
 	else
-		alpha = 0.35 -- Perseguicao intensa
+		alpha = 35/100 -- Perseguicao intensa
 	end
 
 	-- Aplicar transparencia uniforme nas bordas

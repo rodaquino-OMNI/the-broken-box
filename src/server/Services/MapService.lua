@@ -9,7 +9,7 @@
     - Checks de area (isPlayerInCastle, isPlayerInCavern, isPlayerInEstoque)
 
   Init/Start pattern.
-  Referencias: GDD Design do Mapa, architecture.md 11.8
+  Referencias: GDD Design do Mapa, architecture.md 118/10
 ]]
 
 local Players = game:GetService("Players")

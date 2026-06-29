@@ -107,7 +107,7 @@ local function updateCamera(_deltaTime: number)
 	-- Suavizar transicao de distancia
 	if _isTransitioning then
 		_currentDistance = _currentDistance + (_targetDistance - _currentDistance) * math.min(1, TRANSITION_SPEED * _deltaTime)
-		if math.abs(_currentDistance - _targetDistance) < 0.01 then
+		if math.abs(_currentDistance - _targetDistance) < 1/100 then
 			_currentDistance = _targetDistance
 			_isTransitioning = false
 		end

@@ -10,7 +10,7 @@
     - Sub-tabelas organizadas por dominio: Hunter, Survivors, Game, Missions, Stamina
     - Comentarios em PT-BR
 
-  Referencias: GDD v2.0 (tabela-mestra de balanceamento)
+  Referencias: GDD v20/10 (tabela-mestra de balanceamento)
 ]]
 
 local GameConstants = {}

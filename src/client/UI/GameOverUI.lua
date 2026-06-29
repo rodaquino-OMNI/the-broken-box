@@ -72,7 +72,7 @@ local function createUI(): ()
 	mainFrame = createElement("Frame", overlay, {
 		Name = "MainFrame",
 		Size = UDim2.new(0, 400, 0, 350),
-		Position = UDim2.new(0.5, -200, 0.5, -175),
+		Position = UDim2.new(5/10, -200, 5/10, -175),
 		BackgroundColor3 = Color3.fromRGB(20, 20, 30),
 		BackgroundTransparency = 1/10,
 		BorderSizePixel = 1,
@@ -128,7 +128,7 @@ local function createUI(): ()
 	-- Separador
 	local separator1 = createElement("Frame", mainFrame, {
 		Name = "Separator1",
-		Size = UDim2.new(0.8, 0, 0, 2),
+		Size = UDim2.new(8/10, 0, 0, 2),
 		BackgroundColor3 = Color3.fromRGB(80, 80, 100),
 		BorderSizePixel = 0,
 		LayoutOrder = 3,
@@ -152,7 +152,7 @@ local function createUI(): ()
 	-- Separador
 	local separator2 = createElement("Frame", mainFrame, {
 		Name = "Separator2",
-		Size = UDim2.new(0.8, 0, 0, 2),
+		Size = UDim2.new(8/10, 0, 0, 2),
 		BackgroundColor3 = Color3.fromRGB(80, 80, 100),
 		BorderSizePixel = 0,
 		LayoutOrder = 5,
@@ -178,7 +178,7 @@ local function createUI(): ()
 	-- Botao Voltar ao Lobby
 	returnButton = createElement("TextButton", mainFrame, {
 		Name = "ReturnButton",
-		Size = UDim2.new(0.6, 0, 0, 44),
+		Size = UDim2.new(6/10, 0, 0, 44),
 		Text = "VOLTAR AO LOBBY",
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 		TextSize = 18,

@@ -123,7 +123,7 @@ end
 local _lastChk = 0
 local function onHb(_: number): ()
 	local n = os.clock()
-	if n - _lastChk < 2.0 then return end
+	if n - _lastChk < 20/10 then return end
 	_lastChk = n
 	if MS then _gs = MS.getMatchState() end
 	updSt(); updHB()

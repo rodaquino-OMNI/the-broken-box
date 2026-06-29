@@ -139,7 +139,7 @@ local function criarPointLight(
 		luz.Color = cor
 	end
 	-- Precisamos de um Part ou Attachment como parent da luz
-	local ancora = criarPart(parent, nome .. "_Ancora", Vector3.new(0.3, 0.3, 0.3), posicao, nil, nil)
+	local ancora = criarPart(parent, nome .. "_Ancora", Vector3.new(3/10, 3/10, 3/10), posicao, nil, nil)
 	ancora.Transparency = 1
 	ancora.CanCollide = false
 	luz.Parent = ancora
@@ -186,7 +186,7 @@ local function criarColuna(
 	local segmentos = math.ceil(altura / 10)
 	local alturaSegmento = altura / segmentos
 	for i = 1, segmentos do
-		local y = baseY + (i - 0.5) * alturaSegmento
+		local y = baseY + (i - 5/10) * alturaSegmento
 		local p = criarPart(
 			parent,
 			nome .. "_Seg" .. tostring(i),
@@ -219,8 +219,8 @@ local function construirChao(parent: Instance): Part
 	for x = -240, 240, 40 do
 		criarPart(
 			parent, "GradeVertical_" .. tostring(x),
-			Vector3.new(1, 0.2, 500),
-			Vector3.new(x, 0.1, 0),
+			Vector3.new(1, 2/10, 500),
+			Vector3.new(x, 1/10, 0),
 			COR_MARROM_ESCURO,
 			Enum.Material.WoodPlanks
 		)
@@ -228,8 +228,8 @@ local function construirChao(parent: Instance): Part
 	for z = -240, 240, 40 do
 		criarPart(
 			parent, "GradeHorizontal_" .. tostring(z),
-			Vector3.new(500, 0.2, 1),
-			Vector3.new(0, 0.1, z),
+			Vector3.new(500, 2/10, 1),
+			Vector3.new(0, 1/10, z),
 			COR_MARROM_ESCURO,
 			Enum.Material.WoodPlanks
 		)
@@ -257,7 +257,7 @@ local function construirCastelo(parent: Instance): { Part }
 	-- === Piso do Castelo ===
 	table.insert(parts, criarPiso(
 		parent, "Castelo_Piso",
-		s.min.x, s.max.x, baseY + 0.5,
+		s.min.x, s.max.x, baseY + 5/10,
 		s.min.z, s.max.z,
 		COR_CINZA_ESCURO,
 		Enum.Material.Slate
@@ -326,15 +326,15 @@ local function construirCastelo(parent: Instance): { Part }
 				parent, "Castelo_" .. muro.nome .. "_Inf_" .. tostring(seg),
 				Vector3.new(segDeX, baseY, segDeZ),
 				Vector3.new(segDeX + stepX, baseY, segDeZ + stepZ),
-				2, altura * 0.55,
+				2, altura * 55/100,
 				COR_PEDRA,
 				Enum.Material.Slate
 			)
 			table.insert(parts, pInferior)
 
 			-- Bloco superior: 30% da altura, comecando de 70%
-			local supBaseY = baseY + altura * 0.70
-			local supAltura = altura * 0.30
+			local supBaseY = baseY + altura * 70/100
+			local supAltura = altura * 30/100
 			local centroY = supBaseY + supAltura / 2
 			local pSuperior = criarParede(
 				parent, "Castelo_" .. muro.nome .. "_Sup_" .. tostring(seg),
@@ -366,7 +366,7 @@ local function construirCastelo(parent: Instance): { Part }
 
 	-- === Rampas de acesso (escalavel por fora) ===
 	-- Pequenas plataformas nas paredes externas para escalada
-	local plataformaSize = Vector3.new(4, 0.5, 6)
+	local plataformaSize = Vector3.new(4, 5/10, 6)
 	for y = 5, 30, 8 do
 		-- Lado oeste (externo)
 		criarPart(
@@ -403,7 +403,7 @@ local function construirCastelo(parent: Instance): { Part }
 		criarPart(
 			parent, "Castelo_PilarEntrada_" .. tostring(lado),
 			Vector3.new(2, 5, 3),
-			Vector3.new(portaoX + lado * 5, baseY + 2.5, portaoZ),
+			Vector3.new(portaoX + lado * 5, baseY + 25/10, portaoZ),
 			COR_PEDRA,
 			Enum.Material.Slate
 		)
@@ -441,7 +441,7 @@ local function construirCaverna(parent: Instance): { Part }
 		-- Rampa no eixo X
 		local rampaX = criarPart(
 			parent, "Caverna_RampaX_" .. tostring(lado),
-			Vector3.new(10, 0.5, s.max.z - s.min.z),
+			Vector3.new(10, 5/10, s.max.z - s.min.z),
 			Vector3.new(cx + lado * 35, pisoY + 5, cz),
 			COR_CINZA_ESCURO,
 			Enum.Material.Slate
@@ -471,27 +471,27 @@ local function construirCaverna(parent: Instance): { Part }
 		local blocosPorColuna = 5
 
 		for i = 1, 3 do  -- 3 segmentos horizontais
-			local offsetX = (i - 1.5) * (largura / 2.5) * 0.5
-			local offsetZ = (i - 1.5) * (profundidade / 2.5) * 0.5
-			local segLargura = largura / 3 * (0.8 + math.random() * 0.4)
-			local segProf = profundidade / 3 * (0.8 + math.random() * 0.4)
+			local offsetX = (i - 15/10) * (largura / 25/10) * 5/10
+			local offsetZ = (i - 15/10) * (profundidade / 25/10) * 5/10
+			local segLargura = largura / 3 * (8/10 + math.random() * 4/10)
+			local segProf = profundidade / 3 * (8/10 + math.random() * 4/10)
 
 			for j = 1, blocosPorColuna do
 				local yBase = pisoY + (j - 1) * (alturaTotal / blocosPorColuna)
-				local segAltura = alturaTotal / blocosPorColuna * (0.9 + math.random() * 0.2)
+				local segAltura = alturaTotal / blocosPorColuna * (9/10 + math.random() * 2/10)
 				local p = criarPart(
 					parent, "Caverna_Parede_" .. cfg.nome .. "_" .. tostring(i) .. "_" .. tostring(j),
 					Vector3.new(segLargura, segAltura, segProf),
 					Vector3.new(
-						cfg.x + offsetX + largura / 2 + (i - 1.5) * (largura / 4),
+						cfg.x + offsetX + largura / 2 + (i - 15/10) * (largura / 4),
 						yBase + segAltura / 2,
-						cfg.z + offsetZ + profundidade / 2 + (i - 1.5) * (profundidade / 4)
+						cfg.z + offsetZ + profundidade / 2 + (i - 15/10) * (profundidade / 4)
 					),
 					COR_CINZA_ESCURO,
 					Enum.Material.Slate
 				)
 				-- Variar levemente a cor para efeito de rocha
-				local brilho = 7/10 + math.random() * 0.3
+				local brilho = 7/10 + math.random() * 3/10
 				p.Color = Color3.fromRGB(
 					math.floor(60 * brilho),
 					math.floor(55 * brilho),
@@ -505,7 +505,7 @@ local function construirCaverna(parent: Instance): { Part }
 	-- === Teto parcial (caverna coberta) ===
 	-- Algumas partes do teto para sensacao de confinamento
 	for i = 1, 4 do
-		local tx = s.min.x + (i - 0.5) * (s.max.x - s.min.x) / 4
+		local tx = s.min.x + (i - 5/10) * (s.max.x - s.min.x) / 4
 		local tz = cz + (i % 2 == 1 and 20 or -20)
 		criarPart(
 			parent, "Caverna_Teto_" .. tostring(i),
@@ -517,16 +517,16 @@ local function construirCaverna(parent: Instance): { Part }
 	end
 
 	-- === Iluminacao da Caverna (luzes fracas) ===
-	criarPointLight(parent, "Caverna_Luz_Centro", Vector3.new(cx, pisoY + 1, cz), 0.4, 30, COR_LARANJA)
-	criarPointLight(parent, "Caverna_Luz_Entrada", Vector3.new(s.min.x + 10, pisoY + 1, s.max.z - 10), 0.3, 25, COR_AZUL_ESCURO)
-	criarPointLight(parent, "Caverna_Luz_Fundo", Vector3.new(s.max.x - 10, pisoY + 1, s.min.z + 10), 0.2, 20, COR_VERMELHO_ESCURO)
+	criarPointLight(parent, "Caverna_Luz_Centro", Vector3.new(cx, pisoY + 1, cz), 4/10, 30, COR_LARANJA)
+	criarPointLight(parent, "Caverna_Luz_Entrada", Vector3.new(s.min.x + 10, pisoY + 1, s.max.z - 10), 3/10, 25, COR_AZUL_ESCURO)
+	criarPointLight(parent, "Caverna_Luz_Fundo", Vector3.new(s.max.x - 10, pisoY + 1, s.min.z + 10), 2/10, 20, COR_VERMELHO_ESCURO)
 
 	-- === Entrada da caverna (arco) ===
 	local entradaX = s.min.x + 15
 	local entradaZ = s.max.z
 	criarPart(
 		parent, "Caverna_Entrada_Arco",
-		Vector3.new(12, 1.5, 3),
+		Vector3.new(12, 15/10, 3),
 		Vector3.new(entradaX, pisoY + 4, entradaZ),
 		COR_PEDRA,
 		Enum.Material.Slate
@@ -535,7 +535,7 @@ local function construirCaverna(parent: Instance): { Part }
 	for lado = -1, 1, 2 do
 		criarColuna(
 			parent, "Caverna_Entrada_Pilar_" .. tostring(lado),
-			entradaX + lado * 5.5, entradaZ, pisoY, 4, 2,
+			entradaX + lado * 55/10, entradaZ, pisoY, 4, 2,
 			COR_PEDRA,
 			Enum.Material.Slate
 		)
@@ -560,7 +560,7 @@ local function construirEstoque(parent: Instance): { Part }
 	-- === Piso ===
 	table.insert(parts, criarPiso(
 		parent, "Estoque_Piso",
-		s.min.x, s.max.x, baseY + 0.5,
+		s.min.x, s.max.x, baseY + 5/10,
 		s.min.z, s.max.z,
 		COR_MARROM_ESCURO,
 		Enum.Material.WoodPlanks
@@ -590,7 +590,7 @@ local function construirEstoque(parent: Instance): { Part }
 	table.insert(parts, criarPiso(
 		parent, "Estoque_Teto",
 		s.min.x + 2, s.max.x - 2,
-		baseY + altura - 0.5,
+		baseY + altura - 5/10,
 		s.min.z + 2, s.max.z - 2,
 		COR_CINZA_ESCURO,
 		Enum.Material.WoodPlanks
@@ -615,7 +615,7 @@ local function construirEstoque(parent: Instance): { Part }
 		for p = 1, numPrateleirasPorFileira do
 			-- Alternar posicoes Z com gaps para corredores
 			local variacaoZ = (p % 2 == 1) and -8 or 8
-			local prateleiraZ = s.min.z + 15 + (p - 1) * ((s.max.z - s.min.z - 30) / numPrateleirasPorFileira) + variacaoZ * 0.3
+			local prateleiraZ = s.min.z + 15 + (p - 1) * ((s.max.z - s.min.z - 30) / numPrateleirasPorFileira) + variacaoZ * 3/10
 
 			local shelf = criarPart(
 				parent,
@@ -632,7 +632,7 @@ local function construirEstoque(parent: Instance): { Part }
 				local lateral = criarPart(
 					parent,
 					"Estoque_PrateleiraLat_F" .. tostring(f) .. "_P" .. tostring(p),
-					Vector3.new(8, prateleiraAltura, 1.5),
+					Vector3.new(8, prateleiraAltura, 15/10),
 					Vector3.new(prateleiraX + 5, baseY + prateleiraAltura / 2, prateleiraZ + prateleiraComprimentoZ / 2 + 2),
 					COR_MARROM_ESCURO,
 					Enum.Material.WoodPlanks
@@ -677,28 +677,28 @@ local function construirMarkerV1(parent: Instance, pos: { x: number, y: number, 
 	-- Painel principal
 	criarPart(
 		folder, "Painel",
-		Vector3.new(4, 3, 0.5),
-		Vector3.new(pos.x, baseY + 1.5, pos.z),
+		Vector3.new(4, 3, 5/10),
+		Vector3.new(pos.x, baseY + 15/10, pos.z),
 		COR_CINZA_CLARO,
 		Enum.Material.Metal
 	)
 
 	-- 4 alavancas (pequenas)
 	for i = 1, 4 do
-		local leverX = pos.x - 1.5 + (i - 1) * 1
+		local leverX = pos.x - 15/10 + (i - 1) * 1
 		-- Haste
 		criarPart(
 			folder, "Alavanca_Haste_" .. tostring(i),
-			Vector3.new(0.2, 1.2, 0.2),
-			Vector3.new(leverX, baseY + 2, pos.z + 0.4),
+			Vector3.new(2/10, 12/10, 2/10),
+			Vector3.new(leverX, baseY + 2, pos.z + 4/10),
 			COR_CINZA_ESCURO,
 			Enum.Material.Metal
 		)
 		-- Base da alavanca
 		criarPart(
 			folder, "Alavanca_Base_" .. tostring(i),
-			Vector3.new(0.5, 0.3, 0.5),
-			Vector3.new(leverX, baseY + 1.1, pos.z + 0.4),
+			Vector3.new(5/10, 3/10, 5/10),
+			Vector3.new(leverX, baseY + 11/10, pos.z + 4/10),
 			COR_VERMELHO_ESCURO,
 			Enum.Material.Metal
 		)
@@ -719,7 +719,7 @@ local function construirMarkerV2(parent: Instance, pos: { x: number, y: number, 
 	criarPart(
 		folder, "Corpo",
 		Vector3.new(5, 3, 4),
-		Vector3.new(pos.x, baseY + 1.5, pos.z),
+		Vector3.new(pos.x, baseY + 15/10, pos.z),
 		COR_LARANJA,
 		Enum.Material.Metal
 	)
@@ -727,8 +727,8 @@ local function construirMarkerV2(parent: Instance, pos: { x: number, y: number, 
 	-- Painel de controle (amarelo)
 	criarPart(
 		folder, "Painel",
-		Vector3.new(3, 2, 0.3),
-		Vector3.new(pos.x, baseY + 2, pos.z + 2.2),
+		Vector3.new(3, 2, 3/10),
+		Vector3.new(pos.x, baseY + 2, pos.z + 22/10),
 		COR_AMARELO,
 		Enum.Material.Metal
 	)
@@ -738,8 +738,8 @@ local function construirMarkerV2(parent: Instance, pos: { x: number, y: number, 
 		local caboX = pos.x - 2 + (i - 1) * 1
 		local cabo = criarPart(
 			folder, "Cabo_" .. tostring(i),
-			Vector3.new(0.3, 0.3, 1.5),
-			Vector3.new(caboX, baseY + 2.5, pos.z - 2.5),
+			Vector3.new(3/10, 3/10, 15/10),
+			Vector3.new(caboX, baseY + 25/10, pos.z - 25/10),
 			COR_PRETO,
 			Enum.Material.Metal
 		)
@@ -762,7 +762,7 @@ local function construirMarkerV3(parent: Instance, pos: { x: number, y: number, 
 	criarPart(
 		folder, "Base",
 		Vector3.new(6, 1, 6),
-		Vector3.new(pos.x, baseY + 0.5, pos.z),
+		Vector3.new(pos.x, baseY + 5/10, pos.z),
 		COR_PRETO,
 		Enum.Material.Metal
 	)
@@ -788,8 +788,8 @@ local function construirMarkerV3(parent: Instance, pos: { x: number, y: number, 
 	-- Ponteiro (haste fina vertical)
 	local ponteiro = criarPart(
 		folder, "Ponteiro",
-		Vector3.new(0.2, 5, 0.2),
-		Vector3.new(pos.x, baseY + 5.5, pos.z),
+		Vector3.new(2/10, 5, 2/10),
+		Vector3.new(pos.x, baseY + 55/10, pos.z),
 		COR_AMARELO,
 		Enum.Material.Metal
 	)
@@ -832,7 +832,7 @@ local function construirGates(parent: Instance): ()
 		-- Arco superior (semi-circulo simulado com 3 partes)
 		criarPart(
 			folder, "Arco_Topo",
-			Vector3.new(10, 1.5, 2),
+			Vector3.new(10, 15/10, 2),
 			Vector3.new(gx, gy + 6, gz),
 			COR_PEDRA,
 			Enum.Material.Slate
@@ -843,7 +843,7 @@ local function construirGates(parent: Instance): ()
 			local ladoInclinado = criarPart(
 				folder, "Arco_Lado_" .. tostring(lado),
 				Vector3.new(2, 4, 2),
-				Vector3.new(gx + lado * 4, gy + 3.5, gz),
+				Vector3.new(gx + lado * 4, gy + 35/10, gz),
 				COR_PEDRA,
 				Enum.Material.Slate
 			)
@@ -854,7 +854,7 @@ local function construirGates(parent: Instance): ()
 		for lado = -1, 1, 2 do
 			criarColuna(
 				folder, "Pilar_" .. tostring(lado),
-				gx + lado * 5.5, gz, gy - 2, 7, 2.5,
+				gx + lado * 55/10, gz, gy - 2, 7, 25/10,
 				COR_PEDRA,
 				Enum.Material.Slate
 			)
@@ -863,8 +863,8 @@ local function construirGates(parent: Instance): ()
 		-- Base/piso do portao
 		criarPart(
 			folder, "Base",
-			Vector3.new(12, 0.5, 4),
-			Vector3.new(gx, gy - 0.5, gz),
+			Vector3.new(12, 5/10, 4),
+			Vector3.new(gx, gy - 5/10, gz),
 			COR_CINZA_ESCURO,
 			Enum.Material.Slate
 		)
@@ -873,7 +873,7 @@ local function construirGates(parent: Instance): ()
 		criarPointLight(
 			folder, "Sinalizador",
 			Vector3.new(gx, gy + 7, gz),
-			0.5, 15,
+			5/10, 15,
 			COR_AMARELO
 		)
 	end
@@ -902,8 +902,8 @@ local function construirObstaculos(parent: Instance): ()
 		-- Detalhes decorativos em cima (fita adesiva simulada)
 		criarPart(
 			parent, "Obstaculo_Fita_" .. tostring(i),
-			Vector3.new(tam.x + 0.5, 0.1, 0.5),
-			Vector3.new(pos.x, pos.y + tam.y / 2 + 0.05, pos.z),
+			Vector3.new(tam.x + 5/10, 1/10, 5/10),
+			Vector3.new(pos.x, pos.y + tam.y / 2 + 5/100, pos.z),
 			COR_MARROM_ESCURO,
 			Enum.Material.SmoothPlastic
 		)
@@ -934,8 +934,8 @@ local function criarCorpoBrinquedo(
 	-- Tronco (deitado - rotacionado 90 graus no Z)
 	local tronco = criarPart(
 		folder, "Tronco",
-		Vector3.new(2, 3, 1.5),
-		Vector3.new(posicao.X, baseY + 0.5, posicao.Z),
+		Vector3.new(2, 3, 15/10),
+		Vector3.new(posicao.X, baseY + 5/10, posicao.Z),
 		corRoupa or COR_AZUL_ESCURO,
 		Enum.Material.SmoothPlastic
 	)
@@ -944,8 +944,8 @@ local function criarCorpoBrinquedo(
 	-- Cabeca
 	criarPart(
 		folder, "Cabeca",
-		Vector3.new(1.5, 1.5, 1.5),
-		Vector3.new(posicao.X + 2.5, baseY + 0.3, posicao.Z),
+		Vector3.new(15/10, 15/10, 15/10),
+		Vector3.new(posicao.X + 25/10, baseY + 3/10, posicao.Z),
 		COR_BRANCO_SUJO,
 		Enum.Material.SmoothPlastic
 	)
@@ -954,8 +954,8 @@ local function criarCorpoBrinquedo(
 	for lado = -1, 1, 2 do
 		criarPart(
 			folder, "Braco_" .. tostring(lado),
-			Vector3.new(1, 0.5, 0.5),
-			Vector3.new(posicao.X + lado * 0.8, baseY + 0.3, posicao.Z + 1.2 * lado),
+			Vector3.new(1, 5/10, 5/10),
+			Vector3.new(posicao.X + lado * 8/10, baseY + 3/10, posicao.Z + 12/10 * lado),
 			corRoupa or COR_AZUL_ESCURO,
 			Enum.Material.SmoothPlastic
 		)
@@ -965,8 +965,8 @@ local function criarCorpoBrinquedo(
 	for lado = -1, 1, 2 do
 		criarPart(
 			folder, "Perna_" .. tostring(lado),
-			Vector3.new(1, 0.6, 0.6),
-			Vector3.new(posicao.X - 1.5 + lado * 0.5, baseY + 0.3, posicao.Z + 0.8 * lado),
+			Vector3.new(1, 6/10, 6/10),
+			Vector3.new(posicao.X - 15/10 + lado * 5/10, baseY + 3/10, posicao.Z + 8/10 * lado),
 			COR_CINZA_ESCURO,
 			Enum.Material.SmoothPlastic
 		)
@@ -975,12 +975,12 @@ local function criarCorpoBrinquedo(
 	-- "Sangue" (mancha vermelha no chao)
 	local mancha = criarPart(
 		folder, "Mancha",
-		Vector3.new(3, 0.05, 2),
-		Vector3.new(posicao.X, baseY - 0.5, posicao.Z),
+		Vector3.new(3, 5/100, 2),
+		Vector3.new(posicao.X, baseY - 5/10, posicao.Z),
 		COR_VERMELHO_ESCURO,
 		Enum.Material.SmoothPlastic
 	)
-	mancha.Transparency = 0.3
+	mancha.Transparency = 3/10
 end
 
 local function construirDecoracaoHorror(parent: Instance): ()
@@ -990,7 +990,7 @@ local function construirDecoracaoHorror(parent: Instance): ()
 	local cavern = MapData.STRUCTURES.CAVERN
 	local cxCavern = (cavern.min.x + cavern.max.x) / 2
 	local czCavern = (cavern.min.z + cavern.max.z) / 2
-	local yCavern = cavern.min.y + 0.5
+	local yCavern = cavern.min.y + 5/10
 
 	criarCorpoBrinquedo(parent, "Corpo_Caverna_1", Vector3.new(cxCavern - 15, yCavern, czCavern - 15), COR_VERMELHO_ESCURO)
 	criarCorpoBrinquedo(parent, "Corpo_Caverna_2", Vector3.new(cxCavern + 10, yCavern, czCavern + 20), COR_AZUL_ESCURO)
@@ -1006,9 +1006,9 @@ local function construirDecoracaoHorror(parent: Instance): ()
 	criarCorpoBrinquedo(parent, "Corpo_Castelo_2", Vector3.new(cxCastle + 15, yCastle + 18, czCastle), nil)
 
 	-- "Olhos" brilhantes nos cantos escuros (pequenas PointLights vermelhas)
-	criarPointLight(parent, "Olho_Caverna_1", Vector3.new(cxCavern + 25, yCavern + 1, czCavern - 20), 0.3, 8, COR_VERMELHO_ESCURO)
-	criarPointLight(parent, "Olho_Caverna_2", Vector3.new(cxCavern - 20, yCavern + 1, czCavern + 25), 0.3, 8, COR_VERMELHO_ESCURO)
-	criarPointLight(parent, "Olho_Castelo_1", Vector3.new(cxCastle + 5, yCastle + 35, czCastle + 5), 0.2, 10, COR_VERMELHO_ESCURO)
+	criarPointLight(parent, "Olho_Caverna_1", Vector3.new(cxCavern + 25, yCavern + 1, czCavern - 20), 3/10, 8, COR_VERMELHO_ESCURO)
+	criarPointLight(parent, "Olho_Caverna_2", Vector3.new(cxCavern - 20, yCavern + 1, czCavern + 25), 3/10, 8, COR_VERMELHO_ESCURO)
+	criarPointLight(parent, "Olho_Castelo_1", Vector3.new(cxCastle + 5, yCastle + 35, czCastle + 5), 2/10, 10, COR_VERMELHO_ESCURO)
 
 	print("[TheBrokenBox] MapBuilder: Decoracao de horror concluida.")
 end

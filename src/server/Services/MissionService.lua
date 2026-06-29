@@ -217,7 +217,7 @@ function MissionService.initializeMissions(): ()
 				assignedPlayer = nil,
 				state = "PENDING",
 				startTime = 0,
-				minCompletionTime = MIN_COMPLETION_TIMES[missionType] or 3.0,
+				minCompletionTime = MIN_COMPLETION_TIMES[missionType] or 30/10,
 				interactRange = MISSION_RANGES.INTERACT,
 				progress = 0,
 			}

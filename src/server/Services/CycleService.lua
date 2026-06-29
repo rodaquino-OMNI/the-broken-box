@@ -72,7 +72,7 @@ local function onHeartbeat(_deltaTime: number): ()
 	local now = os.clock()
 
 	-- Verificar se passou 1s desde o ultimo tick
-	if now - _lastTickTime < 1.0 then
+	if now - _lastTickTime < 10/10 then
 		return
 	end
 

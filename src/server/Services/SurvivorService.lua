@@ -291,7 +291,7 @@ local function knockbackHunter(hunter: Player, fromPosition: Vector3, distance: 
 	end
 
 	local direction = (rootPart.Position - fromPosition)
-	if direction.Magnitude < 0.01 then
+	if direction.Magnitude < 1/100 then
 		direction = Vector3.new(1, 0, 0)
 	end
 	direction = direction.Unit
@@ -495,12 +495,12 @@ local function medicoA2(player: Player, ext: SurvivorExtState): ()
 		end
 
 		local lookDirection = ext.rootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
-		if lookDirection.Magnitude < 0.1 then
+		if lookDirection.Magnitude < 1/10 then
 			lookDirection = Vector3.new(1, 0, 0)
 		end
 		lookDirection = lookDirection.Unit
 
-		local dashSpeed = MEDICO.CHARGE.DASH_DISTANCE / 0.3  -- ~50 studs/s, rapido
+		local dashSpeed = MEDICO.CHARGE.DASH_DISTANCE / 3/10  -- ~50 studs/s, rapido
 		local dashVelocity = lookDirection * dashSpeed
 
 		-- Dash via BodyVelocity
@@ -630,7 +630,7 @@ local function soldadoA1(player: Player, ext: SurvivorExtState): ()
 		end
 
 		local lookDirection = ext.rootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
-		if lookDirection.Magnitude < 0.1 then
+		if lookDirection.Magnitude < 1/10 then
 			lookDirection = Vector3.new(1, 0, 0)
 		end
 		lookDirection = lookDirection.Unit
@@ -1058,7 +1058,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 		-- Boost de velocidade 5s
 		print("[TheBrokenBox] Robo " .. player.Name .. ": Autodestruicao - boost!")
 		ext.selfDestructPhase = "boost"
-		local boostSpeed = origSpeed * 1.5
+		local boostSpeed = origSpeed * 15/10
 		humanoid.WalkSpeed = boostSpeed
 
 		task.delay(ROBO.SELFDESTRUCT.BOOST_DURATION, function()
@@ -1078,7 +1078,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 			SurvivorService.survivorDamaged:Fire(player, ROBO.SELFDESTRUCT.SELF_DAMAGE, player)
 
 			-- Auto-slow 8s
-			humanoid.WalkSpeed = origSpeed * 0.5
+			humanoid.WalkSpeed = origSpeed * 5/10
 
 			task.delay(ROBO.SELFDESTRUCT.SLOW_DURATION, function()
 				if humanoid and humanoid.Parent then
@@ -1097,7 +1097,7 @@ local function roboA3(player: Player, ext: SurvivorExtState): ()
 
 						-- Arremessa 100 studs
 						local throwDir = (hunterRoot.Position - origin).Unit
-						if throwDir.Magnitude < 0.1 then
+						if throwDir.Magnitude < 1/10 then
 							throwDir = Vector3.new(1, 1, 0).Unit
 						end
 						hunterRoot.AssemblyLinearVelocity = throwDir * (ROBO.SELFDESTRUCT.THROW_DISTANCE * 2)

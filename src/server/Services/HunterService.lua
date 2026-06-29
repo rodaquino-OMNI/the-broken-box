@@ -124,8 +124,8 @@ end
   Aplica a aparencia de Rage ao personagem do Cacador.
   Tenta carregar o modelo "DistorcidoRage" de ServerStorage.Assets.
   Se nao existir, aplica fallback escuro:
-    - Escala 1.15x
-    - Todas as partes do corpo -> Color3.new(0.05, 0.05, 0.05) (quase preto)
+    - Escala 11/105x
+    - Todas as partes do corpo -> Color3.new(5/100, 5/100, 5/100) (quase preto)
     - ParticleEmitter escuro no HumanoidRootPart
 ]]
 local function _applyRageAppearance(character: Model): ()
@@ -191,7 +191,7 @@ local function _applyRageAppearance(character: Model): ()
 		-- Fallback: aparencia escura
 		print("[TheBrokenBox] HunterService: Modelo DistorcidoRage NAO encontrado - aplicando fallback escuro...")
 
-		local rageColor = Color3.new(0.05, 0.05, 0.05)
+		local rageColor = Color3.new(5/100, 5/100, 5/100)
 
 		-- Aplicar cor escura em todas as partes do corpo
 		local bodyPartNames = {
@@ -204,11 +204,11 @@ local function _applyRageAppearance(character: Model): ()
 			end
 		end
 
-		-- Aumentar escala em 1.15x
+		-- Aumentar escala em 11/105x
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
-			humanoid.HipHeight = humanoid.HipHeight * 1.15
-			print("[TheBrokenBox] HunterService: Escala aumentada para 1.15x")
+			humanoid.HipHeight = humanoid.HipHeight * 115/100
+			print("[TheBrokenBox] HunterService: Escala aumentada para 11/105x")
 		end
 
 		-- Adicionar ParticleEmitter escuro no HumanoidRootPart
@@ -219,11 +219,11 @@ local function _applyRageAppearance(character: Model): ()
 			particleEmitter.Color = ColorSequence.new(rageColor)
 			particleEmitter.LightEmission = 0
 			particleEmitter.Rate = 20
-			particleEmitter.Lifetime = NumberRange.new(0.5, 1.5)
+			particleEmitter.Lifetime = NumberRange.new(5/10, 15/10)
 			particleEmitter.Speed = NumberRange.new(1, 3)
 			particleEmitter.SpreadAngle = Vector2.new(180, 180)
-			particleEmitter.Transparency = NumberSequence.new(0.5)
-			particleEmitter.Size = NumberSequence.new(0.5)
+			particleEmitter.Transparency = NumberSequence.new(5/10)
+			particleEmitter.Size = NumberSequence.new(5/10)
 			particleEmitter.Texture = "rbxassetid://13200797030" -- Textura de fumaca padrao
 			particleEmitter.Parent = rootPart
 

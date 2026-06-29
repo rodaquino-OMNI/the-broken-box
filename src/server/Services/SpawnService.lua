@@ -40,7 +40,7 @@ local function waitForCharacter(player: Player, timeout: number): Model?
 		if character and character.PrimaryPart then
 			return character
 		end
-		task.wait(0.1)
+		task.wait(1/10)
 	end
 	return player.Character -- Ultima tentativa (pode ser nil)
 end

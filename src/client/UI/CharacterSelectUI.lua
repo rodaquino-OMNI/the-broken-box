@@ -9,7 +9,7 @@
   Usa script.Parent para requires (convencao Rojo).
   Usa IsA("RemoteEvent") para encontrar RemoteEvents em ReplicatedStorage.
 
-  Referencias: GDD Lobby - A Caixa, architecture.md 12.1
+  Referencias: GDD Lobby - A Caixa, architecture.md 121/10
 ]]
 
 local Players = game:GetService("Players")
@@ -176,7 +176,7 @@ local function createCharacterButton(parent: Frame, char: CharacterInfo, index: 
 	tagLabel.Name = "TagLabel"
 	tagLabel.Size = UDim2.new(0, 80, 0, 20)
 	tagLabel.Position = UDim2.new(1, -90, 0, 6)
-	tagLabel.BackgroundTransparency = char.free and 0.6 or 0.4
+	tagLabel.BackgroundTransparency = char.free and 6/10 or 4/10
 	tagLabel.BackgroundColor3 = char.free and COLORS.FREE or COLORS.PAID
 	tagLabel.Text = char.free and "GRATIS" or ("PAGO (" .. (char.cost or 0) .. ")")
 	tagLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -250,7 +250,7 @@ local function createCharacterButton(parent: Frame, char: CharacterInfo, index: 
 		frame.BackgroundColor3 = COLORS.BUTTON_LOCKED
 		nameLabel.TextColor3 = COLORS.LOCKED
 		descLabel.TextColor3 = COLORS.LOCKED
-		frame.BackgroundTransparency = 0.3
+		frame.BackgroundTransparency = 3/10
 	end
 
 	return frame
@@ -274,7 +274,7 @@ local function createUI(): ()
 	_mainFrame = Instance.new("Frame")
 	_mainFrame.Name = "MainFrame"
 	_mainFrame.Size = UDim2.new(0, 380, 0, 520)
-	_mainFrame.Position = UDim2.new(0.5, -190, 0.5, -260)
+	_mainFrame.Position = UDim2.new(5/10, -190, 5/10, -260)
 	_mainFrame.BackgroundColor3 = COLORS.PANEL
 	_mainFrame.BorderSizePixel = 2
 	_mainFrame.BorderColor3 = COLORS.TITLE
@@ -297,7 +297,7 @@ local function createUI(): ()
 	charContainer.Name = "CharContainer"
 	charContainer.Size = UDim2.new(1, -20, 0, 370)
 	charContainer.Position = UDim2.new(0, 10, 0, 55)
-	charContainer.BackgroundTransparency = 0.8
+	charContainer.BackgroundTransparency = 8/10
 	charContainer.BackgroundColor3 = COLORS.BG
 	charContainer.BorderSizePixel = 1
 	charContainer.ScrollBarThickness = 6

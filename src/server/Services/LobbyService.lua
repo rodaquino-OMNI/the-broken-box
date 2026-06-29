@@ -12,7 +12,7 @@
     characterSelected - quando um jogador seleciona personagem
 
   Init/Start pattern.
-  Referencias: GDD Lobby - A Caixa, architecture.md 11.9
+  Referencias: GDD Lobby - A Caixa, architecture.md 119/10
 ]]
 
 local Players = game:GetService("Players")

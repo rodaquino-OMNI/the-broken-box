@@ -134,7 +134,7 @@ function HitboxService.createBodyHitbox(player: Player): ()
 	local bodyPart = Instance.new("Part")
 	bodyPart.Name = "BodyHitbox"
 	bodyPart.Size = Vector3.new(4, 5, 2)  -- Tamanho aproximado do corpo R6
-	bodyPart.Transparency = 1.0
+	bodyPart.Transparency = 10/10
 	bodyPart.CanCollide = true
 	bodyPart.Anchored = false
 	bodyPart.Massless = true
@@ -524,7 +524,7 @@ function HitboxService.Start(): ()
 	-- Criar hitbox de corpo quando personagem spawna
 	Players.PlayerAdded:Connect(function(player: Player)
 		player.CharacterAdded:Connect(function(_character: Model)
-			task.wait(0.1)  -- Aguardar character carregar
+			task.wait(1/10)  -- Aguardar character carregar
 			HitboxService.createBodyHitbox(player)
 		end)
 

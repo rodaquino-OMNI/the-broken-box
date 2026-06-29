@@ -138,7 +138,7 @@ local function openGates(): { any }
 		marker.Size = Vector3.new(10, 12, 2)
 		marker.Anchored = true
 		marker.CanCollide = false
-		marker.Transparency = 0.5
+		marker.Transparency = 5/10
 		marker.BrickColor = BrickColor.new("Bright green")
 		marker.Material = Enum.Material.Neon
 		marker.Parent = Workspace
@@ -211,7 +211,7 @@ local function activateHazards(): ()
 			darkZone.Size = Vector3.new(40, 20, 40)
 			darkZone.Anchored = true
 			darkZone.CanCollide = false
-			darkZone.Transparency = 0.7
+			darkZone.Transparency = 7/10
 			darkZone.BrickColor = BrickColor.new("Black")
 			darkZone.Material = Enum.Material.SmoothPlastic
 			darkZone.Parent = Workspace
@@ -238,7 +238,7 @@ local function activateHazards(): ()
 			barrier.Size = Vector3.new(8, 10, 1)
 			barrier.Anchored = true
 			barrier.CanCollide = true
-			barrier.Transparency = 0.3
+			barrier.Transparency = 3/10
 			barrier.BrickColor = BrickColor.new("Bright yellow")
 			barrier.Material = Enum.Material.Neon
 			barrier.Parent = Workspace
@@ -280,11 +280,11 @@ local function activateHazards(): ()
 			-- V3: Poca de oleo (35% de lentidao)
 			local oilPuddle = Instance.new("Part")
 			oilPuddle.Name = "Hazard_Oil_" .. mission.id
-			oilPuddle.Position = pos + Vector3.new(0, 0.05, 0)
-			oilPuddle.Size = Vector3.new(20, 0.2, 20)
+			oilPuddle.Position = pos + Vector3.new(0, 5/100, 0)
+			oilPuddle.Size = Vector3.new(20, 2/10, 20)
 			oilPuddle.Anchored = true
 			oilPuddle.CanCollide = false
-			oilPuddle.Transparency = 0.4
+			oilPuddle.Transparency = 4/10
 			oilPuddle.BrickColor = BrickColor.new("Black")
 			oilPuddle.Material = Enum.Material.SmoothPlastic
 			oilPuddle.Parent = Workspace
@@ -393,7 +393,7 @@ local function spawnAestheticFire(gateMarkers: { any }): ()
 			smoke.Name = "SmokeEffect"
 			smoke.RiseVelocity = 2
 			smoke.Size = 3
-			smoke.Opacity = 0.3
+			smoke.Opacity = 3/10
 			smoke.Color = Color3.fromRGB(80, 80, 80)
 			smoke.Parent = firePart
 

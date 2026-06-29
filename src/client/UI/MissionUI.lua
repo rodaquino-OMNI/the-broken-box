@@ -146,15 +146,15 @@ local function createV1UI(parent: Frame): ()
 
 	local positions = {
 		UDim2.new(0, 10, 0, 10),
-		UDim2.new(0.5, 5, 0, 10),
-		UDim2.new(0, 10, 0.5, 5),
-		UDim2.new(0.5, 5, 0.5, 5),
+		UDim2.new(5/10, 5, 0, 10),
+		UDim2.new(0, 10, 5/10, 5),
+		UDim2.new(5/10, 5, 5/10, 5),
 	}
 
 	for i = 1, 4 do
 		local leverBtn = createElement("TextButton", grid, {
 			Name = "Lever" .. i,
-			Size = UDim2.new(0.5, -15, 0.5, -15),
+			Size = UDim2.new(5/10, -15, 5/10, -15),
 			Position = positions[i],
 			BackgroundColor3 = Color3.fromRGB(150, 50, 50),
 			Text = "←",
@@ -316,7 +316,7 @@ local function createV2UI(parent: Frame): ()
 			if cableIndex ~= _v2NextCable then
 				-- Feedback: piscar vermelho
 				cableBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-				task.wait(0.2)
+				task.wait(2/10)
 				if _v2CableStates[cableIndex] then
 					cableBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
 				else
@@ -412,7 +412,7 @@ local function createV3UI(parent: Frame): ()
 	local circleContainer = createElement("Frame", parent, {
 		Name = "CircleContainer",
 		Size = UDim2.new(0, circleSize, 0, circleSize),
-		Position = UDim2.new(0.5, -circleSize/2, 0, 35),
+		Position = UDim2.new(5/10, -circleSize/2, 0, 35),
 		BackgroundTransparency = 1,
 	})
 
@@ -425,7 +425,7 @@ local function createV3UI(parent: Frame): ()
 	})
 	-- Aproximacao de circulo via UICorner
 	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.CornerRadius = UDim.new(5/10, 0)
 	corner.Parent = bgCircle
 
 	-- Zona de acerto (arco verde)
@@ -438,15 +438,15 @@ local function createV3UI(parent: Frame): ()
 		ZIndex = 1,
 	})
 	local zoneCorner = Instance.new("UICorner")
-	zoneCorner.CornerRadius = UDim.new(0.5, 0)
+	zoneCorner.CornerRadius = UDim.new(5/10, 0)
 	zoneCorner.Parent = zoneIndicator
 
 	-- Ponteiro (linha radial)
 	_v3PointerFrame = createElement("Frame", circleContainer, {
 		Name = "Pointer",
-		Size = UDim2.new(0, 3, 0.5, 0),
-		Position = UDim2.new(0.5, -1, 0, 0),
-		AnchorPoint = Vector2.new(0.5, 0),
+		Size = UDim2.new(0, 3, 5/10, 0),
+		Position = UDim2.new(5/10, -1, 0, 0),
+		AnchorPoint = Vector2.new(5/10, 0),
 		BackgroundColor3 = Color3.fromRGB(255, 50, 50),
 		BorderSizePixel = 0,
 		ZIndex = 5,
@@ -493,7 +493,7 @@ local function createV3UI(parent: Frame): ()
 			-- Feedback: piscar vermelho
 			if bgCircle then
 				bgCircle.BackgroundColor3 = Color3.fromRGB(80, 20, 20)
-				task.delay(0.3, function()
+				task.delay(3/10, function()
 					if bgCircle and not _v3IsLocked then
 						bgCircle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 					end
@@ -611,7 +611,7 @@ function MissionUI.openMission(missionId: string, missionType: string): ()
 	local mainFrame = createElement("Frame", _screenGui, {
 		Name = "MissionFrame",
 		Size = UDim2.new(0, 300, 0, 280),
-		Position = UDim2.new(0.5, -150, 0.5, -140),
+		Position = UDim2.new(5/10, -150, 5/10, -140),
 		BackgroundColor3 = Color3.fromRGB(20, 20, 20),
 		BackgroundTransparency = 3/10,
 		BorderSizePixel = 1,
@@ -706,7 +706,7 @@ local function checkMovementCancel(): ()
 	if not _missionActive then return end
 
 	local now = os.clock()
-	if now - _lastMoveCheckTime < 0.3 then
+	if now - _lastMoveCheckTime < 3/10 then
 		return -- Verificar a cada 300ms
 	end
 	_lastMoveCheckTime = now
@@ -723,7 +723,7 @@ local function checkMovementCancel(): ()
 	end
 
 	-- Se a velocidade do Humanoid for significativa, cancelar
-	if humanoid.MoveDirection.Magnitude > 0.1 then
+	if humanoid.MoveDirection.Magnitude > 1/10 then
 		MissionUI.cancelMission("movement")
 	end
 end
@@ -799,7 +799,7 @@ function MissionUI.Start(): ()
 	task.spawn(function()
 		while true do
 			checkMovementCancel()
-			task.wait(0.3)
+			task.wait(3/10)
 		end
 	end)
 
