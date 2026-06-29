@@ -28,16 +28,16 @@ local ER = C.DISTORTION_RADIUS; local HR = C.HEARTBEAT_RADIUS
 local ID = {
 	L="rbxassetid://116136939478767", M="rbxassetid://82683955258091",
 	CHASE="rbxassetid://139063675026894",  -- single music file
-	F="rbxassetid://92687155223324", HB="rbxassetid://0",
+	F="rbxassetid://92687155223324", HB="rbxassetid://6724333590",
 	MC="rbxassetid://78428575828816", PD="rbxassetid://82243172488255", DMG="rbxassetid://140209514807090",
 	RAGE="rbxassetid://135233497786577", GATE="rbxassetid://137752300000769", FIRE="rbxassetid://0",
 }
 
 local CHASE_SECTIONS = {
 	[1] = 0,     -- section 1 starts at 0:00 (intro)
-	[2] = 30,    -- section 2 starts at 0:30 (build)
-	[3] = 60,    -- section 3 starts at 1:00 (climax)
-	[4] = 90,    -- section 4 starts at 1:30 (peak)
+	[2] = 14,    -- section 2 starts at 0:30 (build)
+	[3] = 21,    -- section 3 starts at 1:00 (climax)
+	[4] = 36,    -- section 4 starts at 1:30 (peak)
 }
 
 -- Fim de cada secao = inicio da proxima (ou duracao total do arquivo para ultima)

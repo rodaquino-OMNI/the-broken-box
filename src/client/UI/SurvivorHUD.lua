@@ -16,6 +16,7 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local GameConstants = require(ReplicatedStorage.GameConstants)
+local GameStateEvent = require(ReplicatedStorage.Events.GameStateEvent)
 local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 
 local SurvivorHUD = {}
@@ -65,6 +66,7 @@ local function createHUD(): ()
 	screenGui = Instance.new("ScreenGui")
 	screenGui.Name = "SurvivorHUD"
 	screenGui.ResetOnSpawn = false
+	screenGui.Enabled = false  -- Inicia oculto, sera mostrado ao receber ROLE_ASSIGNED
 	screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- Frame principal (canto superior esquerdo)
@@ -484,6 +486,21 @@ end
 local function onUISyncMessage(message: {any}): ()
 	local msgType = message.type
 	local data = message.data
+
+	-- ROLE_ASSIGNED: controla visibilidade do HUD baseado no papel
+	if msgType == GameStateEvent.MESSAGES.ROLE_ASSIGNED then
+		local role = data and data.role
+		if screenGui then
+			if role == "Survivor" then
+				screenGui.Enabled = true
+				print("[TheBrokenBox] SurvivorHUD: Papel Survivor - HUD ativado.")
+			else
+				screenGui.Enabled = false
+				print("[TheBrokenBox] SurvivorHUD: Papel " .. tostring(role) .. " - HUD ocultado.")
+			end
+		end
+		return
+	end
 
 	if msgType == "HUD_UPDATE" then
 		-- Atualizacao por frame (~60Hz)

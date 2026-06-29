@@ -117,8 +117,7 @@ local function updateMovement()
 	local isSprinting = isMoving and UserInputService:IsKeyDown(InputManager.DefaultBinds.Sprint)
 
 	-- Move character locally via Humanoid (immediate client-side movement)
-	-- This is the Roblox built-in movement — the engine handles walking,
-	-- we just tell it which direction. Server notification below is for anti-cheat.
+	-- Uses :Move() instead of MoveDirection (read-only in newer Roblox)
 	local character = LocalPlayer.Character
 	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -140,14 +139,14 @@ local function updateMovement()
 					local right = Vector3.new(camRight.X, 0, camRight.Z).Unit
 					-- direction.Z = -1 forward, +1 back; direction.X = -1 left, +1 right
 					local worldDir = forward * (-direction.Z) + right * direction.X
-					humanoid.MoveDirection = worldDir.Magnitude > 0 and worldDir.Unit or worldDir
+					humanoid:Move(worldDir.Magnitude > 0 and worldDir.Unit or worldDir, isSprinting)
 				else
-					humanoid.MoveDirection = Vector3.new(direction.X, 0, direction.Z)
+					humanoid:Move(Vector3.new(direction.X, 0, direction.Z), isSprinting)
 				end
 				-- Sprint: boost WalkSpeed (client-side prediction)
 				humanoid.WalkSpeed = isSprinting and (_baseWalkSpeed * 2) or _baseWalkSpeed
 			else
-				humanoid.MoveDirection = Vector3.new(0, 0, 0)
+				humanoid:Move(Vector3.new(0, 0, 0), false)
 				humanoid.WalkSpeed = _baseWalkSpeed or humanoid.WalkSpeed
 			end
 		end

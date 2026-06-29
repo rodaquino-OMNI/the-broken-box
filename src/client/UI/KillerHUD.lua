@@ -24,6 +24,7 @@ local LocalPlayer = Players.LocalPlayer
 -- Dependencias compartilhadas
 local GameConstants = require(ReplicatedStorage.GameConstants)
 local UISyncEvent = require(ReplicatedStorage.Events.UISyncEvent)
+local GameStateEvent = require(ReplicatedStorage.Events.GameStateEvent)
 local RemoteEventUtils = require(ReplicatedStorage.Util.RemoteEventUtils)
 
 local KillerHUD = {}
@@ -51,6 +52,11 @@ local _cachedCycleTime: number = 240
 local _uiSyncEvent: RemoteEvent = nil
 local _uiSyncConnection: RBXScriptConnection = nil
 
+-- Conexao do GameStateEvent (para ROLE_ASSIGNED)
+local _gameStateEvent: RemoteEvent = nil
+local _gameStateConnection: RBXScriptConnection = nil
+local _playerRole: string? = nil  -- "Hunter" | "Survivor" | nil
+
 -- ============================================================
 -- Constantes visuais (estilo retraux)
 -- ============================================================
@@ -75,6 +81,7 @@ local function createUI()
 	_screenGui = Instance.new("ScreenGui")
 	_screenGui.Name = "KillerHUD"
 	_screenGui.ResetOnSpawn = false
+	_screenGui.Enabled = false  -- Inicia oculto, sera mostrado ao receber ROLE_ASSIGNED
 	_screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 	-- ============================================================
@@ -320,6 +327,31 @@ local function onUISync(_player: Player, message: {any})
 end
 
 -- ============================================================
+-- Processamento de mensagens do GameStateEvent
+-- ============================================================
+
+--[[
+  Callback quando recebe mensagem do GameStateEvent.
+  Gerencia visibilidade do HUD baseado no papel (ROLE_ASSIGNED).
+]]
+local function onGameState(_player: Player, message: {any})
+	if message.type == GameStateEvent.MESSAGES.ROLE_ASSIGNED then
+		local role = message.data and message.data.role
+		_playerRole = role
+
+		if _screenGui then
+			if role == "Hunter" then
+				_screenGui.Enabled = true
+				print("[TheBrokenBox] KillerHUD: Papel Hunter - HUD ativado.")
+			else
+				_screenGui.Enabled = false
+				print("[TheBrokenBox] KillerHUD: Papel " .. tostring(role) .. " - HUD ocultado.")
+			end
+		end
+	end
+end
+
+-- ============================================================
 -- Init/Start pattern
 -- ============================================================
 
@@ -333,6 +365,7 @@ function KillerHUD.Init(): ()
 	local eventsFolder = ReplicatedStorage:FindFirstChild("Events")
 	if eventsFolder then
 		_uiSyncEvent = RemoteEventUtils.findRemoteEvent(eventsFolder, UISyncEvent.NAME)
+		_gameStateEvent = RemoteEventUtils.findRemoteEvent(eventsFolder, GameStateEvent.NAME)
 	end
 
 	if not _uiSyncEvent then
@@ -360,6 +393,14 @@ function KillerHUD.Start(): ()
 		print("[TheBrokenBox] KillerHUD: Listener do UISyncEvent conectado.")
 	else
 		warn("[TheBrokenBox] KillerHUD: UISyncEvent nao disponivel! HUD nao recebera atualizacoes.")
+	end
+
+	-- Conectar ao GameStateEvent para ROLE_ASSIGNED
+	if _gameStateEvent then
+		_gameStateConnection = _gameStateEvent.OnClientEvent:Connect(onGameState)
+		print("[TheBrokenBox] KillerHUD: Listener do GameStateEvent (ROLE_ASSIGNED) conectado.")
+	else
+		warn("[TheBrokenBox] KillerHUD: GameStateEvent nao disponivel! HUD nao respondera a ROLE_ASSIGNED.")
 	end
 
 	print("[TheBrokenBox] KillerHUD pronto. Furia: 0, Vivos: ?")
