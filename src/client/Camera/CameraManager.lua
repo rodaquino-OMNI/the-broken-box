@@ -54,12 +54,9 @@ local function setThirdPerson()
 		return
 	end
 
-	camera.CameraType = Enum.CameraType.Custom
+	-- 3a pessoa: Roblox gerencia, apenas ajustar FOV
 	camera.FieldOfView = DEFAULT_FOV
-
-	_targetDistance = THIRD_PERSON_DISTANCE
 	_currentPerspective = "ThirdPerson"
-	_isTransitioning = true
 
 	print("[TheBrokenBox] CameraManager: Alternando para 3a pessoa")
 end
@@ -99,44 +96,16 @@ local function updateCamera(_deltaTime: number)
 		return
 	end
 
-	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-	if not humanoidRootPart then
+	-- 3a pessoa: Roblox gerencia automaticamente, nao mexer
+	if _currentPerspective == "ThirdPerson" then
 		return
 	end
 
-	-- Suavizar transicao de distancia
-	if _isTransitioning then
-		_currentDistance = _currentDistance + (_targetDistance - _currentDistance) * math.min(1, TRANSITION_SPEED * _deltaTime)
-		if math.abs(_currentDistance - _targetDistance) < 1/100 then
-			_currentDistance = _targetDistance
-			_isTransitioning = false
-		end
-	end
-
-	-- Posicionar a camera atras do personagem
-	-- A direcao e baseada na orientacao da camera, nao do personagem (controle pelo mouse)
-	-- O Roblox gerencia automaticamente a rotacao via Camera.CFrame
-	-- Aqui apenas definimos o modo e distancia
-
-	-- A camera Custom com CameraSubject = humanoid ja faz o tracking
-	-- Definimos a distancia via Camera.CFrame manualmente se necessario
-	camera.CameraSubject = humanoidRootPart
-
-	-- Ajustar distancia (zoom)
-	-- Em 3a pessoa: camera fica atras a uma distancia fixa
-	-- Em 1a pessoa: camera fica na posicao da cabeca
-	if _currentPerspective == "FirstPerson" then
-		-- Primeira pessoa: colocar camera na posicao da cabeca
-		local head = character:FindFirstChild("Head")
-		if head then
-			local headCFrame = head.CFrame
-			camera.CFrame = headCFrame
-		end
-	else
-		-- Terceira pessoa: o Roblox gerencia automaticamente
-		-- a posicao da camera atras do personagem
-		-- Apenas definimos a distancia maxima
+	-- 1a pessoa: posicionar camera na cabeca
+	local head = character:FindFirstChild("Head")
+	if head then
 		camera.CameraType = Enum.CameraType.Custom
+		camera.CFrame = head.CFrame
 	end
 end
 
@@ -214,13 +183,7 @@ end
 function CameraManager.Init(): ()
 	print("[TheBrokenBox] CameraManager.Init()")
 
-	-- Configurar camera inicial
-	local camera = workspace.CurrentCamera
-	if camera then
-		camera.FieldOfView = DEFAULT_FOV
-		camera.CameraType = Enum.CameraType.Custom
-	end
-
+	-- Deixar o Roblox gerenciar a camera (3a pessoa padrao)
 	_currentPerspective = "ThirdPerson"
 	_currentDistance = THIRD_PERSON_DISTANCE
 	_targetDistance = THIRD_PERSON_DISTANCE
